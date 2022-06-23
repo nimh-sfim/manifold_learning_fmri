@@ -21,6 +21,8 @@
 import skdim
 import pandas as pd
 import plotly.express as px
+import panel as pn
+pn.extension('plotly')
 
 from matplotlib.cm import get_cmap
 from matplotlib.colors import rgb2hex
@@ -43,93 +45,104 @@ hsv4_cs
 #
 # The first panel will show a dataset with points sitting on a 3D sphere. Such an object is expected to have a global ID = 3, yet locally it should have 2, as all datapoints lie on the surface of the sphere
 
-data1 = pd.DataFrame(skdim.datasets.hyperSphere(n=5000, random_state = 0, d=3), columns=['x','y','z'])
-data1.loc[:,'lid'] = pca.fit_pw(data1,n_neighbors=25).dimension_pw_
-data1['lid'] = data1['lid'].astype(str)
-data1['size'] = 1
-trace1 = px.scatter_3d(data1,x='x',y='y',z='z', width=400, height=400, color='lid', size='size', size_max=5, color_discrete_map=hsv4_map)
-trace1.update_layout(margin=dict(l=0, r=0, b=0, t=0))
-trace1.update_traces(marker=dict(line=dict(width=0)))
-print('++ INFO: Global ID = %f' % pca.fit(data1).dimension_)
-trace1
+sphere3d_data = pd.DataFrame(skdim.datasets.hyperSphere(n=5000, random_state = 0, d=3), columns=['x','y','z'])
+sphere3d_data.loc[:,'IDlocal'] = pca.fit_pw(sphere3d_data,n_neighbors=25).dimension_pw_
+sphere3d_data['IDlocal'] = sphere3d_data['IDlocal'].astype(str)
+sphere3d_data['size'] = 1
+sphere3d_trace = px.scatter_3d(sphere3d_data,x='x',y='y',z='z', width=400, height=400, color='IDlocal', size='size', size_max=5, color_discrete_map=hsv4_map)
+sphere3d_trace.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+sphere3d_trace.update_traces(marker=dict(line=dict(width=0)))
+print('++ INFO: Global ID = %f for 3D shpere' % pca.fit(sphere3d_data).dimension_)
 
 # The second panel will show a dataset with points forming a 3D ball. Such an object is expected to have both a global and local ID = 3.
 
-data1 = pd.DataFrame(skdim.datasets.hyperBall(n=5000, random_state = 0, d=3), columns=['x','y','z'])
-data1.loc[:,'lid'] = pca.fit_pw(data1,n_neighbors=25).dimension_pw_
-data1['lid'] = data1['lid'].astype(str)
-data1['size'] = 1
-trace1 = px.scatter_3d(data1,x='x',y='y',z='z', width=400, height=400, color='lid', size='size', size_max=5, color_discrete_map=hsv4_map)
-trace1.update_layout(margin=dict(l=0, r=0, b=0, t=0))
-trace1.update_traces(marker=dict(line=dict(width=0)))
-print('++ INFO: Global ID = %f' % pca.fit(data1).dimension_)
-trace1
+ball3d_data = pd.DataFrame(skdim.datasets.hyperBall(n=5000, random_state = 0, d=3), columns=['x','y','z'])
+ball3d_data.loc[:,'IDlocal'] = pca.fit_pw(ball3d_data,n_neighbors=25).dimension_pw_
+ball3d_data['IDlocal'] = ball3d_data['IDlocal'].astype(str)
+ball3d_data['size'] = 1
+ball3d_trace = px.scatter_3d(ball3d_data,x='x',y='y',z='z', width=400, height=400, color='IDlocal', size='size', size_max=5, color_discrete_map=hsv4_map)
+ball3d_trace.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+ball3d_trace.update_traces(marker=dict(line=dict(width=0)))
+print('++ INFO: Global ID = %f for 3D ball' % pca.fit(ball3d_data).dimension_)
 
 # Finally, panel (C) shows an example of a dataset sitting in a 3D space (global ID = 3), yet with 3 different distinct sections, a line (local ID = 1), an eliptical plane (local ID = 2) and an eliptical ball (local ID = 3).
 
-data1, clusters = skdim.datasets.lineDiskBall(n=5000, random_state = 0)
-data1 = pd.DataFrame(data1, columns=['x','y','z'])
-data1.loc[:,'lid'] = pca.fit_pw(data1,n_neighbors=25).dimension_pw_
-data1['lid'] = data1['lid'].astype(str)
-data1['size'] = 1
-trace1 = px.scatter_3d(data1,x='x',y='y',z='z', width=400, height=400, color='lid', size='size', size_max=5, color_discrete_map=hsv4_map)
-trace1.update_layout(margin=dict(l=0, r=0, b=0, t=0))
-trace1.update_traces(marker=dict(line=dict(width=0)))
-print('++ INFO: Global ID = %f' % pca.fit(data1).dimension_)
-trace1
+lbs_data, clusters = skdim.datasets.lineDiskBall(n=5000, random_state = 0)
+lbs_data = pd.DataFrame(lbs_data, columns=['x','y','z'])
+lbs_data.loc[:,'IDlocal'] = pca.fit_pw(lbs_data,n_neighbors=25).dimension_pw_
+lbs_data['IDlocal'] = lbs_data['IDlocal'].astype(str)
+lbs_data['size'] = 1
+lbs_trace = px.scatter_3d(lbs_data,x='x',y='y',z='z', width=400, height=400, color='IDlocal', size='size', size_max=5, color_discrete_map=hsv4_map)
+lbs_trace.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+lbs_trace.update_traces(marker=dict(line=dict(width=0)))
+print('++ INFO: Global ID = %f for Line/Sphere/Ball dataset' % pca.fit(lbs_data).dimension_)
 
+pn.Row(pn.Column(pn.pane.Markdown('#(A)'),pn.pane.Plotly(sphere3d_trace)),
+       pn.Column(pn.pane.Markdown('#(B)'),pn.pane.Plotly(ball3d_trace)), 
+       pn.Column(pn.pane.Markdown('#(C)'),pn.pane.Plotly(lbs_trace)))
+
+# ***
 # ## Twin Peaks example
 #
 # We will use this other dataset to explore how IDlocal depends on how well the manifold is sampled and also on the size of the neighborhood used for estimation.
 #
 # First we create three equivalent datasets with different number of samples
 
-data1 = pd.DataFrame(skdim.datasets.hyperTwinPeaks(n=2000, random_state = 0), columns=['x','y','z'])
-data2 = pd.DataFrame(skdim.datasets.hyperTwinPeaks(n=5000, random_state = 0), columns=['x','y','z'])
-data3 = pd.DataFrame(skdim.datasets.hyperTwinPeaks(n=10000, random_state = 0), columns=['x','y','z'])
+tp2000_data  = pd.DataFrame(skdim.datasets.hyperTwinPeaks(n=2000, random_state = 0), columns=['x','y','z'])
+tp5000_data  = pd.DataFrame(skdim.datasets.hyperTwinPeaks(n=5000, random_state = 0), columns=['x','y','z'])
+tp10000_data = pd.DataFrame(skdim.datasets.hyperTwinPeaks(n=10000, random_state = 0), columns=['x','y','z'])
 
 # Next, we estimate the local ID for the three datasets using three different neighborhood sizes, namely 25, 50 and 100.
 
 # %%time
 #local ID (pointwise estimates)
-for data in [data1,data2,data3]:
+for data in [tp2000_data,tp5000_data,tp10000_data]:
     data['size'] = 1
     for knn in [25,50,100]:
         lid = pca.fit_pw(data,n_neighbors=knn).dimension_pw_
-        data.loc[:,'lid_{}'.format(str(knn))] = lid
-        data['lid_{}'.format(str(knn))] = data['lid_{}'.format(str(knn))].astype(str)
+        data.loc[:,'IDlocal_knn{}'.format(str(knn))] = lid
+        data['IDlocal_knn{}'.format(str(knn))] = data['IDlocal_knn{}'.format(str(knn))].astype(str)
 
-# ### Results for lowest density and knn=25
+# ### Changes in IDlocal with data density
 
-trace1 = px.scatter_3d(data1,x='x',y='y',z='z', width=400, height=400, color='lid_25', size='size', size_max=5, color_discrete_map=hsv4_map)
-trace1.update_layout(margin=dict(l=0, r=0, b=0, t=0))
-trace1.update_traces(marker=dict(line=dict(width=0)))
-trace1.update_layout(scene_camera=camera)
+# +
+tp2000_trace = px.scatter_3d(tp2000_data,x='x',y='y',z='z', width=400, height=400, color='IDlocal_knn25', size='size', size_max=5, color_discrete_map=hsv4_map)
+tp2000_trace.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+tp2000_trace.update_traces(marker=dict(line=dict(width=0)))
+tp2000_trace.update_layout(scene_camera=camera);
 
-# ### Results for middle density and knn=25
+tp5000_trace = px.scatter_3d(tp5000_data,x='x',y='y',z='z', width=400, height=400, color='IDlocal_knn25', size='size', size_max=5, color_discrete_map=hsv4_map)
+tp5000_trace.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+tp5000_trace.update_traces(marker=dict(line=dict(width=0)))
+tp5000_trace.update_layout(scene_camera=camera);
 
-trace2 = px.scatter_3d(data2,x='x',y='y',z='z', width=400, height=400, color='lid_25',  size='size', size_max=5,color_discrete_map=hsv4_map)
-trace2.update_layout(scene_camera=camera)
-trace2.update_layout(margin=dict(l=0, r=0, b=0, t=0))
-trace2.update_traces(marker=dict(line=dict(width=0)))
+tp10000_trace = px.scatter_3d(tp10000_data,x='x',y='y',z='z', width=400, height=400, color='IDlocal_knn25', size='size', size_max=5, color_discrete_map=hsv4_map)
+tp10000_trace.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+tp10000_trace.update_traces(marker=dict(line=dict(width=0)))
+tp10000_trace.update_layout(scene_camera=camera);
+# -
 
-# ### Results for higher density and knn=25
+pn.Column(pn.pane.Markdown('# (D) Local ID as a function of sample density'),
+          pn.Row(pn.pane.Plotly(tp2000_trace),pn.pane.Plotly(tp5000_trace),pn.pane.Plotly(tp10000_trace)))
 
-trace3 = px.scatter_3d(data3,x='x',y='y',z='z', width=400, height=400, color='lid_25', size='size', size_max=5,color_discrete_map=hsv4_map)
-trace3.update_layout(margin=dict(l=0, r=0, b=0, t=0))
-trace3.update_traces(marker=dict(line=dict(width=0)))
-trace3.update_layout(scene_camera=camera)
+# ### Changes in IDlocal as a function of neighborhood size
 
-# ### Results for lower density and knn=50
+# +
+tp2000_knn25_trace = px.scatter_3d(tp2000_data,x='x',y='y',z='z', width=400, height=400, color='IDlocal_knn25', size='size', size_max=5, color_discrete_map=hsv4_map)
+tp2000_knn25_trace.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+tp2000_knn25_trace.update_traces(marker=dict(line=dict(width=0)))
+tp2000_knn25_trace.update_layout(scene_camera=camera);
 
-trace1 = px.scatter_3d(data1,x='x',y='y',z='z', width=400, height=400, color='lid_50', size='size', size_max=5,color_discrete_map=hsv4_map)
-trace1.update_layout(margin=dict(l=0, r=0, b=0, t=0))
-trace1.update_traces(marker=dict(line=dict(width=0)))
-trace1.update_layout(scene_camera=camera)
+tp2000_knn50_trace = px.scatter_3d(tp2000_data,x='x',y='y',z='z', width=400, height=400, color='IDlocal_knn50', size='size', size_max=5, color_discrete_map=hsv4_map)
+tp2000_knn50_trace.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+tp2000_knn50_trace.update_traces(marker=dict(line=dict(width=0)))
+tp2000_knn50_trace.update_layout(scene_camera=camera);
 
-# ### Results for lower density and knn=100
+tp2000_knn100_trace = px.scatter_3d(tp2000_data,x='x',y='y',z='z', width=400, height=400, color='IDlocal_knn100', size='size', size_max=5, color_discrete_map=hsv4_map)
+tp2000_knn100_trace.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+tp2000_knn100_trace.update_traces(marker=dict(line=dict(width=0)))
+tp2000_knn100_trace.update_layout(scene_camera=camera);
+# -
 
-trace1 = px.scatter_3d(data1,x='x',y='y',z='z', width=400, height=400, color='lid_100', size='size', size_max=5,color_discrete_map=hsv4_map)
-trace1.update_layout(scene_camera=camera)
-trace1.update_layout(margin=dict(l=0, r=0, b=0, t=0))
-trace1.update_traces(marker=dict(line=dict(width=0)))
+pn.Column(pn.pane.Markdown('# (D) Local ID as a function of neighborhood size'),
+          pn.Row(pn.pane.Plotly(tp2000_knn25_trace),pn.pane.Plotly(tp2000_knn50_trace),pn.pane.Plotly(tp2000_knn100_trace)))
