@@ -61,7 +61,7 @@ scene_incorrect_le = dict(
 # *** 
 # ## 1. Load ROI timeseries for one scan
 
-roi_ts = pd.read_csv('/data/SFIMJGC_HCP7T/manifold_learning_fmri/Resources/Figure01/sbj06_ctask001_nroi0200_wl030_ws001.csv', index_col=[0])
+roi_ts = pd.read_csv(osp.join(fig01_resource_folder,'sbj06_ctask001_nroi0200_wl030_ws001.csv'), index_col=[0])
 
 print('++ INFO: Time series dataframe shape: % s' % str(roi_ts.shape))
 roi_ts.head(5)
@@ -69,15 +69,20 @@ roi_ts.head(5)
 # ***
 # ## 2. Compute Sliding Window Correlation
 
+win_labels = np.loadtxt('/data/SFIMJGC_HCP7T/manifold_learning_fmri/Resources/Figure01/winlabels_wl030_ws001.csv', dtype='str')
+
 # %%time
-swc_r,swc_Z, winInfo = compute_SWC(roi_ts,WL_trs,WS_trs,win_names=None,window=None)
+swc_r,swc_Z, winInfo = compute_SWC(roi_ts,WL_trs,WS_trs,win_names=win_labels,window=None)
 swc_r.index.name = 'Connections'
 swc_Z.index.name = 'Connections'
 print("++ INFO: Size of sliding window correlation: %s" % str(swc_r.shape))
 
-# For plotting purposes, we need to know what task was being performed during each window. This information is loaded now into the win_labels variable.
+swc_r.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.csv'))
+swc_Z.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv'))
 
-win_labels = np.loadtxt('/data/SFIMJGC_HCP7T/manifold_learning_fmri/Resources/Figure01/winlabels_wl030_ws001.csv', dtype='str')
+swc_r
+
+# For plotting purposes, we need to know what task was being performed during each window. This information is loaded now into the win_labels variable.
 
 # ## 3. Compute Different Matrix Sortings
 #
