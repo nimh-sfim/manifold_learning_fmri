@@ -61,7 +61,7 @@ norm_laplacian    = True        # Whether or not to use the normalized version o
 #
 # First we load a tvFC matrix for a representative run from the multi-task dataset. Entries in this matrix are the Fisher's transform of the Pearson's correlation between windowed ROI timeseries.
 
-swc_path    = osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv')
+swc_path    = osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv.gz')
 swc         = pd.read_csv(swc_path, index_col=[0,1], header=0)
 # Becuase pandas does not like duplicate column names, it automatically adds .1, .2, etc to the names. We delete those next
 swc.columns = swc.columns.str.split('.').str[0]
