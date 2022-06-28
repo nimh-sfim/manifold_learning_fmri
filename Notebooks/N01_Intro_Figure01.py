@@ -77,8 +77,8 @@ swc_r.index.name = 'Connections'
 swc_Z.index.name = 'Connections'
 print("++ INFO: Size of sliding window correlation: %s" % str(swc_r.shape))
 
-swc_r.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.csv'))
-swc_Z.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv'))
+swc_r.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.csv'), float_format='%.2f')
+swc_Z.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv'), float_format='%.2f')
 
 swc_r
 
