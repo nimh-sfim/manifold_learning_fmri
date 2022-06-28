@@ -334,7 +334,8 @@ fig.update_layout(scene_camera=camera,margin=dict(l=0, r=0, b=0, t=0))
 fig.update_traces(marker=dict(line=dict(width=0)))
 fig.write_image('./N03_LEmethodology_Figure03/embedding_3d_sklearn.png')
 
-# Hello
+# Hello there
+#
 # ![](N03_LEmethodology_Figure03/embedding_3d_sklearn.png)
 
 
