@@ -335,7 +335,7 @@ fig.update_traces(marker=dict(line=dict(width=0)))
 fig.write_image('./N03_LEmethodology_Figure03/embedding_3d_sklearn.png')
 
 # Hello there
-#
+# <img src="N03_LEmethodology_Figure03/embedding_3d_sklearn.png" width="400" />
 # ![](N03_LEmethodology_Figure03/embedding_3d_sklearn.png)
 
 
