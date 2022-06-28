@@ -146,3 +146,5 @@ tp2000_knn100_trace.update_layout(scene_camera=camera);
 
 pn.Column(pn.pane.Markdown('# (D) Local ID as a function of neighborhood size'),
           pn.Row(pn.pane.Plotly(tp2000_knn25_trace),pn.pane.Plotly(tp2000_knn50_trace),pn.pane.Plotly(tp2000_knn100_trace)))
+
+
