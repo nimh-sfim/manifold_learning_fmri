@@ -333,11 +333,8 @@ camera = dict(
 fig.update_layout(scene_camera=camera,margin=dict(l=0, r=0, b=0, t=0))
 fig.update_traces(marker=dict(line=dict(width=0)))
 fig.write_image('./N03_LEmethodology_Figure03/embedding_3d_sklearn.png')
-# This shows a static version of the figure (for github). If running the notebook yourself, simply add fig.show() to a new cell
-# so you can see and interact with the graph
-text="![](./N03_LEmethodology_Figure03/embedding_3d_sklearn.png)"
-md("%s"%(text))
 
+# Hello
 # ![](./N03_LEmethodology_Figure03/embedding_3d_sklearn.png)
 
 
