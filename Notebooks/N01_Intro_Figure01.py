@@ -30,6 +30,7 @@ import panel as pn
 import seaborn as sns
 import plotly.express as px
 from matplotlib.patches import Rectangle
+import matplotlib.image as mpimg
 pn.extension('plotly')
 
 from utils.data_functions import compute_SWC
@@ -200,6 +201,20 @@ fig_task_bad.update_layout(scene_camera=camera,scene=scene_incorrect_le,scene_as
 
 pn.Column(pn.Row(pn.pane.Plotly(fig_nocolor),pn.pane.Plotly(fig_time)),
           pn.Row(pn.pane.Plotly(fig_task),pn.pane.Plotly(fig_task_bad)))
+
+# Static Version for display in github
+fig_time.write_image('../Resources/Figure01/fig_time.png')
+fig_nocolor.write_image('../Resources/Figure01/fig_nocolor.png')
+fig_task.write_image('../Resources/Figure01/fig_task.png')
+fig_task_bad.write_image('../Resources/Figure01/fig_task_bad.png')
+
+# Static version for github display
+fig,axs = plt.subplots(1, 4, figsize=(30,10), sharex=True, sharey=True) 
+for i,img_path in enumerate(['../Resources/Figure01/fig_time.png','../Resources/Figure01/fig_nocolor.png',
+                        '../Resources/Figure01/fig_task.png','../Resources/Figure01/fig_task_bad.png']):
+    img = mpimg.imread(img_path)
+    axs[i].imshow(img)
+    axs[i].axis('off')
 
 # ***
 # # END OF NOTEBOOK
