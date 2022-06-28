@@ -21,6 +21,9 @@
 import skdim
 import pandas as pd
 import plotly.express as px
+from IPython.display import Image
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 import panel as pn
 pn.extension('plotly')
 
@@ -81,6 +84,20 @@ pn.Row(pn.Column(pn.pane.Markdown('#(A)'),pn.pane.Plotly(sphere3d_trace)),
        pn.Column(pn.pane.Markdown('#(B)'),pn.pane.Plotly(ball3d_trace)), 
        pn.Column(pn.pane.Markdown('#(C)'),pn.pane.Plotly(lbs_trace)))
 
+# Static version for github display
+sphere3d_trace.write_image('../Resources/Figure02/Sphere.png')
+ball3d_trace.write_image('../Resources/Figure02/Ball.png')
+lbs_trace.write_image('../Resources/Figure02/Mutli.png')
+
+# Static version for github display
+img1=mpimg.imread('../Resources/Figure02/Sphere.png')
+img2=mpimg.imread('../Resources/Figure02/Ball.png')
+img3=mpimg.imread('../Resources/Figure02/Mutli.png')
+fig,axs = plt.subplots(1, 3, figsize=(30,10), sharex=True, sharey=True) 
+for i,img in enumerate([img1,img2,img3]):
+    axs[i].imshow(img)
+    axs[i].axis('off')
+
 # ***
 # ## Twin Peaks example
 #
@@ -125,6 +142,20 @@ tp10000_trace.update_layout(scene_camera=camera);
 pn.Column(pn.pane.Markdown('# (D) Local ID as a function of sample density'),
           pn.Row(pn.pane.Plotly(tp2000_trace),pn.pane.Plotly(tp5000_trace),pn.pane.Plotly(tp10000_trace)))
 
+# Static version for github display
+tp2000_trace.write_image('../Resources/Figure02/tp2000.png')
+tp5000_trace.write_image('../Resources/Figure02/tp5000.png')
+tp10000_trace.write_image('../Resources/Figure02/tp10000.png')
+
+# Static version for github display
+img1=mpimg.imread('../Resources/Figure02/tp2000.png')
+img2=mpimg.imread('../Resources/Figure02/tp5000.png')
+img3=mpimg.imread('../Resources/Figure02/tp10000.png')
+fig,axs = plt.subplots(1, 3, figsize=(30,10), sharex=True, sharey=True) 
+for i,img in enumerate([img1,img2,img3]):
+    axs[i].imshow(img)
+    axs[i].axis('off')
+
 # ### Changes in IDlocal as a function of neighborhood size
 
 # +
@@ -146,5 +177,19 @@ tp2000_knn100_trace.update_layout(scene_camera=camera);
 
 pn.Column(pn.pane.Markdown('# (D) Local ID as a function of neighborhood size'),
           pn.Row(pn.pane.Plotly(tp2000_knn25_trace),pn.pane.Plotly(tp2000_knn50_trace),pn.pane.Plotly(tp2000_knn100_trace)))
+
+# Static version for github display
+tp2000_knn25_trace.write_image('../Resources/Figure02/tp2000_knn25.png')
+tp2000_knn50_trace.write_image('../Resources/Figure02/tp2000_knn50.png')
+tp2000_knn100_trace.write_image('../Resources/Figure02/tp2000_knn100.png')
+
+# Static version for github display
+img1=mpimg.imread('../Resources/Figure02/tp2000_knn25.png')
+img2=mpimg.imread('../Resources/Figure02/tp2000_knn50.png')
+img3=mpimg.imread('../Resources/Figure02/tp2000_knn100.png')
+fig,axs = plt.subplots(1, 3, figsize=(30,10), sharex=True, sharey=True) 
+for i,img in enumerate([img1,img2,img3]):
+    axs[i].imshow(img)
+    axs[i].axis('off')
 
 
