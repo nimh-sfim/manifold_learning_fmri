@@ -338,4 +338,6 @@ fig.write_image('./N03_LEmethodology_Figure03/embedding_3d_sklearn.png')
 text="![](./N03_LEmethodology_Figure03/embedding_3d_sklearn.png)"
 md("%s"%(text))
 
+# ![](./N03_LEmethodology_Figure03/embedding_3d_sklearn.png)
+
 
