@@ -39,7 +39,7 @@ import hvplot.networkx as hvnx
 import hvplot.pandas 
 import plotly.express as px
 import panel as pn
-from IPython.display import Markdown as md
+from IPython.display import Image
 from scipy.spatial.distance import pdist, squareform
 from sklearn.neighbors import kneighbors_graph
 from sklearn.manifold._spectral_embedding import _set_diag, _deterministic_vector_sign_flip
@@ -184,12 +184,11 @@ G   = nx.from_numpy_matrix(W.values)
 pos = nx.layout.spring_layout(G, seed=43)
 
 g_plot=hvnx.draw(G,pos,node_color='white', edge_width=0.1, edge_color='purple', node_size=150, node_edge_color='lightgray')
-pn.pane.HoloViews(g_plot).save('../Resources/Figure03//G_colored.png')
+pn.pane.HoloViews(g_plot).save('../Resources/Figure03//G_white.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add g_plot to a new cell
 # so you can see and interact with the graph
-text="![](../Resources/Figure03//G_colored.png)"
-md("%s"%(text))
+Image("../Resources/Figure03/G_white.png")
 
 # The LE algorithm makes no use of the task information when generating the lower dimensional embedding. Yet, to visualize how the graph captures imporant aspects of the multi-task dataset, below we generate an additional view of the same graph with the same layout, but this time nodes are colored according to task instead of all of them being white color
 
@@ -206,8 +205,7 @@ pn.pane.HoloViews(g_plot).save('../Resources/Figure03//G_colored.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add g_plot to a new cell
 # so you can see and interact with the graph
-text="![](../Resources/Figure03//G_colored.png)"
-md("%s"%(text))
+Image("../Resources/Figure03/G_colored.png")
 
 # ***
 # ### 4. LE STEP 3: Generate the Graph Laplacian
@@ -249,8 +247,7 @@ pn.pane.HoloViews(eigenv_values_figure).save('../Resources/Figure03/eigenvalues_
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add eigenv_values_figure to a new cell
 # so you can see and interact with the graph
-text="![](../Resources/Figure03/eigenvalues_plot.png)"
-md("%s"%(text))
+Image("../Resources/Figure03/eigenvalues_plot.png")
 
 # ***
 # ### 6. LE STEP 5: Compute Embedding
@@ -275,8 +272,7 @@ pn.pane.HoloViews(embedding_fig).save('../Resources/Figure03/embedding_plot.png'
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add embedding_fig to a new cell
 # so you can see and interact with the graph
-text="![](../Resources/Figure03/embedding_plot.png)"
-md("%s"%(text))
+Image("../Resources/Figure03/embedding_plot.png")
 
 # ***
 # ### 7. Select Dimensions and Plot (3D - Panel E)
@@ -298,18 +294,13 @@ fig.write_image('../Resources/Figure03/embedding_3d.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add fig.show() to a new cell
 # so you can see and interact with the graph
-text="![](../Resources/Figure03/embedding_3d.png)"
-md("%s"%(text))
+Image("../Resources/Figure03/embedding_3d.png")
 
 embedding_2d = LE_steps_3D.hvplot.scatter(x='D001',y='D002',color='Task',cmap=task_cmap_caps,aspect='square', fontsize={'labels':20,'ticks':16})
 pn.pane.HoloViews(embedding_2d).save('../Resources/Figure03/embedding_2d.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add embedding_2d to a new cell
 # so you can see and interact with the graph
-text="![](../Resources/Figure03/embedding_2d.png)"
-md("%s"%(text))
-
-from IPython.display import Image
 Image("../Resources/Figure03/embedding_2d.png")
 
 # ***
@@ -335,11 +326,6 @@ camera = dict(
 )
 fig.update_layout(scene_camera=camera,margin=dict(l=0, r=0, b=0, t=0))
 fig.update_traces(marker=dict(line=dict(width=0)))
-fig.write_image('./N03_LEmethodology_Figure03/embedding_3d_sklearn.png')
+fig.write_image('../Resources/Figure03/embedding_3d_sklearn.png')
 
-
-
-# Hello there
-# ![](N03_LEmethodology_Figure03/embedding_3d_sklearn.png)
-
-
+Image("../Resources/Figure03/embedding_3d_sklearn.png")
