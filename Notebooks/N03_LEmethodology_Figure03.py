@@ -309,6 +309,9 @@ pn.pane.HoloViews(embedding_2d).save('../Resources/Figure03/embedding_2d.png')
 text="![](../Resources/Figure03/embedding_2d.png)"
 md("%s"%(text))
 
+from IPython.display import Image
+Image("../Resources/Figure03/embedding_2d.png")
+
 # ***
 # ## Embedding Generated Directly using scikit-learn function SpectralEmbedding
 
@@ -334,8 +337,9 @@ fig.update_layout(scene_camera=camera,margin=dict(l=0, r=0, b=0, t=0))
 fig.update_traces(marker=dict(line=dict(width=0)))
 fig.write_image('./N03_LEmethodology_Figure03/embedding_3d_sklearn.png')
 
+
+
 # Hello there
-# <img src="./N03_LEmethodology_Figure03/embedding_3d_sklearn.png" width="400" />
 # ![](N03_LEmethodology_Figure03/embedding_3d_sklearn.png)
 
 
