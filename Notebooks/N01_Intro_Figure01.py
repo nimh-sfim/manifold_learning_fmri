@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 import panel as pn
 import seaborn as sns
 import plotly.express as px
+import csv
 from matplotlib.patches import Rectangle
 import matplotlib.image as mpimg
 pn.extension('plotly')
@@ -80,6 +81,15 @@ print("++ INFO: Size of sliding window correlation: %s" % str(swc_r.shape))
 
 swc_r.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.csv'), float_format='%.2f')
 swc_Z.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv'), float_format='%.2f')
+
+swc_r.T.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.tsv'), float_format='%.2f', sep='\t', header=None, index=None)
+swc_Z.T.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.tsv'), float_format='%.2f', sep='\t', header=None, index=None)
+
+labels = list(swc_r.columns)
+file = open(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.labels.txt'),'w+')
+for label in labels:
+    file.write(label+'\n')
+file.close()
 
 swc_r
 
