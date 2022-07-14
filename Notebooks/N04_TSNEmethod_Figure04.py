@@ -232,6 +232,9 @@ gd_obj_df.index.name = 'Iteration'
 gd_obj_df.name = 'K-L Divergence'
 gd_obj_df.hvplot(c='k', width=1000, fontsize={'labels':16,'ticks':14, 'title':18}) * hv.VLine(early_exaggeration_ends).opts(line_width=0.75, line_color='purple', line_dash='dashed')
 
+gd_obj_df.plot(figsize=(20,5),c='k', title='K-L Divergence', lw=3)
+plt.plot([early_exaggeration_ends,early_exaggeration_ends],[0,16],'m--');
+
 # Next, we plot the final embedding generated at the end of the last gradient descent iteration
 
 tsne_result_df = pd.DataFrame(Y_dict[n_iter],columns=['x','y'])
