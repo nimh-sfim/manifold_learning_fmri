@@ -90,11 +90,13 @@ swc_r.index.name = 'Connections'
 swc_Z.index.name = 'Connections'
 print("++ INFO: Size of sliding window correlation: %s" % str(swc_r.shape))
 
-swc_r.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.csv'), float_format='%.2f')
-swc_Z.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv'), float_format='%.2f')
+# %%time
+swc_r.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.csv.gz'), float_format='%.2f', compression='gzip')
+swc_Z.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv.gz'), float_format='%.2f', compression='gzip')
 
-swc_r.T.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.tsv'), float_format='%.2f', sep='\t', header=None, index=None)
-swc_Z.T.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.tsv'), float_format='%.2f', sep='\t', header=None, index=None)
+# %%time
+swc_r.T.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.tsv.gz'), float_format='%.2f', sep='\t', header=None, index=None, compression='gzip')
+swc_Z.T.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.tsv.gz'), float_format='%.2f', sep='\t', header=None, index=None, compression='gzip')
 
 labels = list(swc_r.columns)
 file = open(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.labels.txt'),'w+')
