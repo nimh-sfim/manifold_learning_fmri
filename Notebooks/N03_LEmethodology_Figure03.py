@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.9.1
+#       jupytext_version: 1.12.0
 #   kernelspec:
 #     display_name: Embeddings2 + Sdim
 #     language: python
@@ -184,7 +184,7 @@ G   = nx.from_numpy_matrix(W.values)
 pos = nx.layout.spring_layout(G, seed=43)
 
 g_plot=hvnx.draw(G,pos,node_color='white', edge_width=0.1, edge_color='purple', node_size=150, node_edge_color='lightgray')
-pn.pane.HoloViews(g_plot).save('../Resources/Figure03//G_white.png')
+pn.pane.HoloViews(g_plot).save('../Resources/Figure03/G_white.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add g_plot to a new cell
 # so you can see and interact with the graph
@@ -329,3 +329,5 @@ fig.update_traces(marker=dict(line=dict(width=0)))
 fig.write_image('../Resources/Figure03/embedding_3d_sklearn.png')
 
 Image("../Resources/Figure03/embedding_3d_sklearn.png")
+
+
