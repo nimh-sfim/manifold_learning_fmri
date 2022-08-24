@@ -280,5 +280,6 @@ print('++ INFO: Second Port available: %d' % port_tunnel)
 
 dashboard_server = dashboard.show(port=port_tunnel,open=False)
 
-# +
-#dashboard_server.stop()
+dashboard_server.stop()
+
+
