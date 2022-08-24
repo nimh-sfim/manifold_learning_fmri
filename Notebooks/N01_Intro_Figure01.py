@@ -63,15 +63,26 @@ scene_incorrect_le = dict(
 # *** 
 # ## 1. Load ROI timeseries for one scan
 
-roi_ts = pd.read_csv(osp.join(fig01_resource_folder,'sbj06_ctask001_nroi0200_wl030_ws001.csv'), index_col=[0])
+roi_path = osp.join('/data/SFIMJGC_HCP7T/manifold_learning_fmri/Data/PNAS2015/SBJ06/SBJ06_Craddock_0200.WL045s_000.netts')
+TR_secs = 1.5
+roi_ts = pd.read_csv(roi_path, sep='\t', header=None).T
+roi_ts.columns.name = 'ROI_Name'
+roi_ts.columns = ['ROI{r}'.format(r=str(i).zfill(3)) for i in np.arange(157)]
+roi_ts.index   = pd.timedelta_range(start='0',periods=roi_ts.shape[0],freq='{tr}L'.format(tr=TR_secs*1000))
+roi_ts
 
-print('++ INFO: Time series dataframe shape: % s' % str(roi_ts.shape))
-roi_ts.head(5)
+# + active=""
+# # Before I decided to recompute the roi timeseries with 3dNetCorr
+# roi_ts = pd.read_csv(osp.join(fig01_resource_folder,'sbj06_ctask001_nroi0200_wl030_ws001.csv'), index_col=[0])
+# print('++ INFO: Time series dataframe shape: % s' % str(roi_ts.shape))
+# roi_ts.head(5)
+# -
 
 # ***
 # ## 2. Compute Sliding Window Correlation
 
 win_labels = np.loadtxt('/data/SFIMJGC_HCP7T/manifold_learning_fmri/Resources/Figure01/winlabels_wl030_ws001.csv', dtype='str')
+print('++ INFO: Number of available window labels: %d' % len(win_labels))
 
 # %%time
 swc_r,swc_Z, winInfo = compute_SWC(roi_ts,WL_trs,WS_trs,win_names=win_labels,window=None)
