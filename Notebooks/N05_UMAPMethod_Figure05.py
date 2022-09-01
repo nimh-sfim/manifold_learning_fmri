@@ -450,10 +450,9 @@ pn.pane.HoloViews(optimization_plot).save('../Resources/Figure05/ref2_umap_2demb
 # so you can see and interact with the graph
 Image("../Resources/Figure05/ref2_umap_2demb.png")
 
-# To dynamically explore the evolution of the embeddings as the number of epochs increases, we create a small dashboard (see video below)
+# To dynamically explore the evolution of the embeddings as the number of epochs increases, we create a small dashboard that looks the image below
 
-from IPython.display import Video 
-Video('../Resources/Figure05/UMAP_Dashboard_alpha0p01.small.mp4')
+Image('../Resources/Figure05/UMAP_Dashboard.png')
 
 # This is the code that will create the dashboard in your local machine
 
