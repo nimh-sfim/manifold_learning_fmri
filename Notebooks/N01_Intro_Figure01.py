@@ -42,7 +42,8 @@ from utils.basics import PRJ_DIR, task_cmap
 TR      = 1.5     # TR = 1.5 sec
 WL_secs = 45      # Window length in seconds
 WL_trs  = int(WL_secs/TR)
-WS_trs  = 1.5
+WS_secs = 1.5
+WS_trs  = int(WS_secs/TR)
 
 # Creates variable with the path where the necessary files reside
 
@@ -70,6 +71,16 @@ roi_ts.columns.name = 'ROI_Name'
 roi_ts.columns = ['ROI{r}'.format(r=str(i).zfill(3)) for i in np.arange(157)]
 roi_ts.index   = pd.timedelta_range(start='0',periods=roi_ts.shape[0],freq='{tr}L'.format(tr=TR_secs*1000))
 roi_ts
+
+## Write ROI Names for this dataset into a text file for easy access later
+## =======================================================================
+pnas2015_roi_names = list(roi_ts.columns)
+pnas2015_roi_names_path = osp.join(PRJ_DIR,'Resources/PNAS2015_ROI_Names.txt')
+# open file in write mode
+with open(pnas2015_roi_names_path, 'w') as fp:
+    for item in pnas2015_roi_names:
+        # write each item on a new line
+        fp.write("%s\n" % item)
 
 # + active=""
 # # Before I decided to recompute the roi timeseries with 3dNetCorr
