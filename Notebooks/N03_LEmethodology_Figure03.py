@@ -158,8 +158,8 @@ W.infer_objects();
 fig,ax = plt.subplots(1,1,figsize=(11,8))
 mat = sns.heatmap(W, cmap=colors.ListedColormap(['white', 'black']), ax=ax, vmin=0, vmax=1, square=True,cbar_kws={'label': 'Edge Present?'})
 for idx in line_idxs:
-    ax.plot([idx,idx],[0,DS.shape[0]],'--',c='gray')
-    ax.plot([0,DS.shape[0]],[idx,idx],'--',c='gray')
+    ax.plot([idx,idx],[0,W.shape[0]],'--',c='gray')
+    ax.plot([0,W.shape[0]],[idx,idx],'--',c='gray')
 ax.yaxis.set_ticks(tick_idxs);
 ax.xaxis.set_ticks(tick_idxs);
 ax.yaxis.set_ticklabels(tick_labels,fontsize=18);
