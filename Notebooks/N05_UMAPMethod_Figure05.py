@@ -485,6 +485,50 @@ dashboard_server.stop()
 
 # ***
 #
+# # APPENDIX. UMAP Supplementary Figure - Effect of min_dist
+
+from tqdm.notebook import tqdm
+
+# + tags=[]
+results = {}
+for min_dist in tqdm([0.1, 0.25, 0.40, 0.55, 0.70, 0.95]):
+    aux = umap.UMAP(n_neighbors=knn, min_dist=min_dist,metric=d, 
+                   random_state=random_state, 
+                   verbose=True, 
+                   learning_rate=alpha_init).fit(tvFC.data)
+    # Save the output into a pd.DataFrame object
+    aux_df = pd.DataFrame(aux.embedding_, columns=['orig_x','orig_y'])
+    # Add two additional columns with positions after removing any mean (this will not change the embedding relations, but will allow the use of same limits for plotting)
+    aux_df['xdm'] = aux_df['orig_x'] - aux_df['orig_x'].mean()
+    aux_df['ydm'] = aux_df['orig_y'] - aux_df['orig_y'].mean()
+    aux_df['Task'] = tvFC.labels
+    aux_df.index.name = 'Windows'
+    results[min_dist] = aux_df
+# -
+
+layout = None
+for min_dist in tqdm([0.1, 0.25, 0.40, 0.55, 0.70, 0.95]):
+    if layout is None:
+        layout = results[min_dist].hvplot.scatter(x='xdm',y='ydm', aspect='square', cmap=cmap, size=5,
+                             color='Task', xlabel='', 
+                             ylabel='', title='Min Dist = %0.2f'  % min_dist, 
+                             hover=False, xlim=(-9,9), ylim=(-9,9),
+                             fontsize={'labels':14,'ticks':14,'title':16}, legend='bottom_left', frame_width=400).opts(xticks=[(-14,'')], yticks=[(-14,'')],toolbar=None)
+    else:
+        layout = layout + results[min_dist].hvplot.scatter(x='xdm',y='ydm', aspect='square', cmap=cmap, size=5,
+                             color='Task', xlabel='', 
+                             ylabel='', title='Min Dist = %0.2f'  % min_dist, 
+                             hover=False, xlim=(-9,9), ylim=(-9,9),
+                             fontsize={'labels':14,'ticks':14,'title':16}, legend='bottom_left', frame_width=400).opts(xticks=[(-14,'')], yticks=[(-14,'')],toolbar=None)
+
+pn.pane.HoloViews(layout.cols(3).opts(toolbar=None)).save('../Resources/Figure05/UMAP_mindist_effects.png')
+
+# This shows a static version of the figure (for github). If running the notebook yourself, simply add layout to a new cell
+# so you can see and interact with the graph
+Image("../Resources/Figure05/UMAP_mindist_effects.png")
+
+# ***
+#
 # ### Note on video creation
 #
 # ```bash
