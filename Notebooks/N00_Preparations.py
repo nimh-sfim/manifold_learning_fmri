@@ -29,6 +29,7 @@ for sbj in PNAS2015_subject_list:
         os.makedirs(target_folder_sbj)
 
 # + tags=[]
+# %%time
 for sbj in PNAS2015_subject_list:
     target_folder_sbj = osp.join(target_folder,sbj)
     command = """module load afni; \
