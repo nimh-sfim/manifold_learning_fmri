@@ -1,15 +1,27 @@
 import pandas as pd
+import numpy as np
 import os.path as osp
 
 PRJ_DIR = '/data/SFIMJGC_HCP7T/manifold_learning_fmri'
 
 task_cmap      = {'Rest': 'gray', 'Memory': 'blue', 'Video': '#F4D03F', 'Math': 'green', 'Inbetween': 'black'}
-task_cmap_caps = {'REST': 'gray', 'BACK': 'blue',   'VIDE': '#F4D03F',  'MATH': 'green', 'XXXX': 'black'}
+task_cmap_caps = {'REST': 'gray', 'BACK': 'blue',   'VIDE':  '#F4D03F',  'MATH': 'green', 'XXXX': 'black'}
 
 PNAS2015_folder         = '/data/SFIMJGC/PRJ_CognitiveStateDetection01/'
 PNAS2015_subject_list   = ['SBJ06', 'SBJ07', 'SBJ08', 'SBJ09', 'SBJ10', 'SBJ11', 'SBJ12', 'SBJ13', 'SBJ16', 'SBJ17', 'SBJ18', 'SBJ19', 'SBJ20', 'SBJ21', 'SBJ22', 'SBJ23', 'SBJ24', 'SBJ25', 'SBJ26', 'SBJ27']
 PNAS2015_roi_names_path = osp.join(PRJ_DIR,'Resources/PNAS2015_ROI_Names.txt')
 PNAS2015_win_names_paths = {(45,1.5): '/data/SFIMJGC_HCP7T/manifold_learning_fmri/Resources/PNAS2015_WinNames_wl45s_ws1p5s.txt'}
+
+# Laplacian Eigenmap Variables
+le_dist_metrics = ['euclidean','correlation','cosine']
+le_knns         = [2,3,4] + [int(i) for i in np.linspace(start=5, stop=200, num=40)]
+le_ms           = [2,3,4,5,10,15,20,25,30]
+
+# UMAP Variables
+umap_dist_metrics = ['euclidean','correlation','cosine']
+umap_knns         = [2,3,4] + [int(i) for i in np.linspace(start=5, stop=200, num=40)]
+umap_ms           = [2,3,4,5,10,15,20,25,30]
+umap_alphas       = [0.01, 0.1, 1.0]
 
 def load_representative_tvFC_data():
     print('++ INFO: Loading the tvFC dataset.....')
