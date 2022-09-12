@@ -6,7 +6,7 @@
 import pandas as pd
 import numpy as np
 import os.path as osp
-
+from tqdm.auto import tqdm
 
 # Compute Sliding Window Correlation
 # ----------------------------------
@@ -54,7 +54,7 @@ def compute_SWC(ts,wl_trs,ws_trs,win_names=None,window=None):
         window=np.ones((wl_trs,))
     
     # Compute SWC Matrix
-    for w in range(winInfo['numWins']):
+    for w in tqdm(range(winInfo['numWins'])):
         aux_ts          = ts[winInfo['onsetTRs'][w]:winInfo['offsetTRs'][w]]
         aux_ts_windowed = aux_ts.mul(window,axis=0)
         aux_fc          = aux_ts_windowed.corr()
