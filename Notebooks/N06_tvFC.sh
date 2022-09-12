@@ -12,6 +12,7 @@ echo "++ Activating rapidtide environment"
 conda activate opentsne
 
 # Run the program
+
 python ./N06_tvFC.py -ints ${path_roits} \
                      -roi_names ${path_roinames} \
                      -win_names ${path_winnames} \
@@ -19,4 +20,5 @@ python ./N06_tvFC.py -ints ${path_roits} \
                      -outR ${out_R} \
                      -wls ${wls} \
                      -wss ${wss} \
-                     -tr ${tr}
+                     -tr ${tr} \
+                     -null ${null}
