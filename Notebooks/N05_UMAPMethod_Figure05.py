@@ -124,7 +124,7 @@ mapper = umap.UMAP(n_neighbors=knn,
                    min_dist=m_dist, 
                    metric=d, 
                    random_state=random_state, 
-                   verbose=True, 
+                   verbose=True,
                    learning_rate=alpha_init).fit(tvFC.data)
 # -
 
@@ -145,6 +145,24 @@ pn.pane.HoloViews(ref_umap_2demb).save('../Resources/Figure05/ref_umap_2demb.png
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add ref_umap_2demb to a new cell
 # so you can see and interact with the graph
 Image("../Resources/Figure05/ref_umap_2demb.png")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ***
 # # 2. Decompose UMAP into its main algorithmic steps
