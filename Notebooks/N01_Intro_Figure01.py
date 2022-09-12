@@ -36,14 +36,20 @@ pn.extension('plotly')
 
 from utils.data_functions import compute_SWC
 from utils.basics import PRJ_DIR, task_cmap
+from utils.random import seed_value
+from sklearn.utils import check_random_state
 
 # In order to compute the Sliding Window Connectivity matrix, we need to know the repetition time (TR), the window duration and the window step. Those are defined below
 
+# +
 TR      = 1.5     # TR = 1.5 sec
 WL_secs = 45      # Window length in seconds
 WL_trs  = int(WL_secs/TR)
 WS_secs = 1.5
 WS_trs  = int(WS_secs/TR)
+
+random_state = check_random_state(seed_value)
+# -
 
 # Creates variable with the path where the necessary files reside
 
@@ -200,13 +206,14 @@ from sklearn.neighbors import kneighbors_graph
 # We now generate an Spectral Embedding object that will generate a 3D represenation (n_components=3) and will expect a pre-computed affinity matrix. We set the random_seed to 43 for reproducibility of results
 
 # Create Embedding Object
-LE_obj     = SpectralEmbedding(n_components=3, affinity='precomputed', n_jobs=-1, random_state=43)
+LE_obj     = SpectralEmbedding(n_components=3, affinity='precomputed', n_jobs=-1, random_state=random_state)
 
 # First, we create a meaningful embedding using knn=90 duirng the computation of the affinity matrix. In addition to the 3D coordinates, we add two additional columns to the resulting panda object. One contains the task information and another one timing information. These two columns are only used for plotting purposes, but do not contribute in any way to the generation of the embeddings.
 
 # Create Affinity Matrix with valid neighborhood size
 X_affinity_correct = pd.DataFrame(kneighbors_graph(swc_Z.T, 90, include_self=False, n_jobs=-1, metric='correlation', mode='connectivity').toarray())
-X_affinity_correct = ((0.5 * (X_affinity_correct + X_affinity_correct.T)) > 0).astype(int)
+X_affinity_correct = 0.5 * (X_affinity_correct + X_affinity_correct.T)
+#Belkin Symmetrization: X_affinity_correct = ((0.5 * (X_affinity_correct + X_affinity_correct.T)) > 0).astype(int)
 # Compute Embedding based on valid neiighborhood size
 LE_correct         = pd.DataFrame(LE_obj.fit_transform(X_affinity_correct),columns=['Dim_'+str(i+1).zfill(2) for i in np.arange(3)])
 LE_correct['Task'] = win_labels
@@ -216,7 +223,8 @@ LE_correct['Time'] = np.arange(LE_correct.shape[0])+1
 
 # Create Affinity Matrix with valid neighborhood size
 X_affinity_incorrect = pd.DataFrame(kneighbors_graph(swc_Z.T, 5, include_self=False, n_jobs=-1, metric='correlation', mode='connectivity').toarray())
-X_affinity_incorrect = ((0.5 * (X_affinity_incorrect + X_affinity_incorrect.T)) > 0).astype(int)
+X_affinity_incorrect = 0.5 * (X_affinity_incorrect + X_affinity_incorrect.T)
+#Belkin Symmetrization: X_affinity_incorrect = ((0.5 * (X_affinity_incorrect + X_affinity_incorrect.T)) > 0).astype(int)
 # Compute Embedding based on valid neiighborhood size
 LE_incorrect         = pd.DataFrame(LE_obj.fit_transform(X_affinity_incorrect),columns=['Dim_'+str(i+1).zfill(2) for i in np.arange(3)])
 LE_incorrect['Task'] = win_labels
@@ -228,9 +236,9 @@ fig_nocolor = px.scatter_3d(LE_correct,x='Dim_01',y='Dim_02',z='Dim_03', width=5
 fig_nocolor.update_layout(scene_camera=camera, scene=scene_correct_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
 fig_time = px.scatter_3d(LE_correct,x='Dim_01',y='Dim_02',z='Dim_03', width=500, height=500, opacity=0.5, color='Time',color_continuous_scale='twilight')
 fig_time.update_layout(scene_camera=camera, scene=scene_correct_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
-fig_task = px.scatter_3d(LE_correct,x='Dim_01',y='Dim_02',z='Dim_03', width=500, height=500, opacity=0.5, color='Task',color_discrete_sequence=['gray','black','blue','green','yellow'])
+fig_task = px.scatter_3d(LE_correct,x='Dim_01',y='Dim_02',z='Dim_03', width=500, height=500, opacity=0.5, color='Task',color_discrete_sequence=['gray','black','blue','yellow','green'])
 fig_task.update_layout(scene_camera=camera, scene=scene_correct_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
-fig_task_bad = px.scatter_3d(LE_incorrect,x='Dim_01',y='Dim_02',z='Dim_03', width=500, height=500, opacity=0.5, color='Task',color_discrete_sequence=['gray','black','blue','green','yellow'])
+fig_task_bad = px.scatter_3d(LE_incorrect,x='Dim_01',y='Dim_02',z='Dim_03', width=500, height=500, opacity=0.5, color='Task',color_discrete_sequence=['gray','black','blue','yellow','green'])
 fig_task_bad.update_layout(scene_camera=camera,scene=scene_incorrect_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
 
 pn.Column(pn.Row(pn.pane.Plotly(fig_nocolor),pn.pane.Plotly(fig_time)),
