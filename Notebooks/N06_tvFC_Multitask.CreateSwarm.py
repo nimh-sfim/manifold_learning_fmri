@@ -22,10 +22,12 @@
 # Matrices will be written as pandas pickle objects in ```/data/SFIMJGC_HCP7T/manifold_learning/Data_Interim/PNAS2015```
 
 import pandas as pd
+import numpy as np
 import os
 import os.path as osp
 import getpass
 from datetime import datetime
+from tqdm.notebook import tqdm
 from utils.basics import PNAS2015_subject_list, PNAS2015_folder, PNAS2015_roi_names_path, PNAS2015_win_names_paths, PRJ_DIR
 
 # + [markdown] tags=[]
@@ -39,12 +41,19 @@ wss = 1.5
 tr  = 1.5
 win_names_path = PNAS2015_win_names_paths[(wls,wss)]
 
+# ***
+#
+# # 1. Scan-Level Matrices
+#
+# ## 1.1. Original Data
+#
 # The next cell will create the output folders if they do not exist already
 
 # Create Output Folders if they do not exists
 for subject in PNAS2015_subject_list:
-    path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject)
+    path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Original')
     if not osp.exists(path):
+        print('++ INFO: Created folder %s' % path)
         os.makedirs(path)
 
 # The next cell will create folders for the swarm log files and for the actual swarm script. Those folders are created using the username as part of their name. That way it is easier for different users to work together on the project.
@@ -82,10 +91,10 @@ swarm_file.write('\n')
 
 for subject in PNAS2015_subject_list:
     path_ints         = osp.join(PRJ_DIR,'Data','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s_000.netts'.format(subject=subject,wls=str(int(wls)).zfill(3)))
-    path_out_R        = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
-    path_out_Z        = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
-    path_out_R_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
-    path_out_Z_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_R        = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Original','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_Z        = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Original','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_R_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Original','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_Z_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Original','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} out_Z_normed={path_out_Z_normed} out_R_normed={path_out_R_normed} wls={wls} wss={wss} tr={tr} null=none; sh {scripts_dir}/N06_tvFC.sh'.format(
                        path_rois=path_ints, path_roinames=PNAS2015_roi_names_path, path_winnames=win_names_path,
                        path_out_Z=path_out_Z, path_out_R=path_out_R, 
@@ -95,9 +104,7 @@ for subject in PNAS2015_subject_list:
     swarm_file.write('\n')
 swarm_file.close()
 # -
-# ***
-#
-# # Null Model 1 - Connection Randomization
+# ## 1.2 Null Model - Connection Randomization
 
 
 # Create Output Folders if they do not exists
@@ -150,9 +157,7 @@ for subject in PNAS2015_subject_list:
 swarm_file.close()
 # -
 
-# ***
-#
-# # Null Model 2 - Phase Randomization
+# ## 1.3 Null Model - Phase Randomization
 
 
 # Create Output Folders if they do not exists
@@ -204,5 +209,47 @@ for subject in PNAS2015_subject_list:
     swarm_file.write('\n')
 swarm_file.close()
 # -
+# ***
+# # 2. Group-level Matrices
+
+
+group_tvFCs = {('Original','asis'):pd.DataFrame(),   ('Null_ConnRand','asis'):pd.DataFrame(),   ('Null_PhaseRand','asis'):pd.DataFrame(),
+               ('Original','zscored'):pd.DataFrame(),('Null_ConnRand','zscored'):pd.DataFrame(),('Null_PhaseRand','zscored'):pd.DataFrame(),}
+
+# %%time
+for scenario in tqdm(['asis','zscored'], desc='Scenario',leave=False):
+    for sbj in tqdm(PNAS2015_subject_list,desc='Subjects'):
+        for data_input in ['Original','Null_ConnRand','Null_PhaseRand']:
+            tvFC_path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',sbj,data_input,'{sbj}_Craddock_0200.WL045s.WS1.5s.tvFC.Z.{scenario}.pkl'.format(sbj=sbj, scenario=scenario))
+            tvFC = pd.read_pickle(tvFC_path)
+            group_tvFCs[data_input,scenario] = pd.concat([group_tvFCs[data_input,scenario],tvFC],axis=1)
+
+for data_input in ['Original','Null_ConnRand','Null_PhaseRand']:
+    out_dir = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','ALL',data_input)
+    if not osp.exists(out_dir):
+        print("+ Create output folder: %s" % out_dir)
+        os.makedirs(out_dir)
+
+# Before saving to disk, we will add the subject and task info to the colum of the dataframe
+
+[N_cons, N_wins]=tvFC.shape
+sbj_labels      = []
+for s in PNAS2015_subject_list:
+    sbj_labels = sbj_labels + list(np.tile(s,N_wins))
+win_labels = group_tvFCs['Original','asis'].columns
+column_names = pd.MultiIndex.from_arrays([sbj_labels,win_labels],names=['Subject','Window Name'])
+
+for data_input in ['Original','Null_ConnRand','Null_PhaseRand']:
+    for scenario in ['asis','zscored']:
+        group_tvFCs[data_input,scenario].columns    = column_names
+        group_tvFCs[data_input,scenario].index.name = 'Connections'
+
+# %%time
+for data_input in ['Original','Null_ConnRand','Null_PhaseRand']:
+    for scenario in ['asis','zscored']:
+        out_dir = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','ALL',data_input)
+        group_tvFC_path = osp.join(out_dir,'ALL_Craddock_0200.WL045s.WS1.5s.tvFC.Z.{scenario}.pkl'.format(scenario=scenario))
+        group_tvFCs[data_input,scenario].to_pickle(group_tvFC_path)
+        print('++ INFO: Size of [%s,%s] Group-level Matrix [%s] | Save to %s' % (data_input,scenario,str(group_tvFCs[data_input,scenario].shape),group_tvFC_path))
 
 
