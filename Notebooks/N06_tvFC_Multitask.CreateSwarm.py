@@ -77,16 +77,20 @@ swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S
 swarm_file.write('\n')
 
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -f {swarm_path} -g 32 -t 32 --time 00:30:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
+swarm_file.write('#swarm -f {swarm_path} -b 2 -g 32 -t 32 --time 00:30:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
 swarm_file.write('\n')
 
 for subject in PNAS2015_subject_list:
-    path_ints  = osp.join(PRJ_DIR,'Data','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s_000.netts'.format(subject=subject,wls=str(int(wls)).zfill(3)))
-    path_out_R = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
-    path_out_Z = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
-    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} wls={wls} wss={wss} tr={tr} null=none; sh {scripts_dir}/N06_tvFC.sh'.format(
+    path_ints         = osp.join(PRJ_DIR,'Data','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s_000.netts'.format(subject=subject,wls=str(int(wls)).zfill(3)))
+    path_out_R        = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_Z        = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_R_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_Z_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} out_Z_normed={path_out_Z_normed} out_R_normed={path_out_R_normed} wls={wls} wss={wss} tr={tr} null=none; sh {scripts_dir}/N06_tvFC.sh'.format(
                        path_rois=path_ints, path_roinames=PNAS2015_roi_names_path, path_winnames=win_names_path,
-                       path_out_Z=path_out_Z, path_out_R=path_out_R, wls=str(wls), wss=str(wss), tr=str(tr), 
+                       path_out_Z=path_out_Z, path_out_R=path_out_R, 
+                       path_out_Z_normed=path_out_Z_normed, path_out_R_normed=path_out_R_normed,
+                       wls=str(wls), wss=str(wss), tr=str(tr), 
                        scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
     swarm_file.write('\n')
 swarm_file.close()
@@ -100,6 +104,7 @@ swarm_file.close()
 for subject in PNAS2015_subject_list:
     path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_ConnRand')
     if not osp.exists(path):
+        print('++ INFO: Creating folder %s' % path)
         os.makedirs(path)
 
 # +
@@ -132,11 +137,14 @@ swarm_file.write('\n')
 
 for subject in PNAS2015_subject_list:
     path_ints  = osp.join(PRJ_DIR,'Data','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s_000.netts'.format(subject=subject,wls=str(int(wls)).zfill(3)))
-    path_out_R = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_ConnRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
-    path_out_Z = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_ConnRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
-    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} wls={wls} wss={wss} tr={tr} null=conn_rand; sh {scripts_dir}/N06_tvFC.sh'.format(
-                       path_rois=path_ints, path_roinames=PNAS2015_roi_names_path, path_winnames=win_names_path,
-                       path_out_Z=path_out_Z, path_out_R=path_out_R, wls=str(wls), wss=str(wss), tr=str(tr), 
+    path_out_R = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_ConnRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_Z = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_ConnRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_R_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_ConnRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_Z_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_ConnRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    
+    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} out_Z_normed={path_out_Z_normed} out_R_normed={path_out_R_normed} wls={wls} wss={wss} tr={tr} null=conn_rand; sh {scripts_dir}/N06_tvFC.sh'.format(
+                       path_rois=path_ints, path_roinames=PNAS2015_roi_names_path, path_winnames=win_names_path, 
+                       path_out_Z=path_out_Z, path_out_R=path_out_R, wls=str(wls), wss=str(wss), tr=str(tr), path_out_Z_normed=path_out_Z_normed, path_out_R_normed=path_out_R_normed,
                        scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
     swarm_file.write('\n')
 swarm_file.close()
@@ -151,6 +159,7 @@ swarm_file.close()
 for subject in PNAS2015_subject_list:
     path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand')
     if not osp.exists(path):
+        print('++ INFO: Creating folder %s' % path)
         os.makedirs(path)
 
 # +
@@ -185,14 +194,15 @@ for subject in PNAS2015_subject_list:
     path_ints  = osp.join(PRJ_DIR,'Data','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s_000.netts'.format(subject=subject,wls=str(int(wls)).zfill(3)))
     path_out_R = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     path_out_Z = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
-    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} wls={wls} wss={wss} tr={tr} null=phase_rand; sh {scripts_dir}/N06_tvFC.sh'.format(
+    path_out_R_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_Z_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    
+    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} out_Z_normed={path_out_Z_normed} out_R_normed={path_out_R_normed} wls={wls} wss={wss} tr={tr} null=phase_rand; sh {scripts_dir}/N06_tvFC.sh'.format(
                        path_rois=path_ints, path_roinames=PNAS2015_roi_names_path, path_winnames=win_names_path,
-                       path_out_Z=path_out_Z, path_out_R=path_out_R, wls=str(wls), wss=str(wss), tr=str(tr), 
+                       path_out_Z=path_out_Z, path_out_R=path_out_R, wls=str(wls), wss=str(wss), tr=str(tr), path_out_Z_normed=path_out_Z_normed, path_out_R_normed=path_out_R_normed,
                        scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
     swarm_file.write('\n')
 swarm_file.close()
 # -
-
-
 
 

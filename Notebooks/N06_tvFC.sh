@@ -18,6 +18,8 @@ python ./N06_tvFC.py -ints ${path_roits} \
                      -win_names ${path_winnames} \
                      -outZ ${out_Z} \
                      -outR ${out_R} \
+                     -outZ_normed ${out_Z_normed} \
+                     -outR_normed ${out_R_normed} \
                      -wls ${wls} \
                      -wss ${wss} \
                      -tr ${tr} \
