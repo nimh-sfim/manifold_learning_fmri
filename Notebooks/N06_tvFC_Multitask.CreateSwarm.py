@@ -192,8 +192,8 @@ swarm_file.write('\n')
 
 for subject in PNAS2015_subject_list:
     path_ints  = osp.join(PRJ_DIR,'Data','PNAS2015',subject,'{subject}_Craddock_0200.WL{wls}s_000.netts'.format(subject=subject,wls=str(int(wls)).zfill(3)))
-    path_out_R = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
-    path_out_Z = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_R = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
+    path_out_Z = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     path_out_R_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     path_out_Z_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     
