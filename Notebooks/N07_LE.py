@@ -50,15 +50,18 @@ def run(args):
     
     # Create Spectral Embedding Object
     # ================================
+    print(' + Create Spectral Embedding Object....')
     random_state = check_random_state(seed_value)
     LE_obj       = SpectralEmbedding(n_components=m, affinity='precomputed', n_jobs=-1, random_state=random_state)
     
     # Compute Embedding
     # =================
+    print(' + Compute the Spectral Embeddding (call to fit_transform)...')
     le           = LE_obj.fit_transform(Xaff)
     
     # Compose Output DataFrame Object
     # ===============================
+    print(' + Making final DataFrame with embedding results...')
     dim_labels      = ['LE'+str(i+1).zfill(3) for i in range(m)]
     df              = pd.DataFrame(le, columns=dim_labels)
     df.columns.name = 'LE dimensions'
@@ -67,6 +70,7 @@ def run(args):
 
     # Save output to disk
     # ===================
+    print(' + Saving embedding to disk...')
     df.to_pickle(path_out)
     print(' + LE saved to disk: %s' % path_out)
     
