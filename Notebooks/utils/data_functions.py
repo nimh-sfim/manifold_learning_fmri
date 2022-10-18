@@ -10,7 +10,7 @@ from tqdm.auto import tqdm
 
 # Compute Sliding Window Correlation
 # ----------------------------------
-def compute_SWC(ts,wl_trs,ws_trs,win_names=None,window=None):
+def compute_SWC(ts,wl_trs,ws_trs,win_names=None,window=None, keep_progress_bar=True):
     """
     This function will perform the following actions:
     1) Generate windows based on length, step and TR. This means computing window onsets and offsets
@@ -54,7 +54,7 @@ def compute_SWC(ts,wl_trs,ws_trs,win_names=None,window=None):
         window=np.ones((wl_trs,))
     
     # Compute SWC Matrix
-    for w in tqdm(range(winInfo['numWins'])):
+    for w in tqdm(range(winInfo['numWins']),desc='Window',leave=keep_progress_bar):
         aux_ts          = ts[winInfo['onsetTRs'][w]:winInfo['offsetTRs'][w]]
         aux_ts_windowed = aux_ts.mul(window,axis=0)
         aux_fc          = aux_ts_windowed.corr()
