@@ -37,10 +37,6 @@ from tqdm.notebook import tqdm, tqdm_notebook
 from utils.plotting import plot_2d_scatter, plot_3d_scatter
 from utils.io import load_LE_SI, load_UMAP_SI, load_LE_embeddings, load_UMAP_embeddings
 
-le_knns.remove(5)
-le_knns.remove(10)
-le_knns.remove(15)
-
 knns_dict = {'LE':le_knns,'TSNE':tsne_pps,'UMAP':umap_knns}
 ms_dist   = {'LE':le_ms,'TSNE':tsne_ms, 'UMAP':umap_ms}
 lrs_dict  = {'LE':['N/A'],'TSNE':tsne_lrs,'UMAP':umap_alphas}
