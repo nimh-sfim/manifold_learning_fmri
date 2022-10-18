@@ -11,11 +11,14 @@ source /data/SFIMJGC_HCP7T/Apps/miniconda38/etc/profile.d/conda.sh
 echo "++ Activating rapidtide environment"
 conda activate opentsne
 
+which python 
+
 # Run the program
 python ./N09_UMAP.py -tvfc ${path_tvfc} \
                    -out  ${path_out}  \
                    -dist ${dist} \
                    -knn  ${knn} \
                    -m    ${m} \
+                   -init ${init} \
                    -min_dist ${min_dist} \
                    -alpha ${alpha}
