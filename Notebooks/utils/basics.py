@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 import os.path as osp
 
+from matplotlib.cm import get_cmap
+from matplotlib.colors import rgb2hex, rgb_to_hsv
+
 PRJ_DIR = '/data/SFIMJGC_HCP7T/manifold_learning_fmri'
 
 task_cmap      = {'Rest': 'gray', 'Memory': 'blue', 'Video': '#F4D03F', 'Math': 'green', 'Inbetween': 'black'}
@@ -12,16 +15,32 @@ PNAS2015_subject_list   = ['SBJ06', 'SBJ07', 'SBJ08', 'SBJ09', 'SBJ10', 'SBJ11',
 PNAS2015_roi_names_path = osp.join(PRJ_DIR,'Resources/PNAS2015_ROI_Names.txt')
 PNAS2015_win_names_paths = {(45,1.5): '/data/SFIMJGC_HCP7T/manifold_learning_fmri/Resources/PNAS2015_WinNames_wl45s_ws1p5s.txt'}
 
+sbj_cmap_list = [rgb2hex(c) for c in get_cmap('tab20',20).colors]
+sbj_cmap_dict = {PNAS2015_subject_list[i]:sbj_cmap_list[i] for i in range(len(PNAS2015_subject_list))}
+
+input_datas  = ['Original','Null_ConnRand','Null_PhaseRand']
+norm_methods = ['asis','zscored']
+
+group_method_2_label = {'ALL':'Concatenation','Procrustes':'Procrustes'}
+
 # Laplacian Eigenmap Variables
 le_dist_metrics = ['euclidean','correlation','cosine']
-le_knns         = [2,3,4] + [int(i) for i in np.linspace(start=5, stop=200, num=40)]
-le_ms           = [2,3,4,5,10,15,20,25,30]
+le_knns         = [int(i) for i in np.linspace(start=5, stop=200, num=40)]
+le_ms           = [2,3,30]
+
+# TSNE Variables
+tsne_dist_metrics = ['euclidean','correlation','cosine']
+tsne_pps          = [int(i) for i in np.linspace(start=5, stop=100, num=20)] + [150, 200]
+tsne_ms           = [2,3] #4,5,10,15,20,25,30]
+tsne_alphas       = [10, 50, 75, 100, 200, 500, 1000]
+tsne_inits        = ['pca']
 
 # UMAP Variables
 umap_dist_metrics = ['euclidean','correlation','cosine']
-umap_knns         = [2,3,4] + [int(i) for i in np.linspace(start=5, stop=200, num=40)]
-umap_ms           = [2,3,4,5,10,15,20,25,30]
+umap_knns         = [int(i) for i in np.linspace(start=5, stop=200, num=40)]
+umap_ms           = [2,3]#,4,5,10,15,20,25,30]
 umap_alphas       = [0.01, 0.1, 1.0]
+umap_inits        = ['spectral']
 
 def load_representative_tvFC_data():
     print('++ INFO: Loading the tvFC dataset.....')
