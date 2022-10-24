@@ -18,6 +18,7 @@ HUGE_SIZE   = 22
 
 NULL_CONNRAND_PALETTE  = sns.color_palette('Wistia',n_colors=3)
 NULL_PHASERAND_PALETTE = sns.color_palette('gist_gray',n_colors=3)
+ORIGINAL_PALETTE       = sns.color_palette(palette='bright',n_colors=3)
 
 def check_symmetric(a, tol=1e-8):
     return np.all(np.abs(a-a.T) < tol)
@@ -177,15 +178,16 @@ def generate_Avg_LE_SIvsKnn_ScanLevel(si_LE,sbj_list, figsize=(10,5),m_list=[2,3
         data    = si_LE.loc[sbj_list].loc[:,'Original',:,:,:,m,:].reset_index()
         data_nc = si_LE.loc[sbj_list].loc[:,'Null_ConnRand',:,:,:,m,:].reset_index()
         data_np = si_LE.loc[sbj_list].loc[:,'Null_PhaseRand',:,:,:,m,:].reset_index()
-        g_orig = sns.lineplot(data=data,y='SI',x='Knn', hue='Metric', style='Norm', ax=ax,  palette=sns.color_palette(palette='bright',n_colors=3))
+        g_orig = sns.lineplot(data=data,y='SI',x='Knn', hue='Metric', style='Norm', ax=ax,  palette=ORIGINAL_PALETTE)
         g_nc = sns.lineplot(data=data_nc,y='SI',x='Knn', hue='Metric', style='Norm', ax=ax, palette=NULL_CONNRAND_PALETTE ,  legend=False)
-        g_np = sns.lineplot(data=data_np,y='SI',x='Knn', hue='Metric', style='Norm', ax=ax, palette=sns.color_palette('gist_gray',n_colors=3), legend=False)
+        g_np = sns.lineplot(data=data_np,y='SI',x='Knn', hue='Metric', style='Norm', ax=ax, palette=NULL_PHASERAND_PALETTE, legend=False)
         ax.set_ylim(y_min,y_max)
         ax.set_xlim(x_min,x_max)
         ax.grid()
         ax.set_title('Scan-Level | {m}D'.format(m=str(m)), fontsize=HUGE_SIZE)
         ax.legend(loc='upper right', ncol=2)
-        ax.set_ylabel('SI [{target}]'.format(target='Task'))
+        ax.set_ylabel('$SI_{%s}$' % 'Task')
+        #ax.set_ylabel('SI [{target}]'.format(target='Task'))
         out_dir = osp.join(PRJ_DIR,'Dashboard','Figures','LE')
         if not osp.exists(out_dir):
             os.makedirs(out_dir)
@@ -211,15 +213,15 @@ def generate_LE_SIvsKnn_ScanLevel(si_LE,sbj,figsize=(10,5),m_list=[2,3], verbose
         data    = si_LE.loc[sbj,'Original',:,:,:,m,:].reset_index()
         data_nc = si_LE.loc[sbj,'Null_ConnRand',:,:,:,m,:].reset_index()
         data_np = si_LE.loc[sbj,'Null_PhaseRand',:,:,:,m,:].reset_index()
-        g_orig = sns.lineplot(data=data,y='SI',x='Knn', hue='Metric', style='Norm', ax=ax,  palette=sns.color_palette(palette='bright',n_colors=3))
+        g_orig = sns.lineplot(data=data,y='SI',x='Knn', hue='Metric', style='Norm', ax=ax,  palette=ORIGINAL_PALETTE)
         g_nc = sns.lineplot(data=data_nc,y='SI',x='Knn', hue='Metric', style='Norm', ax=ax, palette=NULL_CONNRAND_PALETTE ,  legend=False)
-        g_np = sns.lineplot(data=data_np,y='SI',x='Knn', hue='Metric', style='Norm', ax=ax, palette=sns.color_palette(palette='dark',n_colors=3), legend=False)
+        g_np = sns.lineplot(data=data_np,y='SI',x='Knn', hue='Metric', style='Norm', ax=ax, palette=NULL_PHASERAND_PALETTE, legend=False)
         ax.set_ylim(y_min,y_max)
         ax.set_xlim(x_min,x_max)
         ax.grid()
         ax.set_title('Scan-Level [{sbj}] | {m}D'.format(m=str(m),sbj=sbj), fontsize=HUGE_SIZE)
         ax.legend(loc='upper right', ncol=2)
-        ax.set_ylabel('SI [{target}]'.format(target='Task'))
+        ax.set_ylabel('$SI_{%s}$' % 'Task')
         out_dir = osp.join(PRJ_DIR,'Dashboard','Figures','LE')
         if not osp.exists(out_dir):
             os.makedirs(out_dir)
@@ -247,13 +249,13 @@ def generate_LE_SIvsKNN_GroupLevel(si_LE,comb_methods=['ALL','Procrustes'],figsi
             data_nc   = si_LE.loc[group_method].loc['Null_ConnRand',:,:,:,m,target].reset_index()
             data_np   = si_LE.loc[group_method].loc['Null_PhaseRand',:,:,:,m,target].reset_index()
             if target == 'Task':
-                pal_orig = sns.color_palette(palette='bright',n_colors=3)
-                pal_nc   = sns.color_palette('bright', n_colors=3, desat=0)
-                pal_np   = sns.color_palette('bright', n_colors=3, desat=0)
+                pal_orig = ORIGINAL_PALETTE
+                pal_nc   = NULL_CONNRAND_PALETTE 
+                pal_np   = NULL_PHASERAND_PALETTE
             else:
-                pal_orig = sns.color_palette(palette='bright',n_colors=3)
-                pal_nc   = sns.color_palette(palette='bright',n_colors=3, desat=0)
-                pal_np   = sns.color_palette(palette='bright',n_colors=3, desat=0)
+                pal_orig = ORIGINAL_PALETTE
+                pal_nc   = NULL_CONNRAND_PALETTE 
+                pal_np   = NULL_PHASERAND_PALETTE
 
             sns.lineplot(data=data_orig,y='SI',x='Knn', hue='Metric', style='Norm',  ax=ax, palette=pal_orig)
             sns.lineplot(data=data_nc,  y='SI',x='Knn', hue='Metric', style='Norm',  ax=ax, palette=pal_nc, legend=False)
@@ -276,40 +278,40 @@ def generate_LE_SIvsKNN_GroupLevel(si_LE,comb_methods=['ALL','Procrustes'],figsi
             plt.close()
     return None
    
-def generate_LE_SIvsKNN_GroupLevel_Rdist(si_LE,comb_methods=['ALL','Procrustes'],figsize=(10,5),m_list=[2,3], verbose=False, y_min=-0.2, y_max=0.85,x_min=5,x_max=200):
-    plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
-    plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
-    plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
-    plt.rc('xtick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
-    plt.rc('ytick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
-    plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
-    plt.rc('figure', titlesize=HUGE_SIZE)    # fontsize of the figure title
-    for group_method in comb_methods:
-        for m in m_list:
-            fig, ax   = plt.subplots(1,1,figsize=figsize)
-            data_orig = si_LE.loc[group_method].loc['Original',:,'correlation',:,m,:].reset_index()
-            data_nc   = si_LE.loc[group_method].loc['Null_ConnRand',:,'correlation',:,m,:].reset_index()
-            data_np   = si_LE.loc[group_method].loc['Null_PhaseRand',:,'correlation',:,m,:].reset_index()
-            sns.lineplot(data=data_orig, y='SI',x='Knn',hue='Target',style='Norm', palette=sns.color_palette('hls',n_colors=2), ax=ax, linewidth=5)
-            sns.lineplot(data=data_nc, y='SI',x='Knn',hue='Target',style='Norm', palette=sns.color_palette('hls',n_colors=2, desat=0.1), ax=ax, legend=False)
-            sns.lineplot(data=data_np, y='SI',x='Knn',hue='Target',style='Norm', palette=sns.color_palette('hls',n_colors=2, desat=0.5), ax=ax, legend=False)
-            ax.set_ylim(y_min,y_max)
-            ax.set_xlim(x_min,x_max)
-            ax.grid()
-            ax.set_title('Group-Level [{gm}] | {m}D | Correlation Distance'.format(m=str(m),gm=group_method_2_label[group_method]), fontsize=HUGE_SIZE)
-            ax.legend(loc='upper right', ncol=2)
-            ax.set_ylabel('SI')
-            out_dir = osp.join(PRJ_DIR,'Dashboard','Figures','LE')
-            if not osp.exists(out_dir):
-                os.makedirs(out_dir)
-                if verbose:
-                    print('++ INFO: Folder created [%s]' % out_dir)
-            out_path = osp.join(out_dir,'SIvsKNN_GroupLevel_{gm}_m{m}_Rdist.png'.format(m=str(m),gm=group_method))
-            plt.savefig(out_path,bbox_inches='tight')
-            plt.close()
-            if verbose:
-                print('++ INFO: Figure saved to disk [%s]' % out_path)
-    return None
+#def generate_LE_SIvsKNN_GroupLevel_Rdist(si_LE,comb_methods=['ALL','Procrustes'],figsize=(10,5),m_list=[2,3], verbose=False, y_min=-0.2, y_max=0.85,x_min=5,x_max=200):
+#    plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+#    plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+#    plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+#    plt.rc('xtick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+#    plt.rc('ytick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+#    plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+#    plt.rc('figure', titlesize=HUGE_SIZE)    # fontsize of the figure title
+#    for group_method in comb_methods:
+#        for m in m_list:
+#            fig, ax   = plt.subplots(1,1,figsize=figsize)
+#            data_orig = si_LE.loc[group_method].loc['Original',:,'correlation',:,m,:].reset_index()
+#            data_nc   = si_LE.loc[group_method].loc['Null_ConnRand',:,'correlation',:,m,:].reset_index()
+#            data_np   = si_LE.loc[group_method].loc['Null_PhaseRand',:,'correlation',:,m,:].reset_index()
+#            sns.lineplot(data=data_orig, y='SI',x='Knn',hue='Target',style='Norm', palette=sns.color_palette('hls',n_colors=2), ax=ax, linewidth=5)
+#            sns.lineplot(data=data_nc, y='SI',x='Knn',hue='Target',style='Norm', palette=NULL_CONNRAND_PALETTE , ax=ax, legend=False)
+#            sns.lineplot(data=data_np, y='SI',x='Knn',hue='Target',style='Norm', palette=NULL_PHASERAND_PALETTE, ax=ax, legend=False)
+#            ax.set_ylim(y_min,y_max)
+#            ax.set_xlim(x_min,x_max)
+#            ax.grid()
+#            ax.set_title('Group-Level [{gm}] | {m}D | Correlation Distance'.format(m=str(m),gm=group_method_2_label[group_method]), fontsize=HUGE_SIZE)
+#            ax.legend(loc='upper right', ncol=2)
+#            ax.set_ylabel('SI')
+#            out_dir = osp.join(PRJ_DIR,'Dashboard','Figures','LE')
+#            if not osp.exists(out_dir):
+#                os.makedirs(out_dir)
+#                if verbose:
+#                    print('++ INFO: Folder created [%s]' % out_dir)
+#            out_path = osp.join(out_dir,'SIvsKNN_GroupLevel_{gm}_m{m}_Rdist.png'.format(m=str(m),gm=group_method))
+#            plt.savefig(out_path,bbox_inches='tight')
+#            plt.close()
+#            if verbose:
+#                print('++ INFO: Figure saved to disk [%s]' % out_path)
+#    return None
    
 
 # =============================================================================================
@@ -329,15 +331,16 @@ def generate_UMAP_SIvsKnn_ScanLevel(si,sbj,figsize=(10,5),m_list=[2,3], verbose=
             data_orig = si.loc[sbj,'Original',norm_method,init_method,min_dist,:,:,:,m,'Task',:].reset_index().drop(['Init','MinDist'],axis=1)
             data_nc   = si.loc[sbj,'Null_ConnRand',norm_method,init_method,min_dist,:,:,:,m,'Task',:].reset_index().drop(['Init','MinDist'],axis=1)
             data_np   = si.loc[sbj,'Null_PhaseRand',norm_method,init_method,min_dist,:,:,:,m,'Task',:].reset_index().drop(['Init','MinDist'],axis=1)
-            g_orig = sns.lineplot(data=data_orig,y='SI',x='Knn',hue='Metric', style='Alpha',ax=ax, )
-            g_nc   = sns.lineplot(data=data_nc,y='SI',x='Knn', ax=ax, color='k', legend=False)
-            g_nc   = sns.lineplot(data=data_np,y='SI',x='Knn', ax=ax, color='lightgray', legend=False)
+            g_orig = sns.lineplot(data=data_orig,y='SI',x='Knn',hue='Metric', style='Alpha',ax=ax, palette=ORIGINAL_PALETTE)
+            g_nc   = sns.lineplot(data=data_nc,y='SI',x='Knn', hue='Metric', ax=ax, legend=False, palette=NULL_CONNRAND_PALETTE)
+            g_np   = sns.lineplot(data=data_np,y='SI',x='Knn', hue='Metric', ax=ax, legend=False, palette=NULL_PHASERAND_PALETTE)
             ax.set_ylim(y_min,y_max)
             ax.set_xlim(x_min,x_max)
             ax.grid()
             ax.set_title('Scan-Level [{sbj}] | {m}D'.format(m=str(m),sbj=sbj), fontsize=HUGE_SIZE)
             ax.legend(loc='upper right', ncol=2)
-            ax.set_ylabel('SI [{target}]'.format(target='Task'))
+            ax.set_ylabel('$SI_{%s}$' % 'Task')
+            #ax.set_ylabel('SI [{target}]'.format(target='Task'))
             out_dir = osp.join(PRJ_DIR,'Dashboard','Figures','UMAP')
             if not osp.exists(out_dir):
                 os.makedirs(out_dir)
@@ -364,16 +367,17 @@ def generate_Avg_UMAP_SIvsKnn_ScanLevel(si,sbj_list,figsize=(10,5),m_list=[2,3],
             data_orig = si.loc[sbj_list].loc[:,'Original'     , norm_method,init_method,min_dist,:,:,:,m,'Task',:].reset_index().drop(['Init','MinDist'],axis=1)
             data_nc   = si.loc[sbj_list].loc[:,'Null_ConnRand', norm_method,init_method,min_dist,:,:,:,m,'Task',:].reset_index().drop(['Init','MinDist'],axis=1)
             data_np   = si.loc[sbj_list].loc[:,'Null_PhaseRand',norm_method,init_method,min_dist,:,:,:,m,'Task',:].reset_index().drop(['Init','MinDist'],axis=1)
-            sns.lineplot(data=data_orig, y='SI', x='Knn', hue='Metric', style='Alpha', hue_order=['correlation','cosine','euclidean'],ax=ax)
-            sns.lineplot(data=data_nc,   y='SI', x='Knn', color='k',         legend=False, ax=ax)
-            sns.lineplot(data=data_np,   y='SI', x='Knn', color='lightgray', legend=False, ax=ax)
+            sns.lineplot(data=data_orig, y='SI', x='Knn', hue='Metric', style='Alpha', hue_order=['correlation','cosine','euclidean'],ax=ax, palette=ORIGINAL_PALETTE)
+            sns.lineplot(data=data_nc,   y='SI', x='Knn', hue='Metric', legend=False, ax=ax, palette=NULL_CONNRAND_PALETTE)
+            sns.lineplot(data=data_np,   y='SI', x='Knn', hue='Metric', legend=False, ax=ax, palette=NULL_PHASERAND_PALETTE)
         
             ax.set_ylim(y_min,y_max)
             ax.set_xlim(x_min,x_max)
             ax.grid()
             ax.set_title('Scan-Level | {m}D'.format(m=str(m)), fontsize=HUGE_SIZE)
             ax.legend(loc='upper right', ncol=2)
-            ax.set_ylabel('SI [{target}]'.format(target='Task'))
+            ax.set_ylabel('$SI_{%s}$' % 'Task')
+            #ax.set_ylabel('SI [{target}]'.format(target='Task'))
             out_dir = osp.join(PRJ_DIR,'Dashboard','Figures','UMAP')
             if not osp.exists(out_dir):
                 os.makedirs(out_dir)
@@ -402,16 +406,18 @@ def generate_UMAP_SIvsKNN_GroupLevel(si,comb_methods=['ALL','Procrustes'],figsiz
                 data_orig = si.loc[group_method].loc['Original',norm_method,init_method,min_dist,:,:,:,m,target,:]
                 data_nc = si.loc[group_method].loc['Null_ConnRand',norm_method,init_method,min_dist,:,:,:,m,target,:]
                 data_np = si.loc[group_method].loc['Null_PhaseRand',norm_method,init_method,min_dist,:,:,:,m,target,:]
-
-                sns.lineplot(data=data_orig,y='SI',x='Knn', hue='Metric', style='Alpha',hue_order=['correlation','cosine','euclidean'],ax=ax)
-                sns.lineplot(data=data_nc,y='SI',x='Knn',color='Black',legend=False,ax=ax)
-                sns.lineplot(data=data_np,y='SI',x='Knn',color='lightgray',legend=False,ax=ax)
+                #sns.lineplot(data=data_nc,  y='SI',x='Knn', hue='Metric', hue_order=['correlation','cosine','euclidean'],legend=False,ax=ax, palette=NULL_CONNRAND_PALETTE)
+                #sns.lineplot(data=data_np,  y='SI',x='Knn', hue='Metric', hue_order=['correlation','cosine','euclidean'],legend=False,ax=ax, palette=NULL_PHASERAND_PALETTE)
+                sns.lineplot(data=data_nc,  y='SI',x='Knn', legend=False,ax=ax, color=NULL_CONNRAND_PALETTE[0])
+                sns.lineplot(data=data_np,  y='SI',x='Knn', legend=False,ax=ax, color=NULL_PHASERAND_PALETTE[0])
+                sns.lineplot(data=data_orig,y='SI',x='Knn', hue='Metric', hue_order=['correlation','cosine','euclidean'],             ax=ax, palette=ORIGINAL_PALETTE)
                 ax.set_ylim(y_min,y_max)
                 ax.set_xlim(x_min,x_max)
                 ax.grid()
                 ax.set_title('Group-Level [{gm}] | {m}D'.format(m=str(m),gm=group_method_2_label[group_method]), fontsize=HUGE_SIZE)
                 ax.legend(loc='upper right', ncol=2)
-                ax.set_ylabel('SI [{target}]'.format(target=target))
+                ax.set_ylabel('$SI_{%s}$' % target)
+                #ax.set_ylabel('SI [{target}]'.format(target=target))
                 out_dir = osp.join(PRJ_DIR,'Dashboard','Figures','UMAP')
                 if not osp.exists(out_dir):
                     os.makedirs(out_dir)
@@ -441,15 +447,16 @@ def generate_TSNE_SIvsKnn_ScanLevel(si,sbj,figsize=(10,5),m_list=[2,3], verbose=
             data_orig = si.loc[sbj,'Original',norm_method,:,:,m,:,init_method,'Task',:].reset_index().drop(['Init'],axis=1)
             data_nc   = si.loc[sbj,'Null_ConnRand',norm_method,:,:,m,:,init_method,'Task',:].reset_index().drop(['Init'],axis=1)
             data_np   = si.loc[sbj,'Null_PhaseRand',norm_method,:,:,m,:,init_method,'Task',:].reset_index().drop(['Init'],axis=1)
-            g_orig = sns.lineplot(data=data_orig,y='SI',x='PP',hue='Metric', style='Alpha',ax=ax, )
-            g_nc   = sns.lineplot(data=data_nc,y='SI',x='PP', ax=ax, color='k', legend=False)
-            g_nc   = sns.lineplot(data=data_np,y='SI',x='PP', ax=ax, color='lightgray', legend=False)
+            g_orig = sns.lineplot(data=data_orig,y='SI',x='PP',hue='Metric', style='Alpha',ax=ax, palette=ORIGINAL_PALETTE)
+            g_nc   = sns.lineplot(data=data_nc,y='SI',x='PP', ax=ax,  legend=False, palette=NULL_CONNRAND_PALETTE)
+            g_nc   = sns.lineplot(data=data_np,y='SI',x='PP', ax=ax,  legend=False, palette=NULL_PHASERAND_PALETTE)
             ax.set_ylim(y_min,y_max)
             ax.set_xlim(x_min,x_max)
             ax.grid()
             ax.set_title('Scan-Level [{sbj}] | {m}D'.format(m=str(m),sbj=sbj), fontsize=HUGE_SIZE)
             ax.legend(loc='upper right', ncol=2)
-            ax.set_ylabel('SI [{target}]'.format(target='Task'))
+            ax.set_ylabel('$SI_{%s}$' % 'Task')
+            #ax.set_ylabel('SI [{target}]'.format(target='Task'))
             out_dir = osp.join(PRJ_DIR,'Dashboard','Figures','TSNE')
             if not osp.exists(out_dir):
                 os.makedirs(out_dir)
@@ -473,19 +480,20 @@ def generate_Avg_TSNE_SIvsKnn_ScanLevel(si,sbj_list,figsize=(10,5),m_list=[2,3],
     for norm_method in norm_methods:
         for m in m_list:
             fig, ax = plt.subplots(1,1,figsize=figsize)
-            data_orig = si.loc[sbj_list].loc[:,'Original', norm_method,:,:,2,:,init_method,'Task',:].reset_index().drop(['Init'],axis=1)
-            data_nc   = si.loc[sbj_list].loc[:,'Null_ConnRand', norm_method,:,:,2,:,init_method,'Task',:].reset_index().drop(['Init'],axis=1)
-            data_np   = si.loc[sbj_list].loc[:,'Null_PhaseRand', norm_method,:,:,2,:,init_method,'Task',:].reset_index().drop(['Init'],axis=1)
-            sns.lineplot(data=data_orig, y='SI', x='PP', hue='Metric', style='Alpha', hue_order=['correlation','cosine','euclidean'],ax=ax)
-            sns.lineplot(data=data_nc,   y='SI', x='PP', color='k',         legend=False, ax=ax)
-            sns.lineplot(data=data_np,   y='SI', x='PP', color='lightgray', legend=False, ax=ax)
+            data_orig = si.loc[sbj_list].loc[:,'Original',       norm_method, :,:,m,:,init_method,'Task',:].reset_index().drop(['Init'],axis=1)
+            data_nc   = si.loc[sbj_list].loc[:,'Null_ConnRand',  norm_method, :,:,m,:,init_method,'Task',:].reset_index().drop(['Init'],axis=1)
+            data_np   = si.loc[sbj_list].loc[:,'Null_PhaseRand', norm_method, :,:,m,:,init_method,'Task',:].reset_index().drop(['Init'],axis=1)
+            sns.lineplot(data=data_orig, y='SI', x='PP', hue='Metric', style='Alpha', hue_order=['correlation','cosine','euclidean'],ax=ax, palette=ORIGINAL_PALETTE)
+            sns.lineplot(data=data_nc,   y='SI', x='PP', hue='Metric', legend=False, ax=ax, palette=NULL_CONNRAND_PALETTE)
+            sns.lineplot(data=data_np,   y='SI', x='PP', hue='Metric', legend=False, ax=ax, palette=NULL_PHASERAND_PALETTE)
         
             ax.set_ylim(y_min,y_max)
             ax.set_xlim(x_min,x_max)
             ax.grid()
             ax.set_title('Scan-Level | {m}D'.format(m=str(m)), fontsize=HUGE_SIZE)
             ax.legend(loc='upper right', ncol=2)
-            ax.set_ylabel('SI [{target}]'.format(target='Task'))
+            ax.set_ylabel('$SI_{%s}$' % 'Task')
+            #ax.set_ylabel('SI [{target}]'.format(target='Task'))
             out_dir = osp.join(PRJ_DIR,'Dashboard','Figures','TSNE')
             if not osp.exists(out_dir):
                 os.makedirs(out_dir)
@@ -498,6 +506,7 @@ def generate_Avg_TSNE_SIvsKnn_ScanLevel(si,sbj_list,figsize=(10,5),m_list=[2,3],
             plt.close()
     return None
 
+   
 def generate_TSNE_SIvsKNN_GroupLevel(si,comb_methods=['ALL','Procrustes'],figsize=(10,5),target_m_tuples=[('Task',2),('Task',3),('Subject',2),('Subject',3)], 
                                      verbose=False, y_min=-0.2, y_max=0.85,x_min=5,x_max=200,init_method='pca', norm_methods=norm_methods):
     plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
@@ -515,15 +524,16 @@ def generate_TSNE_SIvsKNN_GroupLevel(si,comb_methods=['ALL','Procrustes'],figsiz
                 data_nc = si.loc[group_method].loc['Null_ConnRand',norm_method,:,:,:m,:,init_method,target]
                 data_np = si.loc[group_method].loc['Null_PhaseRand',norm_method,:,:,:m,:,init_method,target]
 
-                sns.lineplot(data=data_orig,y='SI',x='PP', hue='Metric', style='Alpha',hue_order=['correlation','cosine','euclidean'],ax=ax)
-                sns.lineplot(data=data_nc,y='SI',x='PP',color='Black',legend=False,ax=ax)
-                sns.lineplot(data=data_np,y='SI',x='PP',color='lightgray',legend=False,ax=ax)
+                sns.lineplot(data=data_orig,y='SI',x='PP', hue='Metric', hue_order=['correlation','cosine','euclidean'],ax=ax, palette=ORIGINAL_PALETTE)
+                sns.lineplot(data=data_nc,y='SI',x='PP',hue='Metric', hue_order=['correlation','cosine','euclidean'], legend=False,ax=ax, palette=NULL_CONNRAND_PALETTE)
+                sns.lineplot(data=data_np,y='SI',x='PP',hue='Metric', hue_order=['correlation','cosine','euclidean'], legend=False,ax=ax, palette=NULL_PHASERAND_PALETTE)
                 ax.set_ylim(y_min,y_max)
                 ax.set_xlim(x_min,x_max)
                 ax.grid()
                 ax.set_title('Group-Level [{gm}] | {m}D'.format(m=str(m),gm=group_method_2_label[group_method]), fontsize=HUGE_SIZE)
                 ax.legend(loc='upper right', ncol=2)
-                ax.set_ylabel('SI [{target}]'.format(target=target))
+                ax.set_ylabel('$SI_{%s}$' % target)
+                #ax.set_ylabel('SI [{target}]'.format(target=target))
                 out_dir = osp.join(PRJ_DIR,'Dashboard','Figures','TSNE')
                 if not osp.exists(out_dir):
                     os.makedirs(out_dir)

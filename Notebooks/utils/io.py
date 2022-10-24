@@ -123,13 +123,13 @@ def load_UMAP_SI(sbj_list,check_availability=False, verbose=False, wls=45, wss=1
     return si_UMAP
    
 def load_TSNE_SI(sbj_list,check_availability=False, verbose=False, wls=45, wss=1.5,
-                 input_datas=input_datas,norm_method=norm_methods,dist_metrics=tsne_dist_metrics,
-                 init_methods=tsne_inits,pps=tsne_pps, alphas=tsne_alphas, ms=tsne_ms):
+                 input_datas=input_datas,norm_methods=norm_methods,dist_metrics=tsne_dist_metrics,
+                 init_methods=tsne_inits,pps=tsne_pps, alphas=tsne_alphas, ms=tsne_ms, no_tqdm=False):
     si_TSNE = pd.DataFrame(columns=['Subject','Input Data','Norm','Metric','PP','m','Alpha','Init','Target','SI'])
     num_missing_files = 0
     num_needed_files = 0
-    for sbj in tqdm_notebook(sbj_list, desc='Subjects:'):
-        for input_data in tqdm_notebook(input_datas, desc='Data Inputs:',leave=False):
+    for sbj in tqdm_notebook(sbj_list, desc='Subjects:', disable=no_tqdm):
+        for input_data in tqdm_notebook(input_datas, desc='Data Inputs:',leave=False,disable=no_tqdm):
             for norm_method in norm_methods:
                 for dist in dist_metrics:
                     for pp in pps:
