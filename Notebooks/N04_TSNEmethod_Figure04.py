@@ -52,7 +52,7 @@ np.random.seed(43)
 # T-SNE Setup Hyper-paramters
 desired_dimensions      = 2           # Final Number of dimensions
 desired_perplexity      = 100.0       # Perplexity: related to neighborhood size or a trade-off between focus on local vs. global structure
-distance_function       = 'euclidean' # Distance Function
+distance_function       = 'correlation'#'euclidean' # Distance Function
 
 # T-SNE Gradient Descent Hyper-parameters
 n_iter                  = 1000        # Maximum Number of Iterations for Gradient Descent (KL Optimization)
@@ -62,6 +62,25 @@ learning_rate           = 500         # Learning rate
 min_gain                = 0.01        #
 early_exaggeration      = 4.          # Early Exaggeration Factor
 early_exaggeration_ends = 100         # Number of itrations for early exasggeration
+
+
+# Tolerance-related parameters
+tsne_initialization     = 'random' #  'random' or 'pca'
+
+# +
+# T-SNE Setup Hyper-paramters
+desired_dimensions      = 2           # Final Number of dimensions
+desired_perplexity      = 200.0       # Perplexity: related to neighborhood size or a trade-off between focus on local vs. global structure
+distance_function       = 'euclidean'#'euclidean' # Distance Function
+
+# T-SNE Gradient Descent Hyper-parameters
+n_iter                  = 1000        # Maximum Number of Iterations for Gradient Descent (KL Optimization)
+initial_momentum        = 0.5         # Initial momentum      
+final_momentum          = 0.8         # Final momentum
+learning_rate           = 10         # Learning rate
+min_gain                = 0.01        #
+early_exaggeration      = 4.          # Early Exaggeration Factor
+early_exaggeration_ends = 250         # Number of itrations for early exasggeration
 
 
 # Tolerance-related parameters
@@ -146,7 +165,7 @@ pd.DataFrame(Y,columns=['x','y']).hvplot.scatter(x='x',y='y', aspect='square', c
 #
 # Dissimilarity is once again computed using the Euclidean Distance.
 
-DS_low = squareform(pdist(Y, 'euclidean')) 
+DS_low = squareform(pdist(Y, distance_function)) 
 plot_matrix(DS_low,tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs)
 
 # Next, to go from dissimilarity to affinity matrix in the lower dimensional space, this time we use a T-student kernel instead of the Gaussian kernel
