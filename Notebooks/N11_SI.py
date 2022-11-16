@@ -33,6 +33,7 @@ def run(args):
 
     # Remove XXXX windows
     # ===================
+    print('++ INFO: Starting Embedding Shape       = %s' % str(emb.shape))
     if type(emb.index) is pd.MultiIndex:
        try:
           emb_pure = emb.drop('XXXX',level='Window Name').copy()
@@ -45,7 +46,7 @@ def run(args):
        except:
           emb_pure = emb.copy()
           print('++ WARNING: Dataframe does not contain XXXX entries. This should only be the case for group-level Procrustes data')
-    print(' + Final Embedding DataFrame Size = %s' % str(emb_pure.shape))
+    print(' +       Final Embedding DataFrame Size = %s' % str(emb_pure.shape))
     # Compute Silhouette Index
     # ========================
     df = pd.Series(index=['SI_'+labelID for labelID in label_ids], dtype=float)
