@@ -7,8 +7,8 @@ from matplotlib.colors import rgb2hex, rgb_to_hsv
 
 PRJ_DIR = '/data/SFIMJGC_HCP7T/manifold_learning_fmri'
 
-task_cmap      = {'Rest': 'gray', 'Memory': 'blue', 'Video': '#F4D03F', 'Math': 'green', 'Inbetween': 'black'}
-task_cmap_caps = {'REST': 'gray', 'BACK': 'blue',   'VIDE':  '#F4D03F',  'MATH': 'green', 'XXXX': 'black'}
+task_cmap      = {'Rest': 'gray', 'Memory': 'blue', 'Video': '#F4D03F', 'Math': 'green', 'Inbetween': 'pink'}
+task_cmap_caps = {'REST': 'gray', 'BACK': 'blue',   'VIDE':  '#F4D03F',  'MATH': 'green', 'XXXX': 'pink'}
 
 PNAS2015_folder         = '/data/SFIMJGC/PRJ_CognitiveStateDetection01/'
 PNAS2015_subject_list   = ['SBJ06', 'SBJ07', 'SBJ08', 'SBJ09', 'SBJ10', 'SBJ11', 'SBJ12', 'SBJ13', 'SBJ16', 'SBJ17', 'SBJ18', 'SBJ19', 'SBJ20', 'SBJ21', 'SBJ22', 'SBJ23', 'SBJ24', 'SBJ25', 'SBJ26', 'SBJ27']
@@ -26,19 +26,20 @@ group_method_2_label = {'ALL':'Concatenation','Procrustes':'Procrustes'}
 # Laplacian Eigenmap Variables
 le_dist_metrics = ['euclidean','correlation','cosine']
 le_knns         = [int(i) for i in np.linspace(start=5, stop=200, num=40)]
-le_ms           = [2,3,30]
+le_ms           = [2,3,5,10,15,20,25,30]
 
 # TSNE Variables
 tsne_dist_metrics = ['euclidean','correlation','cosine']
-tsne_pps          = [int(i) for i in np.linspace(start=5, stop=100, num=20)] + [150, 200]
-tsne_ms           = [2,3] #4,5,10,15,20,25,30]
+#tsne_pps          = [int(i) for i in np.linspace(start=5, stop=100, num=20)] + [125, 150, 175, 200]
+tsne_pps          = [int(i) for i in np.linspace(start=20, stop=100, num=17)] + [125, 150, 175, 200]
+tsne_ms           = [2,3,5,10,15,20,25,30]
 tsne_alphas       = [10, 50, 75, 100, 200, 500, 1000]
 tsne_inits        = ['pca']
 
 # UMAP Variables
 umap_dist_metrics = ['euclidean','correlation','cosine']
 umap_knns         = [int(i) for i in np.linspace(start=5, stop=200, num=40)]
-umap_ms           = [2,3]#,4,5,10,15,20,25,30]
+umap_ms           = [2,3,5,10,15,20,25,30]
 umap_alphas       = [0.01, 0.1, 1.0]
 umap_inits        = ['spectral']
 
