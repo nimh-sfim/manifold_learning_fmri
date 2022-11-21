@@ -13,7 +13,8 @@ conda activate opentsne
 
 # Run the program
 
-python ./N12_TSNE_Procrustes.py -input_data ${input_data} \
+python ./N12_TSNE_Procrustes.py -sbj_list "${sbj_list}" \
+                                -input_data ${input_data} \
                                 -norm_method ${norm_method} \
                                 -dist ${dist} \
                                 -pp ${pp} \

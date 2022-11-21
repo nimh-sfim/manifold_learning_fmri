@@ -12,7 +12,8 @@ def run(args):
     wls         = 45
     wss         = 1.5
     np.random.seed(seed_value)
-
+    
+    sbj_list    = args.sbj_list.split(',')
     input_data  = args.input_data
     norm_method = args.norm_method
     dist        = args.dist
@@ -20,8 +21,11 @@ def run(args):
     m           = args.m
     alpha       = args.alpha
     init_method = args.init_method
-    drop_xxxx   = bool(args.drop_xxxx)
-    
+    if args.drop_xxxx == "True":
+       drop_xxxx = True
+    elif args.drop_xxxx == "False":
+       drop_xxxx = False
+      
     emb_path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','Procrustes','TSNE',input_data,
                                 'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{alpha}_{init}.{nm}.pkl'.format(wls=str(int(wls)).zfill(3),alpha=str(alpha),
                                                                                                                       wss=str(wss),init=init_method,
@@ -54,7 +58,7 @@ def run(args):
     
     # Load SI for the embeddings to be aligned
     print('++ INFO: Loading Scan-level SI for all participanting scans...')
-    si_TSNE = load_TSNE_SI(sbj_list=PNAS2015_subject_list,check_availability=False, verbose=False, wls=wls, wss=wss, 
+    si_TSNE = load_TSNE_SI(sbj_list=sbj_list,check_availability=False, verbose=False, wls=wls, wss=wss, 
                            input_datas=[input_data], norm_methods=[norm_method], dist_metrics=[dist],
                            init_methods=[init_method], pps=[pp], alphas=[alpha], ms=[m], no_tqdm=True)
     print(' + si_TSNE.shape = %s' % str(si_TSNE.shape))
@@ -63,30 +67,65 @@ def run(args):
     
     # Compute Procrustes Transformation
     print('++ INFO: Computing Procrustes Transformation....')
-    aux = procrustes_scan_tsne_embs(PNAS2015_subject_list,si_TSNE,input_data,norm_method,dist,pp,m,alpha, init_method,drop_xxxx=True)
-    aux.index.name = 'WinID'
-    aux.columns.name = ''
+    aux = procrustes_scan_tsne_embs(PNAS2015_subject_list,si_TSNE,input_data,norm_method,dist,pp,m,alpha, init_method,drop_xxxx=drop_xxxx)
+    if aux is None:
+        print('++ ERROR: Exiting Program.')
+        return None
+    aux = aux.set_index(['Subject','Window Name'])
+    aux.columns.name = 'TSNE Dimensions'
     print('++ INFO: Saving Group Level Embedding to disk...[%s]' % emb_path)
     aux.to_pickle(emb_path)
-    
+   
     # Evaluate the Quality of the Embedding with the SI index
-    tsne_dims = [c for c in aux.columns if 'TSNE0' in c]
-    print('++ INFO: Computing SIsbj...')
-    si_sbj  = silhouette_score(aux[tsne_dims], aux.reset_index()['Subject'], n_jobs=-1)
-    print(' +       SIsbj = %.2f' % si_sbj)
-    print('++ INFO: Computing SItask...')
-    si_task = silhouette_score(aux[tsne_dims], aux.reset_index()['Window Name'], n_jobs=-1)
-    print(' +       SItask = %.2f' % si_task)
+    # Evaluation is always only with task homogenous windows
+    print('++ INFO: Starting the evaluation phase....')
+    print(aux.head(10))
+    print(' +       Emb Size Pre-Eval = %s' % str(aux.shape))
+    if type(aux.index) is pd.MultiIndex:
+       print(' +       Index is MultiIndex Type')
+       aux = aux.drop('XXXX', level='Window Name')
+    else:
+       print(' +       Index is Simple Index Type')
+       aux = aux.drop('XXXX',axis=0)
+    print(' +       Emb Size Post-Eval = %s' % str(aux.shape))
+    print(' +       Looping through dimensions....')
+    # Create Empty Dataframe that will hold all computed SI values
+    # ============================================================
+    df = pd.DataFrame(index=['SI_Subject','SI_Window Name'], columns=np.arange(2,m+1))
+    df.columns.name = 'm'
     
-    # Writing SI results to disk
-    df = pd.Series(index=['SI_Subject','SI_Window Name'], dtype=float)
-    df['SI_Subject'] = si_sbj
-    df['SI_Window Name'] = si_task
+    for m_max in np.arange(2,m+1):
+          sel_dims = ['TSNE'+str(i+1).zfill(3) for i in np.arange(m_max)]
+          print(' +      [%d/%d]  Dimensions = %s' % (m_max,m,str(sel_dims)))
+          si_sbj  = silhouette_score(aux[sel_dims], aux.reset_index()['Subject'], n_jobs=-1)
+          si_task = silhouette_score(aux[sel_dims], aux.reset_index()['Window Name'], n_jobs=-1)
+          print(' +               SIsbj = %.2f | SItask= %.2f' % (si_sbj,si_task))
+          df.loc['SI_Subject',m_max]     = si_sbj 
+          df.loc['SI_Window Name',m_max] = si_task 
+    print('++ INFO: Evaluation completed...')
+    print(df)
     print('++ INFO: Saving SI values to disk... [%s]' % si_path)
     df.to_pickle(si_path)
+   
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # # Evaluate the Quality of the Embedding with the SI index
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # tsne_dims = [c for c in aux.columns if 'TSNE0' in c]
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # print('++ INFO: Computing SIsbj...')
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # si_sbj  = silhouette_score(aux[tsne_dims], aux.reset_index()['Subject'], n_jobs=-1)
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # print(' +       SIsbj = %.2f' % si_sbj)
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # print('++ INFO: Computing SItask...')
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # si_task = silhouette_score(aux[tsne_dims], aux.reset_index()['Window Name'], n_jobs=-1)
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # print(' +       SItask = %.2f' % si_task)
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # 
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # # Writing SI results to disk
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # df = pd.Series(index=['SI_Subject','SI_Window Name'], dtype=float)
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # df['SI_Subject'] = si_sbj
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # df['SI_Window Name'] = si_task
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # print('++ INFO: Saving SI values to disk... [%s]' % si_path)
+    # CODE BEFORE WE STARTED COMPUTING SI FOR ALL Ms UP TO M_MAX # df.to_pickle(si_path)
     
 def main():
-    parser=argparse.ArgumentParser(description="Create a Laplacian Eigenmap embedding given a tvFC matrix")
+    parser=argparse.ArgumentParser(description="Apply Procrustes Transformation to Scan-level TSNE Embeddings")
+    parser.add_argument("-sbj_list",    help="List of scans",                   dest="sbj_list",    type=str,  required=True)
     parser.add_argument("-input_data",  help="Input data",                      dest="input_data",  type=str,  required=True)
     parser.add_argument("-norm_method", help="FC matrix normalization method",  dest="norm_method", type=str,  required=True)
     parser.add_argument("-dist",        help="Distance Metric",                 dest="dist",        type=str,  required=True)
