@@ -170,6 +170,85 @@ swarm_file.close()
 print("++ INFO: Attempts/Written = [%d/%d]" % (num_entries,num_iters))
 # -
 
+# ## Group-Level [Procrustes]
+
+# +
+#user specific folders
+#=====================
+username = getpass.getuser()
+print('++ INFO: user working now --> %s' % username)
+
+swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
+logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
+
+swarm_path     = osp.join(swarm_folder,'N13_UMAP_Eval_Clustering_Procrustes.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N13_UMAP_Eval_Clustering_Procrustes.logs')
+
+if not osp.exists(swarm_folder):
+    os.makedirs(swarm_folder)
+if not osp.exists(logdir_path):
+    os.makedirs(logdir_path)
+print('++ INFO: Swarm File:  %s' % swarm_path)
+print('++ INFO: Logs Folder: %s' % logdir_path)
+# -
+
+
+
+# +
+# Open the file
+swarm_file = open(swarm_path, "w")
+# Log the date and time when the SWARM file is created
+swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+swarm_file.write('\n')
+
+# Insert comment line with SWARM command
+swarm_file.write('#swarm -J UMAP_Procrustes_SI -f {swarm_path} -b 6 -g 4 -t 4 --time 00:10:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
+swarm_file.write('\n')
+num_entries = 0 
+num_iters = 0
+
+input_method = 'spectral'
+mdist        = 0.8
+for input_data in ['Original']:
+    for norm_method in ['zscored']:
+        for dist in ['euclidean']:
+            for knn in umap_knns:
+                for alpha in umap_alphas:
+                    for m in [2,3,5,10,15,20,25,30]:
+                        num_entries += 1
+                        swarm_file.write('export sbj_list="{sbj_list}" input_data={input_data} norm_method={norm_method} dist={dist} knn={knn} mdist={mdist} m={m} drop_xxxx={drop_xxxx} alpha={alpha} init_method={init_method}; sh {scripts_dir}/N13_UMAP_Procrustes.sh'.format(
+                                                                                                 sbj_list=','.join(PNAS2015_subject_list),
+                                                                                                 input_data = input_data,
+                                                                                                 norm_method = norm_method,
+                                                                                                 dist = dist,
+                                                                                                 knn  = str(knn),
+                                                                                                 m = str(m),
+                                                                                                 mdist = str(mdist),
+                                                                                                 init_method=init_method,
+                                                                                                 alpha=str(alpha),
+                                                                                                 drop_xxxx='True',
+                                                                                                 scripts_dir = osp.join(PRJ_DIR,'Notebooks')))
+                        swarm_file.write('\n')
+swarm_file.close()
+print("++ INFO: Missing/Needed = [%d/%d]" % (num_entries,num_iters))
+# -
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # *** 
 # # Procrustes
 
