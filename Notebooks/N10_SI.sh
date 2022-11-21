@@ -12,5 +12,5 @@ echo "++ Activating rapidtide environment"
 conda activate opentsne
 
 # Run the program
-python ./N11_SI.py -input   ${input} \
+python ./N10_SI.py -input   ${input} \
                    -output  ${output} 
