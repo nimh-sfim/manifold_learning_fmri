@@ -171,20 +171,50 @@ def load_UMAP_SI(sbj_list,check_availability=False, verbose=False, wls=45, wss=1
                                                                                                                                                    m=str(m).zfill(4),
                                                                                                                                                    min_dist=str(min_dist),
                                                                                                                                                    alpha=str(alpha)))
+                     
+                     
                                    if not osp.exists(path):
                                        num_missing_files = num_missing_files + 1
                                        if verbose:
                                            print('-e "%s"' % path, end=' ')
                                        continue
                                    if not check_availability:
+                                       print('++ About to load [%s]' % path)
                                        aux = pd.read_pickle(path)
+                                       # For Scan_level SI are saved in pd.Series
+                                       # for Group_level SI are saved in pd.Dataframe... we select the value for the m that we requested
+                                       if isinstance(aux,pd.DataFrame):
+                                           if sbj == 'Procrustes':
+                                               m_report = min(m,3)
+                                           elif sbj == 'ALL':
+                                               m_report = min(m,3)
+                                           else:
+                                               m_report = m
+                                           aux = aux[m_report]
                                        label_ids = list(aux.index)
                                        for label in label_ids:
                                            si_UMAP = si_UMAP.append({'Subject':sbj,'Input Data':input_data,
                                                                      'Norm':norm_method,'Metric':dist,
                                                                      'Knn':knn,'m':m,'Alpha':alpha,'Init':init_method,
                                                                      'MinDist':min_dist,
-                                                                     'Target':label.split('_')[1],'SI':aux[label]}, ignore_index=True)
+                                                                     'Target':label.split('_')[1],'SI':aux.loc[label]}, ignore_index=True)
+                                       
+                                           
+                                   ################       
+                                   #if not osp.exists(path):
+                                   #    num_missing_files = num_missing_files + 1
+                                   #    if verbose:
+                                   #        print('-e "%s"' % path, end=' ')
+                                   #    continue
+                                   #if not check_availability:
+                                   #    aux = pd.read_pickle(path)
+                                   #    label_ids = list(aux.index)
+                                   #    for label in label_ids:
+                                   #        si_UMAP = si_UMAP.append({'Subject':sbj,'Input Data':input_data,
+                                   #                                  'Norm':norm_method,'Metric':dist,
+                                   #                                  'Knn':knn,'m':m,'Alpha':alpha,'Init':init_method,
+                                   #                                  'MinDist':min_dist,
+                                   #                                  'Target':label.split('_')[1],'SI':aux[label]}, ignore_index=True)
                                            
     if verbose:
          print('++ INFO [load_UMAP_SI]: Number of files missing = [%d/%d] files' % (num_missing_files,num_needed_files))
@@ -266,6 +296,7 @@ def load_single_umap(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist
                 aux = aux.drop('XXXX',axis=0)
         return aux
     else:
+        print("++ WARNING: Missing File [%s]" % path)
         return None
 
 def load_single_tsne(sbj,input_data,scenario,dist,pp,alpha,init_method,m,wls=45,wss=1.5, drop_xxxx=True):
