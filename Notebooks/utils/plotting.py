@@ -20,6 +20,11 @@ NULL_CONNRAND_PALETTE  = sns.color_palette('Wistia',n_colors=3)
 NULL_PHASERAND_PALETTE = sns.color_palette('gist_gray',n_colors=3)
 ORIGINAL_PALETTE       = sns.color_palette(palette='bright',n_colors=3)
 
+scene_default_3d = dict(
+        xaxis = dict(nticks=4, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        yaxis = dict(nticks=4, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        zaxis = dict(nticks=4, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'))
+
 def check_symmetric(a, tol=1e-8):
     return np.all(np.abs(a-a.T) < tol)
  
@@ -132,20 +137,20 @@ def plot_2d_scatter(data,x,y,c,cmap=task_cmap, show_frame=False, s=2, alpha=0.3,
                             legend=legend, xaxis=xaxis, 
                             yaxis=yaxis, frame_width=frame_width, shared_axes=shared_axes).opts(toolbar=toolbar, show_frame=show_frame, tools=[])
     return plot
-camera = dict( up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=2, y=2, z=1))
-scene_correct_le = dict(
-        xaxis = dict(nticks=1, gridcolor="rgb(230,230,230)", showbackground=True, zerolinecolor="white",backgroundcolor='rgb(230,230,230)'),
-        yaxis = dict(nticks=1, gridcolor="rgb(230,230,230)", showbackground=True, zerolinecolor="white",backgroundcolor='rgb(230,230,230)'),
-        zaxis = dict(nticks=1, gridcolor="rgb(230,230,230)", showbackground=True, zerolinecolor="white",backgroundcolor='rgb(230,230,230)'))
- 
-def plot_3d_scatter(data,x,y,z,c,cmap,s=2):
+camera = dict( up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=2, y=2, z=1)) 
+
+def plot_3d_scatter(data,x,y,z,c,cmap,s=2,width=250, height=250, ax_range=[-.005,.005],nticks=4):
     fig = px.scatter_3d(data,
                         x=x,y=y,z=z, 
-                        width=250, height=250, 
+                        width=width, height=height, 
                         opacity=0.3, color=c,color_discrete_sequence=cmap)
     fig.update_layout(showlegend=False, 
-                          font_color='white', scene_aspectmode='cube');
-    fig.update_layout(scene=scene_correct_le, margin=dict(l=2, r=2, b=0, t=0, pad=0))
+                          font_color='white');
+    scene_extra_confs = dict(
+        xaxis = dict(nticks=nticks, range=ax_range, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        yaxis = dict(nticks=nticks, range=ax_range, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        zaxis = dict(nticks=nticks, range=ax_range, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'))
+    fig.update_layout(scene_camera=camera, scene=scene_extra_confs, scene_aspectmode='cube',margin=dict(l=2, r=2, b=0, t=0, pad=0))
     fig.update_traces(marker_size = s)
     return fig
 
