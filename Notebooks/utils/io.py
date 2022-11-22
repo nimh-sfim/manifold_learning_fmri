@@ -179,7 +179,6 @@ def load_UMAP_SI(sbj_list,check_availability=False, verbose=False, wls=45, wss=1
                                            print('-e "%s"' % path, end=' ')
                                        continue
                                    if not check_availability:
-                                       print('++ About to load [%s]' % path)
                                        aux = pd.read_pickle(path)
                                        # For Scan_level SI are saved in pd.Series
                                        # for Group_level SI are saved in pd.Dataframe... we select the value for the m that we requested
