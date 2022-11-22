@@ -62,11 +62,12 @@ min_dist = 0.8
 # # Main Dashboard Panel: Configuration Options
 # -
 
-sbj_select      = pn.widgets.Select(name='Subject',                 options=PNAS2015_subject_list, value=PNAS2015_subject_list[0], width=150)
-input_select    = pn.widgets.Select(name='Input Data',              options=['Original','Null_ConnRand','Null_PhaseRand'],            value='Original', width=150)
-scenario_select = pn.widgets.Select(name='Normalization',           options=['asis','zscored'], value='asis', width=150)
-plot2d_toolbar_select  = pn.widgets.Select(name='2D Toolbar', options=['above', 'below', 'left', 'right', 'disable'], value='disable', width=150) 
-data_select_box = pn.Row(sbj_select,input_select, scenario_select, plot2d_toolbar_select, background='WhiteSmoke')
+sbj_select            = pn.widgets.Select(name='Subject',                 options=PNAS2015_subject_list, value=PNAS2015_subject_list[0], width=150)
+input_select          = pn.widgets.Select(name='Input Data',              options=['Original','Null_ConnRand','Null_PhaseRand'],            value='Original', width=150)
+scenario_select       = pn.widgets.Select(name='Normalization',           options=['asis','zscored'], value='asis', width=150)
+plot2d_toolbar_select = pn.widgets.Select(name='2D Toolbar', options=['above', 'below', 'left', 'right', 'disable'], value='disable', width=150) 
+data_select_box       = pn.Row(sbj_select,input_select, scenario_select, plot2d_toolbar_select, background='WhiteSmoke')
+data_select_box
 
 # ***
 # # Laplacian Eigenmaps
@@ -122,10 +123,7 @@ le_grcc_col_sel = pn.widgets.Select(name='[G-CC] Color By:', options=['Window Na
 le_grpt_col_sel = pn.widgets.Select(name='[G-PT] Color By:', options=['Window Name','Subject'], value='Window Name', width=150)
 le_drop_xxxx    = pn.widgets.Checkbox(name='Drop Mixed Windows', width=150)
 le_conf_box     = pn.WidgetBox(le_dist_select,le_knn_select,le_m_select,le_grcc_col_sel,le_grpt_col_sel,le_drop_xxxx)
-le_knn_ls       = pn.indicators.LoadingSpinner(value=True, width=20, height=20, name='le_knn_ls', color='warning')
-le_emb_scan_ls  = pn.indicators.LoadingSpinner(value=True, width=20, height=20, name='le_emb_scan_ls', color='warning')
-le_emb_grcc_ls  = pn.indicators.LoadingSpinner(value=True, width=20, height=20, name='le_emb_grcc_ls', color='warning')
-le_emb_grpt_ls  = pn.indicators.LoadingSpinner(value=True, width=20, height=20, name='le_emb_grpt_ls', color='warning')
+le_conf_box
 
 
 # +
@@ -157,7 +155,6 @@ def plot_LE_Scan_scats(sbj,input_data,scenario,dist,knn,m,plot_2d_toolbar, drop_
                              pn.pane.DataFrame(si_LE.loc[sbj,input_data,scenario,dist,knn,2].round(2),width=150),
                              pn.pane.DataFrame(si_LE.loc[sbj,input_data,scenario,dist,knn,3].round(2),width=150),
                              pn.pane.DataFrame(si_LE.loc[sbj,input_data,scenario,dist,knn,m].round(2),width=150)],ncols=3)
-    le_emb_scan_ls.value = False
     return plots
 
 @pn.depends(input_select,scenario_select,le_dist_select,le_knn_select,le_m_select,le_grcc_col_sel,plot2d_toolbar_select,le_drop_xxxx)
@@ -182,7 +179,6 @@ def plot_LE_Group_Concat_scats(input_data,scenario,dist,knn,m,color_col,plot_2d_
                              plot_3d_scatter(aux_3d,x='LE001',y='LE002',z='LE003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
                              pn.pane.DataFrame(si_LE.loc['ALL',input_data,scenario,dist,knn,2].round(2),width=150),
                              pn.pane.DataFrame(si_LE.loc['ALL',input_data,scenario,dist,knn,2].round(3),width=150)],ncols=2)
-    le_emb_grcc_ls.value = False
     return plots
 
 @pn.depends(input_select,scenario_select,le_dist_select,le_knn_select,le_m_select,le_grpt_col_sel,plot2d_toolbar_select,le_drop_xxxx)
@@ -209,14 +205,7 @@ def plot_LE_Group_Procrustes_scats(input_data,scenario,dist,knn,m,color_col,plot
         aux_Md = aux_Md.apply(zscore)
         aux_Md = aux_Md.reset_index()
         aux_Md = aux_Md.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
-        # SI with only the first three dimensions
-        #le_dims = ['LE001','LE002','LE003']
-        #si_sbj  = silhouette_score(aux_Md[le_dims], aux_Md.reset_index()['Subject'], n_jobs=-1)
-        #si_task = silhouette_score(aux_Md[le_dims], aux_Md.reset_index()['Window Name'], n_jobs=-1)
         
-        #si_Md_report = si_LE.loc['Procrustes',input_data,scenario,dist,knn,m].round(2)
-        #si_Md_report.loc['Subject','SI [3D]'] = si_sbj
-        #si_Md_report.loc['Task','SI [3D]'] = si_task
         si_Md_report = si_LE.loc['Procrustes',input_data,scenario,dist,knn,m].round(2)
         si_Md_report.loc['Subject','SI [3D]'] = load_LE_SI(['Procrustes'],input_datas=[input_data],dist_metrics=[dist],ms=[m],knns=[knn],norm_methods=[scenario],no_tqdm=True).set_index('Target').loc['Subject'].SI
         si_Md_report.loc['Task','SI [3D]'] = load_LE_SI(['Procrustes'],input_datas=[input_data],dist_metrics=[dist],ms=[m],knns=[knn],norm_methods=[scenario],no_tqdm=True).set_index('Target').loc['Window Name'].SI
@@ -244,7 +233,7 @@ def le_scan_knn_plots(sbj):
 
 # +
 le_figs_folder                = osp.join(PRJ_DIR,'Dashboard','Figures','LE')
-le_config_card                = pn.Column(le_conf_box, pn.Row(le_knn_ls,le_emb_scan_ls,le_emb_grcc_ls,le_emb_grpt_ls))
+le_config_card                = pn.Column(le_conf_box)
 le_embs_scan_card             = pn.layout.Card(plot_LE_Scan_scats,title='Scatter Plots - One Scan', width=825)
 le_embs_group_concat_card     = pn.layout.Card(plot_LE_Group_Concat_scats,title='Scatter Plots - Group Concatenation', width=825)
 le_embs_group_procrustes_card = pn.layout.Card(plot_LE_Group_Procrustes_scats,title='Scatter Plots - Procrustes', width=825)
@@ -271,21 +260,33 @@ le_tab=pn.Column(pn.Row(le_config_card,le_knn_plot_grid),le_embs_row)
 # ***
 # # UMAP
 # #### 1. Load Silhouette Index for UMAP
+#
+# Hyper-parameter space: 3 Inputs * 2 Norm Approach * 8 m * 3 dist * x knns * 3 alphas = 
+# * "Concat + UMAP": 17280 entries
+# * "UMAP + Procrustes": 17280 entries
+# * Single-Scan Level: 345600 entries
 # -
 
 # %%time
 RELOAD_SI_UMAP = False
 if RELOAD_SI_UMAP:
-    si_UMAP_all = load_UMAP_SI(sbj_list=['ALL'],check_availability=False, verbose=False, wls=wls, wss=wss, ms=[2,3])
-    si_UMAP_procrustes = load_UMAP_SI(sbj_list=['Procrustes'],check_availability=False, verbose=False, wls=wls, wss=wss, ms=[2,3])
-    si_UMAP_scans = load_UMAP_SI(sbj_list=PNAS2015_subject_list,check_availability=False, verbose=True, wls=wls, wss=wss, ms=[2,3])
-    
+    print('++ Loading Group-Level "Concat + UMAP" SI values.....')
+    si_UMAP_all = load_UMAP_SI(sbj_list=['ALL'],check_availability=False, verbose=False, wls=wls, wss=wss)
+    print('++ ==================================================')
+    print('++ Loading Group-Level "UMAP + Procrustes" SI values.....')
+    si_UMAP_procrustes = load_UMAP_SI(sbj_list=['Procrustes'],check_availability=False, verbose=False, wls=wls, wss=wss)
+    print('++ ======================================================')
+    print('++ Loading Scan-Level SI values.....')
+    si_UMAP_scans = load_UMAP_SI(sbj_list=PNAS2015_subject_list,check_availability=False, verbose=True, wls=wls, wss=wss)
+    print('++ =================================')
+    print('++ Combine into a single DataFrame....')
     si_UMAP = pd.concat([si_UMAP_scans, si_UMAP_all, si_UMAP_procrustes])
     si_UMAP.replace('Window Name','Task', inplace=True)
     si_UMAP = si_UMAP.set_index(['Subject','Input Data','Norm','Init','MinDist','Metric','Knn','Alpha','m','Target']).sort_index()
     del si_UMAP_scans, si_UMAP_all, si_UMAP_procrustes
-    
-    si_UMAP.to_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl'))
+    si_path = osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl')
+    print('++ Save Dataframe to disk [%s]' % si_path)
+    si_UMAP.to_pickle(si_path)
 else:
     si_UMAP = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl'))
 
@@ -302,6 +303,7 @@ if REGENERATE_UMAP_KNN_PLOTS:
 umap_figs_folder  = osp.join(PRJ_DIR,'Dashboard','Figures','UMAP')
 umap_knn_select   = pn.widgets.Select(name='Knn',             options=umap_knns,         value=umap_knns[0], width=150)
 umap_dist_select  = pn.widgets.Select(name='Distance Metric', options=umap_dist_metrics, value=umap_dist_metrics[0], width=150)
+umap_m_select     = pn.widgets.Select(name='M',   options=umap_ms,           value=umap_ms[0], width=150)
 umap_alpha_select = pn.widgets.Select(name='Learning Rate',   options=umap_alphas,       value=umap_alphas[0], width=150)
 umap_init_select  = pn.widgets.Select(name='Init Method',     options=['spectral'],        value='spectral', width=150)
 umap_mdist_select = pn.widgets.Select(name='Minimum Distance', options=[0.8],            value=0.8, width=150)
@@ -309,104 +311,177 @@ umap_grcc_col_sel = pn.widgets.Select(name='[G-CC] Color By:', options=['Window 
 umap_grpt_col_sel = pn.widgets.Select(name='[G-PT] Color By:', options=['Window Name','Subject','Alertness','Focus','Consistency','Dificulty'], value='Window Name', width=150)
 umap_drop_xxxx    = pn.widgets.Checkbox(name='Drop Mixed Windows', width=150)
 
-umap_conf_box     = pn.WidgetBox(umap_dist_select,umap_knn_select,umap_init_select,umap_alpha_select,umap_mdist_select,umap_grcc_col_sel,umap_grpt_col_sel,umap_drop_xxxx)
+umap_conf_box     = pn.WidgetBox(umap_dist_select,umap_knn_select,umap_init_select,umap_m_select,umap_alpha_select,umap_mdist_select,umap_grcc_col_sel,umap_grpt_col_sel,umap_drop_xxxx)
 
-umap_knn_ls       = pn.indicators.LoadingSpinner(value=True, width=20, height=20, name='umap_knn_ls', color='warning')
-umap_emb_scan_ls  = pn.indicators.LoadingSpinner(value=True, width=20, height=20, name='umap_emb_scan_ls', color='warning')
-umap_emb_grcc_ls  = pn.indicators.LoadingSpinner(value=True, width=20, height=20, name='umap_emb_grcc_ls', color='warning')
-umap_emb_grpt_ls  = pn.indicators.LoadingSpinner(value=True, width=20, height=20, name='umap_emb_grpt_ls', color='warning')
-umap_loaders      = pn.Row(umap_knn_ls,umap_emb_scan_ls,umap_emb_grcc_ls,umap_emb_grpt_ls)
-
-umap_LEFT_col     = pn.Column(umap_conf_box,umap_loaders)
+umap_LEFT_col     = pn.Column(umap_conf_box)
+umap_LEFT_col
 
 
-# + active=""
-# aux_2d = load_single_tsne('ALL','Original','asis','correlation',100,1000,'pca',2).reset_index()
-# aux_2d['Focus'], aux_2d['Alertness'], aux_2d['Consistency'], aux_2d['Difficulty'] = np.nan, np.nan, np.nan, np.nan
-# aux_2d = aux_2d.set_index('Subject')
-# for r,row in aux_2d.iterrows():
-#     try:
-#         aux_2d.loc[r,'Focus']       = df.loc[r,'Focus']['Value']
-#         aux_2d.loc[r,'Consistency'] = df.loc[r,'Consistency']['Value']
-#         aux_2d.loc[r,'Difficulty']  = df.loc[r,'Difficulty']['Value']
-#         aux_2d.loc[r,'Alertness']   = df.loc[r,'Alertness']['Value']
-#     except:
-#         None
+# -
 
-# +
-@pn.depends(sbj_select,input_select,scenario_select,umap_dist_select,umap_knn_select,umap_alpha_select,umap_init_select,umap_mdist_select,plot2d_toolbar_select,umap_drop_xxxx)
-def plot_UMAP_Scan_scats(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist,plot_2d_toolbar,drop_xxxx):
+@pn.depends(sbj_select,input_select,scenario_select,umap_dist_select,umap_knn_select,umap_m_select,umap_alpha_select,umap_init_select,umap_mdist_select,plot2d_toolbar_select,umap_drop_xxxx)
+def plot_UMAP_Scan_scats(sbj,input_data,scenario,dist,knn,m,alpha,init_method,min_dist,plot_2d_toolbar,drop_xxxx):
     plots = None
-    aux_2d = load_single_umap(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
-    aux_3d = load_single_umap(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist,3,drop_xxxx=drop_xxxx)
+    aux_2d, aux_3d, aux_Md = None, None, None
+    # Load all necessary embeddings
+    if m == 2:
+        aux_2d = load_single_umap(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
+    elif m == 3:
+        aux_2d = load_single_umap(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
+        aux_3d = load_single_umap(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist,3,drop_xxxx=drop_xxxx)
+    else:
+        aux_2d = load_single_umap(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
+        aux_3d = load_single_umap(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist,3,drop_xxxx=drop_xxxx)
+        aux_Md = load_single_umap(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist,m,drop_xxxx=drop_xxxx)
+        
+    # Preprare Embeddings and scales for plotting
     if not (aux_2d is None):
+        aux_2d = aux_2d.apply(zscore)
         aux_2d = aux_2d.reset_index()
+        aux_2d = aux_2d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
     if not (aux_3d is None):
-        #aux_3d = aux_3d.apply(zscore)
+        aux_3d = aux_3d.apply(zscore)
         aux_3d = aux_3d.reset_index()
+        aux_3d = aux_3d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
         aux_3d_task_cmap = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
+    if not (aux_Md is None):
+        aux_Md = aux_Md.apply(zscore)
+        aux_Md = aux_Md.reset_index()
+        aux_Md = aux_Md.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+        
     
-    if (not (aux_2d is None)) & (not (aux_3d is None)):
+    # Plotting
+    if (not (aux_2d is None)) & (aux_3d is None):
+        plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='UMAP001',y='UMAP002',c='Window Name', cmap=task_cmap, s=10, toolbar=plot_2d_toolbar),
+                             pn.pane.DataFrame(si_UMAP.loc[sbj,input_data,scenario,init_method,min_dist,dist,knn,alpha,2].round(2),width=150)],ncols=1)
+    if (not (aux_2d is None)) & (not (aux_3d is None)) & (aux_Md is None):
         plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='UMAP001',y='UMAP002',c='Window Name', cmap=task_cmap, s=10, toolbar=plot_2d_toolbar),
                              plot_3d_scatter(aux_3d,x='UMAP001',y='UMAP002',z='UMAP003',c='Window Name', cmap=aux_3d_task_cmap,s=3, ax_range=[-2,2]),
                              pn.pane.DataFrame(si_UMAP.loc[sbj,input_data,scenario,init_method,min_dist,dist,knn,alpha,2].round(2),width=150),
                              pn.pane.DataFrame(si_UMAP.loc[sbj,input_data,scenario,init_method,min_dist,dist,knn,alpha,3].round(2),width=150)
                             ],ncols=2)
-    return plots
+    if (not (aux_2d is None)) & (not (aux_3d is None)) & (not (aux_Md is None)):
+        plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='UMAP001',y='UMAP002',c='Window Name', cmap=task_cmap, s=10, toolbar=plot_2d_toolbar),
+                             plot_3d_scatter(aux_3d,x='UMAP001',y='UMAP002',z='UMAP003',c='Window Name', cmap=aux_3d_task_cmap,s=3, ax_range=[-2,2]),
+                             plot_3d_scatter(aux_Md,x='UMAP001',y='UMAP002',z='UMAP003',c='Window Name', cmap=aux_3d_task_cmap,s=3, ax_range=[-2,2]),
+                             pn.pane.DataFrame(si_UMAP.loc[sbj,input_data,scenario,init_method,min_dist,dist,knn,alpha,2].round(2),width=150),
+                             pn.pane.DataFrame(si_UMAP.loc[sbj,input_data,scenario,init_method,min_dist,dist,knn,alpha,3].round(2),width=150),
+                             pn.pane.DataFrame(si_UMAP.loc[sbj,input_data,scenario,init_method,min_dist,dist,knn,alpha,m].round(2),width=150)
+                            ],ncols=3)
+    return plots            
 
-@pn.depends(input_select,scenario_select,umap_dist_select,umap_knn_select,umap_alpha_select,umap_init_select,umap_mdist_select,umap_grcc_col_sel,plot2d_toolbar_select)
-def plot_UMAP_Group_Concat_scats(input_data,scenario,dist,knn,alpha,init_method,min_dist,color_col,plot_2d_toolbar):
+
+@pn.depends(input_select,scenario_select,umap_dist_select,umap_knn_select,umap_m_select,umap_alpha_select,umap_init_select,umap_mdist_select,umap_grcc_col_sel,plot2d_toolbar_select,umap_drop_xxxx)
+def plot_UMAP_Group_Concat_scats(input_data,scenario,dist,knn,m,alpha,init_method,min_dist,color_col,plot_2d_toolbar,drop_xxxx):
     plots = None
-    aux_2d = load_single_umap('ALL',input_data,scenario,dist,knn,alpha,init_method,min_dist,2)
-    aux_3d = load_single_umap('ALL',input_data,scenario,dist,knn,alpha,init_method,min_dist,3)
+    aux_2d, aux_3d, aux_Md = None, None, None
+    # Load all necessary embeddings
+    if m == 2:
+        aux_2d = load_single_umap('ALL',input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
+    elif m == 3:
+        aux_2d = load_single_umap('ALL',input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
+        aux_3d = load_single_umap('ALL',input_data,scenario,dist,knn,alpha,init_method,min_dist,3,drop_xxxx=drop_xxxx)
+    else:
+        aux_2d = load_single_umap('ALL',input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
+        aux_3d = load_single_umap('ALL',input_data,scenario,dist,knn,alpha,init_method,min_dist,3,drop_xxxx=drop_xxxx)
+        aux_Md = load_single_umap('ALL',input_data,scenario,dist,knn,alpha,init_method,min_dist,m,drop_xxxx=drop_xxxx)
+    # Preprare Embeddings
+    if not (aux_2d is None):
+        aux_2d = aux_2d.apply(zscore)
+        aux_2d = aux_2d.reset_index()
+        aux_2d = aux_2d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+    if not (aux_3d is None):
+        aux_3d = aux_3d.apply(zscore)
+        aux_3d = aux_3d.reset_index()
+        aux_3d = aux_3d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+    if not (aux_Md is None):
+        aux_Md = aux_Md.apply(zscore)
+        aux_Md = aux_Md.reset_index()
+        aux_Md = aux_Md.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+    # Prepare Color-scales
     if color_col == 'Subject':
         cmap_2d = sbj_cmap_dict
         cmap_3d = sbj_cmap_list
-    elif color_col == 'Window Name':
-        cmap_2d = task_cmap
-        cmap_3d = [task_cmap[t] for t in aux_3d.index.get_level_values('Window Name').unique()]
     else:
-        cmap_2d = ''
-    if not (aux_2d is None):
-        aux_2d = aux_2d.reset_index()
-    if not (aux_3d is None):
-        #aux_3d = aux_3d.apply(zscore)
-        aux_3d = aux_3d.reset_index()
-        aux_3d_task_cmap = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
-    if (not (aux_2d is None)) & (not (aux_3d is None)):
+        cmap_2d = task_cmap
+        if not(aux_3d is None):
+            cmap_3d = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
+    #Plotting
+    if (not (aux_2d is None)) & (aux_3d is None):
+        plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='UMAP001',y='UMAP002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
+                             pn.pane.DataFrame(si_UMAP.loc['ALL',input_data,scenario,init_method,min_dist,dist,knn,alpha,2].round(2),width=150)],ncols=1)
+    if (not (aux_2d is None)) & (not (aux_3d is None)) & (aux_Md is None):
         plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='UMAP001',y='UMAP002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
                              plot_3d_scatter(aux_3d,x='UMAP001',y='UMAP002',z='UMAP003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
                              pn.pane.DataFrame(si_UMAP.loc['ALL',input_data,scenario,init_method,min_dist,dist,knn,alpha,2].round(2),width=150),
-                             pn.pane.DataFrame(si_UMAP.loc['ALL',input_data,scenario,init_method,min_dist,dist,knn,alpha,3].round(2),width=150)],ncols=2)
-    le_emb_grcc_ls.value = False
+                             pn.pane.DataFrame(si_UMAP.loc['ALL',input_data,scenario,init_method,min_dist,dist,knn,alpha,3].round(2),width=150)
+                            ],ncols=2)
+    if (not (aux_2d is None)) & (not (aux_3d is None)) & (not (aux_Md is None)):
+        plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='UMAP001',y='UMAP002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
+                             plot_3d_scatter(aux_3d,x='UMAP001',y='UMAP002',z='UMAP003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
+                             plot_3d_scatter(aux_Md,x='UMAP001',y='UMAP002',z='UMAP003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
+                             pn.pane.DataFrame(si_UMAP.loc['ALL',input_data,scenario,init_method,min_dist,dist,knn,alpha,2].round(2),width=150),
+                             pn.pane.DataFrame(si_UMAP.loc['ALL',input_data,scenario,init_method,min_dist,dist,knn,alpha,3].round(2),width=150),
+                             pn.pane.DataFrame(si_UMAP.loc['ALL',input_data,scenario,init_method,min_dist,dist,knn,alpha,m].round(2),width=150)
+                            ],ncols=3) 
     return plots
-@pn.depends(input_select,scenario_select,umap_dist_select,umap_knn_select,umap_alpha_select,umap_init_select,umap_mdist_select,umap_grpt_col_sel,plot2d_toolbar_select)
-def plot_UMAP_Group_Procustes_scats(input_data,scenario,dist,knn,alpha,init_method,min_dist,color_col,plot_2d_toolbar):
+
+
+@pn.depends(input_select,scenario_select,umap_dist_select,umap_knn_select,umap_m_select,umap_alpha_select,umap_init_select,umap_mdist_select,umap_grpt_col_sel,plot2d_toolbar_select,umap_drop_xxxx)
+def plot_UMAP_Group_Procustes_scats(input_data,scenario,dist,knn,m,alpha,init_method,min_dist,color_col,plot_2d_toolbar,drop_xxxx):
     plots = None
-    aux_2d = load_single_umap('Procrustes',input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=False)
-    aux_3d = load_single_umap('Procrustes',input_data,scenario,dist,knn,alpha,init_method,min_dist,3,drop_xxxx=False)
+    aux_2d, aux_3d, aux_Md = None, None, None
+    # Load all necessary embeddings
+    if m == 2:
+        aux_2d = load_single_umap('Procrustes',input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
+    elif m == 3:
+        aux_2d = load_single_umap('Procrustes',input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
+        aux_3d = load_single_umap('Procrustes',input_data,scenario,dist,knn,alpha,init_method,min_dist,3,drop_xxxx=drop_xxxx)
+    else:
+        aux_2d = load_single_umap('Procrustes',input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
+        aux_3d = load_single_umap('Procrustes',input_data,scenario,dist,knn,alpha,init_method,min_dist,3,drop_xxxx=drop_xxxx)
+        aux_Md = load_single_umap('Procrustes',input_data,scenario,dist,knn,alpha,init_method,min_dist,m,drop_xxxx=drop_xxxx)
+    # Preprare Embeddings
+    if not (aux_2d is None):
+        aux_2d = aux_2d.apply(zscore)
+        aux_2d = aux_2d.reset_index()
+        aux_2d = aux_2d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+    if not (aux_3d is None):
+        aux_3d = aux_3d.apply(zscore)
+        aux_3d = aux_3d.reset_index()
+        aux_3d = aux_3d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+    if not (aux_Md is None):
+        aux_Md = aux_Md.apply(zscore)
+        aux_Md = aux_Md.reset_index()
+        aux_Md = aux_Md.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+    # Prepare Color-scales
     if color_col == 'Subject':
         cmap_2d = sbj_cmap_dict
         cmap_3d = sbj_cmap_list
     else:
         cmap_2d = task_cmap
-        cmap_3d = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
-    if not (aux_2d is None):
-        aux_2d = aux_2d.reset_index()
-    if not (aux_3d is None):
-        #aux_3d = aux_3d.apply(zscore)
-        aux_3d = aux_3d.reset_index()
-        aux_3d_task_cmap = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
-    if (not (aux_2d is None)) & (not (aux_3d is None)):
+        if not(aux_3d is None):
+            cmap_3d = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
+    #Plotting
+    if (not (aux_2d is None)) & (aux_3d is None):
+        plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='UMAP001',y='UMAP002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
+                             pn.pane.DataFrame(si_UMAP.loc['Procrustes',input_data,scenario,init_method,min_dist,dist,knn,alpha,2].round(2),width=150)],ncols=1)
+    if (not (aux_2d is None)) & (not (aux_3d is None)) & (aux_Md is None):
         plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='UMAP001',y='UMAP002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
                              plot_3d_scatter(aux_3d,x='UMAP001',y='UMAP002',z='UMAP003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
                              pn.pane.DataFrame(si_UMAP.loc['Procrustes',input_data,scenario,init_method,min_dist,dist,knn,alpha,2].round(2),width=150),
-                             pn.pane.DataFrame(si_UMAP.loc['Procrustes',input_data,scenario,init_method,min_dist,dist,knn,alpha,3].round(2),width=150)],ncols=2)
-    le_emb_grpt_ls.value = False
+                             pn.pane.DataFrame(si_UMAP.loc['Procrustes',input_data,scenario,init_method,min_dist,dist,knn,alpha,3].round(2),width=150)
+                            ],ncols=2)
+    if (not (aux_2d is None)) & (not (aux_3d is None)) & (not (aux_Md is None)):
+        plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='UMAP001',y='UMAP002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
+                             plot_3d_scatter(aux_3d,x='UMAP001',y='UMAP002',z='UMAP003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
+                             plot_3d_scatter(aux_Md,x='UMAP001',y='UMAP002',z='UMAP003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
+                             pn.pane.DataFrame(si_UMAP.loc['Procrustes',input_data,scenario,init_method,min_dist,dist,knn,alpha,2].round(2),width=150),
+                             pn.pane.DataFrame(si_UMAP.loc['Procrustes',input_data,scenario,init_method,min_dist,dist,knn,alpha,3].round(2),width=150),
+                             pn.pane.DataFrame(si_UMAP.loc['Procrustes',input_data,scenario,init_method,min_dist,dist,knn,alpha,m].round(2),width=150)
+                            ],ncols=3) 
     return plots
 
-
-# -
 
 @pn.depends(scenario_select)
 def umap_scan_avg_nm_show(nm):
@@ -456,8 +531,12 @@ umap_knn_plot_grid = pn.GridBox(*[umap_knn_scan_sbj_card,umap_knn_scan_avg_card,
                                  umap_knn_group_conc_sbj_card,umap_knn_group_conc_task_card,
                                  umap_knn_group_procrustes_sbj_card,umap_knn_group_procrustes_task_card],ncols=2)
 
-umap_embs_scan_card             = pn.layout.Card(plot_UMAP_Scan_scats,title='Scatter Plots - One Scan', width=550)
-umap_embs_group_concat_card     = pn.layout.Card(plot_UMAP_Group_Concat_scats,title='Scatter Plots - Group Concatenation', width=550)
+umap_knn_plot_grid = pn.GridBox(*[umap_knn_scan_sbj_card,umap_knn_scan_avg_card,
+                                 umap_knn_group_conc_sbj_card,umap_knn_group_conc_task_card,
+                                 umap_knn_group_procrustes_sbj_card,umap_knn_group_procrustes_task_card],ncols=2)
+
+umap_embs_scan_card             = pn.layout.Card(plot_UMAP_Scan_scats,title='Scatter Plots - One Scan', width=825)
+umap_embs_group_concat_card     = pn.layout.Card(plot_UMAP_Group_Concat_scats,title='Scatter Plots - Group Concatenation', width=825)
 umap_embs_group_procrustes_card = pn.layout.Card(plot_UMAP_Group_Procustes_scats,title='Scatter Plots - Procrustes', width=825)
 umap_embs_row = pn.Row(umap_embs_scan_card ,umap_embs_group_concat_card,umap_embs_group_procrustes_card)
 
@@ -572,7 +651,8 @@ tsne_conf_box     = pn.WidgetBox(tsne_dist_select,tsne_pp_select,tsne_init_selec
 tsne_LEFT_col     = pn.Column(tsne_conf_box)
 
 
-# +
+# -
+
 @pn.depends(sbj_select,input_select,scenario_select,tsne_dist_select,tsne_pp_select,tsne_m_select,tsne_alpha_select,tsne_init_select,plot2d_toolbar_select,tsne_drop_xxxx)
 def plot_TSNE_Scan_scats(sbj,input_data,scenario,dist,pp,m,alpha,init_method,plot_2d_toolbar,drop_xxxx):
     plots = None
@@ -591,13 +671,18 @@ def plot_TSNE_Scan_scats(sbj,input_data,scenario,dist,pp,m,alpha,init_method,plo
     if not (aux_2d is None):
         aux_2d = aux_2d.apply(zscore)
         aux_2d = aux_2d.reset_index()
+        aux_2d = aux_2d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+
     if not (aux_3d is None):
         aux_3d = aux_3d.apply(zscore)
         aux_3d = aux_3d.reset_index()
+        aux_3d = aux_3d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
         aux_3d_task_cmap = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
     if not (aux_Md is None):
         aux_Md = aux_Md.apply(zscore)
         aux_Md = aux_Md.reset_index()
+        aux_Md = aux_Md.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+
    
     # Plotting
     if (not (aux_2d is None)) & (aux_3d is None):
@@ -618,6 +703,7 @@ def plot_TSNE_Scan_scats(sbj,input_data,scenario,dist,pp,m,alpha,init_method,plo
                              pn.pane.DataFrame(si_TSNE.loc[sbj,input_data,scenario,dist,pp,m,alpha,init_method].round(2),width=150)
                             ],ncols=3)
     return plots
+
 
 @pn.depends(input_select,scenario_select,tsne_dist_select,tsne_pp_select,tsne_m_select,tsne_alpha_select,tsne_init_select,tsne_grpt_col_sel,plot2d_toolbar_select,tsne_drop_xxxx)
 def plot_TSNE_Group_Procustes_scats(input_data,scenario,dist,pp,m,alpha,init_method,color_col,plot_2d_toolbar, drop_xxxx):
@@ -649,12 +735,15 @@ def plot_TSNE_Group_Procustes_scats(input_data,scenario,dist,pp,m,alpha,init_met
     if not (aux_2d is None):
         aux_2d = aux_2d.apply(zscore)
         aux_2d = aux_2d.reset_index()
+        aux_2d = aux_2d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
     if not (aux_3d is None):
         aux_3d = aux_3d.apply(zscore)
         aux_3d = aux_3d.reset_index()
+        aux_3d = aux_3d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
     if not (aux_Md is None):
         aux_Md = aux_Md.apply(zscore)
         aux_Md = aux_Md.reset_index()
+        aux_Md = aux_Md.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
     
     # Prepare Color-scales
     if color_col == 'Subject':
@@ -687,29 +776,74 @@ def plot_TSNE_Group_Procustes_scats(input_data,scenario,dist,pp,m,alpha,init_met
     return plots
 
 
-@pn.depends(input_select,scenario_select,tsne_dist_select,tsne_pp_select,tsne_alpha_select,tsne_init_select,tsne_grcc_col_sel,plot2d_toolbar_select)
-def plot_TSNE_Group_Concat_scats(input_data,scenario,dist,pp,alpha,init_method,color_col,plot_2d_toolbar):
+@pn.depends(input_select,scenario_select,tsne_dist_select,tsne_pp_select,tsne_m_select,tsne_alpha_select,tsne_init_select,tsne_grcc_col_sel,plot2d_toolbar_select,tsne_drop_xxxx)
+def plot_TSNE_Group_Concat_scats(input_data,scenario,dist,pp,m,alpha,init_method,color_col,plot_2d_toolbar,drop_xxxx):
     plots = None
-    aux_2d = load_single_tsne('ALL',input_data,scenario,dist,pp,alpha,init_method,2)
-    aux_3d = load_single_tsne('ALL',input_data,scenario,dist,pp,alpha,init_method,3)
+    aux_2d, aux_3d, aux_Md = None, None, None
+    # Load all necessary embeddings
+    if m == 2:
+        aux_2d = load_single_tsne('ALL',input_data,scenario,dist,pp,alpha,init_method,2,drop_xxxx=drop_xxxx)
+        if ('Window Name' in list(aux_2d.columns)) & ('Subject' in list(aux_2d.columns)):
+            aux_2d = aux_2d.set_index(['Window Name','Subject'])
+    elif m == 3:
+        aux_2d = load_single_tsne('ALL',input_data,scenario,dist,pp,alpha,init_method,2,drop_xxxx=drop_xxxx)
+        if ('Window Name' in list(aux_2d.columns)) & ('Subject' in list(aux_2d.columns)):
+            aux_2d = aux_2d.set_index(['Window Name','Subject'])
+        aux_3d = load_single_tsne('ALL',input_data,scenario,dist,pp,alpha,init_method,3,drop_xxxx=drop_xxxx)
+        if ('Window Name' in list(aux_3d.columns)) & ('Subject' in list(aux_3d.columns)):
+            aux_3d = aux_3d.set_index(['Window Name','Subject'])
+    else:
+        aux_2d = load_single_tsne('ALL',input_data,scenario,dist,pp,alpha,init_method,2,drop_xxxx=drop_xxxx)
+        if ('Window Name' in list(aux_2d.columns)) & ('Subject' in list(aux_2d.columns)):
+            aux_2d = aux_2d.set_index(['Window Name','Subject'])
+        aux_3d = load_single_tsne('ALL',input_data,scenario,dist,pp,alpha,init_method,3,drop_xxxx=drop_xxxx)
+        if ('Window Name' in list(aux_3d.columns)) & ('Subject' in list(aux_3d.columns)):
+            aux_3d = aux_3d.set_index(['Window Name','Subject'])
+        aux_Md = load_single_tsne('ALL',input_data,scenario,dist,pp,alpha,init_method,m,drop_xxxx=drop_xxxx)
+        if ('Window Name' in list(aux_Md.columns)) & ('Subject' in list(aux_Md.columns)):
+            aux_Md = aux_Md.set_index(['Window Name','Subject'])
+    # Preprare Embeddings
+    if not (aux_2d is None):
+        aux_2d = aux_2d.apply(zscore)
+        aux_2d = aux_2d.reset_index()
+        aux_2d = aux_2d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+    if not (aux_3d is None):
+        aux_3d = aux_3d.apply(zscore)
+        aux_3d = aux_3d.reset_index()
+        aux_3d = aux_3d.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+    if not (aux_Md is None):
+        aux_Md = aux_Md.apply(zscore)
+        aux_Md = aux_Md.reset_index()
+        aux_Md = aux_Md.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
+    
+    # Prepare Color-scales
     if color_col == 'Subject':
         cmap_2d = sbj_cmap_dict
         cmap_3d = sbj_cmap_list
     else:
         cmap_2d = task_cmap
-        cmap_3d = [task_cmap[t] for t in aux_3d.index.get_level_values('Window Name').unique()]
-    if not (aux_2d is None):
-        aux_2d = aux_2d.reset_index()
-    if not (aux_3d is None):
-        #aux_3d = aux_3d.apply(zscore)
-        aux_3d = aux_3d.reset_index()
-        aux_3d_task_cmap = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
-    if (not (aux_2d is None)) & (not (aux_3d is None)):
+        if not(aux_3d is None):
+            cmap_3d = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
+    
+    #PLOT - CONTINUE HERE
+    # Plotting
+    if (not (aux_2d is None)) & (aux_3d is None):
+        plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='TSNE001',y='TSNE002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
+                             pn.pane.DataFrame(si_TSNE.loc['ALL',input_data,scenario,dist,pp,2,alpha,init_method].round(2),width=150)],ncols=1)
+    if (not (aux_2d is None)) & (not (aux_3d is None)) & (aux_Md is None):
         plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='TSNE001',y='TSNE002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
                              plot_3d_scatter(aux_3d,x='TSNE001',y='TSNE002',z='TSNE003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
                              pn.pane.DataFrame(si_TSNE.loc['ALL',input_data,scenario,dist,pp,2,alpha,init_method].round(2),width=150),
-                             pn.pane.DataFrame(si_TSNE.loc['ALL',input_data,scenario,dist,pp,3,alpha,init_method].round(2),width=150)],ncols=2)
-    le_emb_grcc_ls.value = False
+                             pn.pane.DataFrame(si_TSNE.loc['ALL',input_data,scenario,dist,pp,3,alpha,init_method].round(2),width=150)
+                            ],ncols=2)
+    if (not (aux_2d is None)) & (not (aux_3d is None)) & (not (aux_Md is None)):
+        plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='TSNE001',y='TSNE002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
+                             plot_3d_scatter(aux_3d,x='TSNE001',y='TSNE002',z='TSNE003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
+                             plot_3d_scatter(aux_Md,x='TSNE001',y='TSNE002',z='TSNE003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
+                             pn.pane.DataFrame(si_TSNE.loc['ALL',input_data,scenario,dist,pp,2,alpha,init_method].round(2),width=150),
+                             pn.pane.DataFrame(si_TSNE.loc['ALL',input_data,scenario,dist,pp,3,alpha,init_method].round(2),width=150),
+                             pn.pane.DataFrame(si_TSNE.loc['ALL',input_data,scenario,dist,pp,m,alpha,init_method].round(2),width=150)
+                            ],ncols=3)
     return plots
 
 
@@ -763,9 +897,9 @@ tsne_pp_plot_grid = pn.GridBox(*[tsne_pp_scan_sbj_card,tsne_pp_scan_avg_card,
                                  tsne_pp_group_procrustes_sbj_card,tsne_pp_group_procrustes_task_card],ncols=2)
 
 tsne_embs_scan_card             = pn.layout.Card(plot_TSNE_Scan_scats,title='Scatter Plots - One Scan', width=825)
-#tsne_embs_group_concat_card     = pn.layout.Card(plot_TSNE_Group_Concat_scats,title='Scatter Plots - Group Concatenation', width=825)
+tsne_embs_group_concat_card     = pn.layout.Card(plot_TSNE_Group_Concat_scats,title='Scatter Plots - Group Concatenation', width=825)
 tsne_embs_group_procrustes_card = pn.layout.Card(plot_TSNE_Group_Procustes_scats,title='Scatter Plots - Procrustes', width=825)
-tsne_embs_row = pn.Row(tsne_embs_scan_card,tsne_embs_group_procrustes_card)#,tsne_embs_group_concat_card,tsne_embs_group_procrustes_card)
+tsne_embs_row = pn.Row(tsne_embs_scan_card,tsne_embs_group_concat_card,tsne_embs_group_procrustes_card)
 
 tsne_tab = pn.Column(pn.Row(tsne_LEFT_col,tsne_pp_plot_grid),tsne_embs_row)
 
@@ -778,222 +912,4 @@ dashboard = pn.Column(data_select_box,pn.Tabs(('Laplacian Eigenmaps',le_tab),('T
 
 dashboard_server = dashboard.show(port=port_tunnel,open=False)
 
-si_TSNE.loc['Procrustes', 'Original', 'asis', 'correlation', 75, :, 10, 'pca']
-
 dashboard_server.stop()
-
-
-def plot_3d_scatter(data,x,y,z,c,cmap,s=2,width=250, height=250, ax_range=[-.005,.005],nticks=4):
-    fig = px.scatter_3d(data,
-                        x=x,y=y,z=z, 
-                        width=width, height=height, 
-                        opacity=0.3, color=c,color_discrete_sequence=cmap)
-    fig.update_layout(showlegend=False, 
-                          font_color='white');
-    scene_extra_confs = dict(
-        xaxis = dict(nticks=nticks, range=ax_range, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
-        yaxis = dict(nticks=nticks, range=ax_range, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
-        zaxis = dict(nticks=nticks, range=ax_range, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'))
-    fig.update_layout(scene_camera=camera, scene=scene_extra_confs, scene_aspectmode='cube',margin=dict(l=2, r=2, b=0, t=0, pad=0))
-    fig.update_traces(marker_size = s)
-
-
-pn.pane.Plotly(plot_3d_scatter(aux_Md,x='LE001',y='LE002',z='LE003',c='Window Name',cmap=cmap_3d))
-
-# ***
-#
-# # Differences in SI for LE for best case scenario
-
-# ### 3D Panels
-
-best_input_data, best_norm_method, best_metric, best_knn, best_m, best_target = si_LE.loc[PNAS2015_subject_list].loc[:,'Original',:,:,:,3].to_xarray().mean(dim='Subject').to_dataframe().sort_values(by='SI', ascending=False).iloc[0].name
-print(best_input_data, best_norm_method, best_metric, best_knn, best_m, best_target)
-
-aux_data = si_LE.loc[PNAS2015_subject_list,best_input_data,best_norm_method,:,best_knn,3,:].reset_index()
-
-fig, ax = plt.subplots(1,1,figsize=(6,5))
-sns.set(font_scale=1.5,style='whitegrid')
-plot  = sns.boxplot(data=aux_data,y='SI',x='Metric')
-pairs = [('correlation','cosine'),('correlation','euclidean'),('cosine','euclidean')]
-annot = Annotator(plot, pairs, data=aux_data, y='SI',x='Metric')
-annot.configure(test='t-test_paired', verbose=1, comparisons_correction='Bonferroni', text_format="star")
-annot.apply_test()
-annot.annotate()
-
-aux_data.set_index('Metric').loc['correlation'].sort_values(by='SI',ascending=False).iloc[0]
-
-aux_data.set_index('Metric').loc['correlation'].sort_values(by='SI',ascending=True).iloc[0]
-
-# ### 2D Panels
-
-best_input_data, best_norm_method, best_metric, best_knn, best_m, best_target = si_LE.loc[PNAS2015_subject_list].loc[:,'Original',:,:,:,2].to_xarray().mean(dim='Subject').to_dataframe().sort_values(by='SI', ascending=False).iloc[0].name
-print(best_input_data, best_norm_method, best_metric, best_knn, best_m, best_target)
-
-aux_data = si_LE.loc[PNAS2015_subject_list,best_input_data,best_norm_method,:,best_knn,2,:].reset_index()
-
-fig, ax = plt.subplots(1,1,figsize=(6,5))
-sns.set(font_scale=1.5,style='whitegrid')
-plot  = sns.boxplot(data=aux_data,y='SI',x='Metric')
-pairs = [('correlation','cosine'),('correlation','euclidean'),('cosine','euclidean')]
-annot = Annotator(plot, pairs, data=aux_data, y='SI',x='Metric')
-annot.configure(test='t-test_paired', verbose=1, comparisons_correction='Bonferroni', text_format="star")
-annot.apply_test()
-annot.annotate()
-
-aux_data.set_index('Metric').loc['correlation'].sort_values(by='SI',ascending=False).iloc[0]
-
-aux_data.set_index('Metric').loc['correlation'].sort_values(by='SI',ascending=True).iloc[0]
-
-# ***
-# # TSNE Additional Analyses
-
-aux_data = si_TSNE.loc[PNAS2015_subject_list].loc[:,'Original',:]
-aux_data = aux_data.to_xarray()
-aux_data = aux_data.mean(dim=['Alpha']).mean(dim=['PP'])
-aux_data = aux_data.to_dataframe()
-aux_data = aux_data.reset_index()
-aux_data.head(5)
-
-fig,ax=plt.subplots(1,1,figsize=(7,5))
-sns.set(font_scale=1.5,style='whitegrid')
-g_metric = sns.boxplot(data=aux_data,y='SI',x='m', hue='Metric',ax=ax, hue_order=['correlation','cosine','euclidean'])
-pairs    = [((2,'correlation'),(3,'correlation')),((2,'cosine'),(3,'cosine')),((2,'euclidean'),(3,'euclidean')),
-            ((2,'correlation'),(2,'euclidean')),((2,'correlation'),(2,'cosine')),((2,'cosine'),(2,'euclidean')),
-            ((3,'correlation'),(3,'euclidean')),((3,'correlation'),(3,'cosine')),((3,'cosine'),(3,'euclidean')),]
-annot = Annotator(g_metric, pairs, data=aux_data,y='SI',x='m', hue='Metric', hue_order=['correlation','cosine','euclidean'])
-annot.configure(test='t-test_paired', verbose=1, comparisons_correction='Bonferroni', text_format="star")
-annot.apply_test()
-annot.annotate()
-ax.set_ylabel('$SI_{task}$')
-ax.set_xlabel('Num. Dimensions [m]')
-ax.set_ylim(0,0.85)
-ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),ncol=3, fancybox=True, shadow=True)
-
-fig,ax=plt.subplots(1,1,figsize=(7,5))
-sns.set(font_scale=1.5,style='whitegrid')
-g_norm   = sns.boxplot(data=aux_data,y='SI',x='m', hue='Norm',ax=ax)
-ax.set_ylabel('$SI_{task}$')
-ax.set_xlabel('Num. Dimensions [m]')
-ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),ncol=3, fancybox=True, shadow=True)
-ax.set_ylim(0,0.85)
-pairs = [((2,'asis'),(3,'asis')),((2,'zscored'),(3,'zscored')),
-         ((2,'asis'),(2,'zscored')),
-         ((3,'asis'),(3,'zscored'))]
-annot = Annotator(g_norm, pairs, data=aux_data,y='SI',x='m', hue='Norm')
-annot.configure(test='t-test_paired', verbose=0, comparisons_correction='Bonferroni', text_format="star")
-annot.apply_test()
-annot.annotate()
-
-# Selection of Scans for examples in Panel D - Best Case
-aux_data.set_index('Metric').loc['correlation'].sort_values(by='SI',ascending=False).iloc[0]
-
-# Selection of Scans for examples in Panel D - Worse Case
-aux_data.set_index('Metric').sort_values(by='SI',ascending=True).iloc[0]
-
-aux_data = si_TSNE.loc[PNAS2015_subject_list].loc[:,'Original',:]
-aux_data = aux_data.to_xarray()
-aux_data = aux_data.mean(dim=['Norm']).mean(dim=['PP'])
-aux_data = aux_data.to_dataframe()
-aux_data = aux_data.reset_index()
-aux_data.head(5)
-
-fig,ax=plt.subplots(1,1,figsize=(7,5))
-sns.set(font_scale=1.5,style='whitegrid')
-g_alpha = sns.barplot(data=aux_data,y='SI',x='Metric',hue='Alpha', palette=sns.color_palette('Blues',n_colors=7))
-ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),ncol=3, fancybox=True, shadow=True)
-ax.set_ylim(0,0.85)
-ax.set_ylabel('$SI_{task}$')
-pairs = [(('correlation',10),('correlation',50)),(('correlation',10),('correlation',75)),(('correlation',10),('correlation',100)),(('correlation',10),('correlation',200)),(('correlation',10),('correlation',500)),(('correlation',10),('correlation',1000)),
-         (('cosine',10),('cosine',50)),(('cosine',10),('cosine',75)),(('cosine',10),('cosine',100)),(('cosine',10),('cosine',200)),(('cosine',10),('cosine',500)),(('cosine',10),('cosine',1000)),
-         (('euclidean',10),('euclidean',50)),(('euclidean',10),('euclidean',75)),(('euclidean',10),('euclidean',100)),(('euclidean',10),('euclidean',200)),(('euclidean',10),('euclidean',500)),(('euclidean',10),('euclidean',1000)),]
-annot = Annotator(g_alpha, pairs, data=aux_data,y='SI',x='Metric',hue='Alpha')
-annot.configure(test='t-test_paired', verbose=0, comparisons_correction='Bonferroni', text_format="star")
-annot.apply_test()
-annot.annotate()
-
-# This corresponds to the selection for panel 8.F
-si_TSNE.loc['ALL','Null_PhaseRand',:,:,:,2,:,:,'Subject'].sort_values(by='SI',ascending=False).iloc[0:5]
-
-# This corresponds to the selection for panel 8.G
-si_TSNE.loc['ALL','Original',:,:,:,2,:,:,'Subject'].sort_values(by='SI',ascending=False).iloc[0:5]
-
-# This corresponds to the selection for panel 8.H
-si_TSNE.loc['Procrustes','Original',:,:,:,2,:,:,'Task'].sort_values(by='SI',ascending=False).iloc[0:5]
-
-# ***
-# # UMAP Additional Analyses
-
-aux_data = si_UMAP.loc[PNAS2015_subject_list].loc[:,'Original',:]
-aux_data = aux_data.to_xarray()
-aux_data = aux_data.mean(dim=['Alpha']).mean(dim=['Knn'])
-aux_data = aux_data.to_dataframe()
-aux_data = aux_data.reset_index()
-aux_data.head(5)
-
-fig,ax=plt.subplots(1,1,figsize=(7,5))
-sns.set(font_scale=1.5,style='whitegrid')
-g_metric = sns.boxplot(data=aux_data,y='SI',x='m', hue='Metric',ax=ax, hue_order=['correlation','cosine','euclidean'])
-pairs    = [((2,'correlation'),(3,'correlation')),((2,'cosine'),(3,'cosine')),((2,'euclidean'),(3,'euclidean')),
-            ((2,'correlation'),(2,'euclidean')),((2,'correlation'),(2,'cosine')),((2,'cosine'),(2,'euclidean')),
-            ((3,'correlation'),(3,'euclidean')),((3,'correlation'),(3,'cosine')),((3,'cosine'),(3,'euclidean')),]
-annot = Annotator(g_metric, pairs, data=aux_data,y='SI',x='m', hue='Metric', hue_order=['correlation','cosine','euclidean'])
-annot.configure(test='t-test_paired', verbose=1, comparisons_correction='Bonferroni', text_format="star")
-annot.apply_test()
-annot.annotate()
-ax.set_ylabel('$SI_{task}$')
-ax.set_xlabel('Num. Dimensions [m]')
-ax.set_ylim(0,0.85)
-ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),ncol=3, fancybox=True, shadow=True)
-
-fig,ax=plt.subplots(1,1,figsize=(7,5))
-sns.set(font_scale=1.5,style='whitegrid')
-g_norm   = sns.boxplot(data=aux_data,y='SI',x='m', hue='Norm',ax=ax)
-ax.set_ylabel('$SI_{task}$')
-ax.set_xlabel('Num. Dimensions [m]')
-ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),ncol=3, fancybox=True, shadow=True)
-ax.set_ylim(0,0.85)
-pairs = [((2,'asis'),(3,'asis')),((2,'zscored'),(3,'zscored')),
-         ((2,'asis'),(2,'zscored')),
-         ((3,'asis'),(3,'zscored'))]
-annot = Annotator(g_norm, pairs, data=aux_data,y='SI',x='m', hue='Norm')
-annot.configure(test='t-test_paired', verbose=0, comparisons_correction='Bonferroni', text_format="star")
-annot.apply_test()
-annot.annotate()
-
-# Selection of Scans for examples in Panel D - Best Case
-aux_data.set_index('Metric').loc['euclidean'].sort_values(by='SI',ascending=False).iloc[0]
-
-# Selection of Scans for examples in Panel D - Worse Case
-aux_data.set_index('Metric').sort_values(by='SI',ascending=True).iloc[0]
-
-aux_data = si_UMAP.loc[PNAS2015_subject_list].loc[:,'Original',:]
-aux_data = aux_data.to_xarray()
-aux_data = aux_data.mean(dim=['Norm']).mean(dim=['Knn'])
-aux_data = aux_data.to_dataframe()
-aux_data = aux_data.reset_index()
-aux_data.head(5)
-
-fig,ax=plt.subplots(1,1,figsize=(7,5))
-sns.set(font_scale=1.5,style='whitegrid')
-g_alpha = sns.barplot(data=aux_data,y='SI',x='Metric',hue='Alpha', palette=sns.color_palette('Blues',n_colors=7))
-ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.05),ncol=3, fancybox=True, shadow=True)
-ax.set_ylim(0,0.85)
-ax.set_ylabel('$SI_{task}$')
-pairs = [(('correlation',0.01),('correlation',0.1)),(('correlation',0.01),('correlation',0.1)),(('correlation',0.1),('correlation',1.0)),(('correlation',0.01),('correlation',1.0)),
-         (('cosine',0.01),('cosine',0.1)),(('cosine',0.01),('cosine',0.1)),(('cosine',0.1),('cosine',1.0)),(('cosine',0.01),('cosine',1.0)),
-         (('euclidean',0.01),('euclidean',0.1)),(('euclidean',0.01),('euclidean',0.1)),(('euclidean',0.1),('euclidean',1.0)),(('euclidean',0.01),('euclidean',1.0))]
-annot = Annotator(g_alpha, pairs, data=aux_data,y='SI',x='Metric',hue='Alpha')
-annot.configure(test='t-test_paired', verbose=0, comparisons_correction='Bonferroni', text_format="star")
-annot.apply_test()
-annot.annotate()
-
-# Selections for Figure 9 sub-panels and Suppl. Figure 8
-print('++ INFO: Embedding selection for Figure 9 sub-panels')
-print('++ =================================================')
-print(' + Figure 9 - Panel F: ', end='')
-print(si_UMAP.loc['ALL','Null_PhaseRand','asis',:,:,:,:,:,3,'Subject'].sort_values(by='SI',ascending=False).iloc[0].name)
-print(' + Figure 9 - Panel G: ', end='')
-print(si_UMAP.loc['ALL','Original','asis',:,:,:,:,:,3,'Subject'].sort_values(by='SI',ascending=False).iloc[0].name)
-print(' + Figure 9 - Panel H: ', end='')
-print(si_UMAP.loc['Procrustes','Original','asis',:,:,:,:,:,3,'Task'].sort_values(by='SI',ascending=False).iloc[0].name)
-print('++ =================================================')
