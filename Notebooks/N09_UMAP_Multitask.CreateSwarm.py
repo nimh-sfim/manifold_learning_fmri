@@ -148,8 +148,8 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N13_UMAP_Eval_Clustering_Scans.SWARM.sh')
-logdir_path    = osp.join(logs_folder, 'N13_UMAP_Eval_Clustering_Scans.logs')
+swarm_path     = osp.join(swarm_folder,'N09_UMAP_Eval_Clustering_Scans.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N09_UMAP_Eval_Clustering_Scans.logs')
 
 if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
@@ -167,7 +167,7 @@ swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J UMAP_Scans_SI -f {swarm_path} -b 57 -g 16 -t 4 --time 00:03:00 --partition=quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
+swarm_file.write('#swarm -J UMAP_Scans_SI -f {swarm_path} -b 346 -g 16 -t 4 --time 00:00:40 --partition=quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
 swarm_file.write('\n')
 for input_data in input_datas:
     for norm_method in norm_methods:
@@ -195,9 +195,9 @@ for input_data in input_datas:
                                                                                                                                                    m=str(m).zfill(4),
                                                                                                                                                    min_dist=str(min_dist),
                                                                                                                                                    alpha=str(alpha)))
-                            if True: #osp.exists(input_path) & (not osp.exists(output_path)):
+                            if osp.exists(input_path) & (not osp.exists(output_path)):
                                 num_entries += 1
-                                swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N11_SI.sh'.format(input_path=input_path, 
+                                swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N10_SI.sh'.format(input_path=input_path, 
                                                                                                                      output_path=output_path,
                                                                                                                      scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
                                 swarm_file.write('\n')
@@ -261,7 +261,7 @@ for subject in ['ALL']:
                                                                                                                                                    init_method=init_method,
                                                                                                                                                    norm_method=norm_method,
                                                                                                                                                    alpha=str(alpha)))
-                                if not osp.exists(path_out):
+                                if True:#not osp.exists(path_out):
                                     num_entries += 1
                                     swarm_file.write('export path_tvfc={path_tvfc} dist={dist} knn={knn} min_dist={min_dist} alpha={alpha} init={init_method} m={m} path_out={path_out}; sh {scripts_dir}/N09_UMAP.sh'.format(path_tvfc=path_tvfc, 
                                                                                                                                     path_out=path_out,
@@ -295,8 +295,8 @@ if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
 if not osp.exists(logdir_path):
     os.makedirs(logdir_path)
-print('++ INFO: Swarm File:  %s' % swarm_path)
-print('++ INFO: Logs Folder: %s' % logdir_path)
+print('++ INFO: Swarm File  : %s' % swarm_path)
+print('++ INFO: Logs Folder : %s' % logdir_path)
 
 # +
 # Open the file
@@ -336,7 +336,7 @@ for input_data in input_datas:
                                                                                                                                                    alpha=str(alpha)))
                         if not osp.exists(output_path):
                             num_entries += 1
-                            swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N11_SI.sh'.format(input_path=input_path, 
+                            swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N10_SI.sh'.format(input_path=input_path, 
                                                                                                                      output_path=output_path,
                                                                                                                      scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
                             swarm_file.write('\n')
@@ -374,14 +374,14 @@ swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S
 swarm_file.write('\n')
 
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J UMAP_Procrustes_SI -f {swarm_path} -b 6 -g 4 -t 4 --time 00:10:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
+swarm_file.write('#swarm -J UMAP_Procrustes_SI -f {swarm_path} -b 6 -g 4 -t 4 --time 00:40:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
 swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
 
 input_method = 'spectral'
 mdist        = 0.8
-for input_data in input_datas:
+for input_data in ['Original']:
     for norm_method in norm_methods:
         for dist in umap_dist_metrics:
             for knn in umap_knns:
@@ -408,7 +408,7 @@ for input_data in input_datas:
 
                         if (not osp.exists(emb_path)) | (not osp.exists(si_path)):
                             num_entries += 1
-                            swarm_file.write('export sbj_list="{sbj_list}" input_data={input_data} norm_method={norm_method} dist={dist} knn={knn} mdist={mdist} m={m} drop_xxxx={drop_xxxx} alpha={alpha} init_method={init_method}; sh {scripts_dir}/N13_UMAP_Procrustes.sh'.format(
+                            swarm_file.write('export sbj_list="{sbj_list}" input_data={input_data} norm_method={norm_method} dist={dist} knn={knn} mdist={mdist} m={m} drop_xxxx={drop_xxxx} alpha={alpha} init_method={init_method}; sh {scripts_dir}/N11_UMAP_Procrustes.sh'.format(
                                                                                                  sbj_list=','.join(PNAS2015_subject_list),
                                                                                                  input_data = input_data,
                                                                                                  norm_method = norm_method,
@@ -424,6 +424,34 @@ for input_data in input_datas:
 swarm_file.close()
 print("++ INFO: Missing/Needed = [%d/%d]" % (num_entries,num_iters))
 # -
+
+# ***
+# # 4. Save all Computed SI values into a single dataframe
+
+from utils.io import load_UMAP_SI
+
+# %%time
+RELOAD_SI_UMAP = True
+if RELOAD_SI_UMAP:
+    print('++ Loading Group-Level "Concat + UMAP" SI values.....')
+    si_UMAP_all = load_UMAP_SI(sbj_list=['ALL'],check_availability=False, verbose=True, wls=wls, wss=wss, input_datas=['Original'])
+    print('++ ==================================================')
+    print('++ Loading Group-Level "UMAP + Procrustes" SI values.....')
+    si_UMAP_procrustes = load_UMAP_SI(sbj_list=['Procrustes'],check_availability=False, verbose=True, wls=wls, wss=wss, input_datas=['Original'])
+    print('++ ======================================================')
+    print('++ Loading Scan-Level SI values.....')
+    si_UMAP_scans = load_UMAP_SI(sbj_list=PNAS2015_subject_list,check_availability=False, verbose=True, wls=wls, wss=wss)
+    print('++ =================================')
+    print('++ Combine into a single DataFrame....')
+    si_UMAP = pd.concat([si_UMAP_scans, si_UMAP_all, si_UMAP_procrustes])
+    si_UMAP.replace('Window Name','Task', inplace=True)
+    si_UMAP = si_UMAP.set_index(['Subject','Input Data','Norm','Init','MinDist','Metric','Knn','Alpha','m','Target']).sort_index()
+    del si_UMAP_scans, si_UMAP_all, si_UMAP_procrustes
+    si_path = osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl')
+    print('++ Save Dataframe to disk [%s]' % si_path)
+    si_UMAP.to_pickle(si_path)
+else:
+    si_UMAP = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl'))
 
 # ***
 # ***
