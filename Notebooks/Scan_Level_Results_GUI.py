@@ -267,28 +267,7 @@ le_tab=pn.Column(pn.Row(le_config_card,le_knn_plot_grid),le_embs_row)
 # * Single-Scan Level: 345600 entries
 # -
 
-# %%time
-RELOAD_SI_UMAP = False
-if RELOAD_SI_UMAP:
-    print('++ Loading Group-Level "Concat + UMAP" SI values.....')
-    si_UMAP_all = load_UMAP_SI(sbj_list=['ALL'],check_availability=False, verbose=False, wls=wls, wss=wss)
-    print('++ ==================================================')
-    print('++ Loading Group-Level "UMAP + Procrustes" SI values.....')
-    si_UMAP_procrustes = load_UMAP_SI(sbj_list=['Procrustes'],check_availability=False, verbose=False, wls=wls, wss=wss)
-    print('++ ======================================================')
-    print('++ Loading Scan-Level SI values.....')
-    si_UMAP_scans = load_UMAP_SI(sbj_list=PNAS2015_subject_list,check_availability=False, verbose=True, wls=wls, wss=wss)
-    print('++ =================================')
-    print('++ Combine into a single DataFrame....')
-    si_UMAP = pd.concat([si_UMAP_scans, si_UMAP_all, si_UMAP_procrustes])
-    si_UMAP.replace('Window Name','Task', inplace=True)
-    si_UMAP = si_UMAP.set_index(['Subject','Input Data','Norm','Init','MinDist','Metric','Knn','Alpha','m','Target']).sort_index()
-    del si_UMAP_scans, si_UMAP_all, si_UMAP_procrustes
-    si_path = osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl')
-    print('++ Save Dataframe to disk [%s]' % si_path)
-    si_UMAP.to_pickle(si_path)
-else:
-    si_UMAP = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl'))
+si_UMAP = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl'))
 
 REGENERATE_UMAP_KNN_PLOTS = False
 if REGENERATE_UMAP_KNN_PLOTS:
