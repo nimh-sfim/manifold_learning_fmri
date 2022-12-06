@@ -13,9 +13,14 @@
 #     name: embeddings3
 # ---
 
-# # Figure 1. Introduction to low dimensional representations of tvFC data
+# # DESCRIPTION: Generate Figure 1. Introduction to low dimensional representations of tvFC data
 #
-# This notebook will generate all the elements in Figure 1. To do that it requires three files made available in ```Resources/Figure01```:
+# This notebook will generate all the panels in Figure 1 (Introduction) and saves them to ```<PRJ_DIR>/Outputs/Figure01/```
+#
+#
+#
+#
+# To do that it requires three files made available in ```Resources/Figure01```:
 #
 # * ```winlabels_wl030_ws001.csv```: This file contains the information regarding what task was performed during each window. It contains one string (e.g., REST, VIDEO, etc) per line and has as many lines as windows.
 # * ```ROI_Coordinates.txt```: This file contains the coordinates for the centroid of each ROI. We need this information to sort connections on the basis of hemispheric membership.
@@ -23,6 +28,7 @@
 
 from scipy.io import loadmat
 import os.path as osp
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -35,71 +41,58 @@ import matplotlib.image as mpimg
 pn.extension('plotly')
 
 from utils.data_functions import compute_SWC
-from utils.basics import PRJ_DIR, task_cmap
+from utils.basics import PRJ_DIR, task_cmap, wls, wss, tr
 from utils.random import seed_value
 from sklearn.utils import check_random_state
 
 # In order to compute the Sliding Window Connectivity matrix, we need to know the repetition time (TR), the window duration and the window step. Those are defined below
 
 # +
-TR      = 1.5     # TR = 1.5 sec
-WL_secs = 45      # Window length in seconds
-WL_trs  = int(WL_secs/TR)
-WS_secs = 1.5
-WS_trs  = int(WS_secs/TR)
+WL_secs = wls      # Window length in seconds
+WL_trs  = int(WL_secs/tr)
+WS_secs = wss
+WS_trs  = int(WS_secs/tr)
 
 random_state = check_random_state(seed_value)
 # -
 
 # Creates variable with the path where the necessary files reside
 
-fig01_resource_folder = osp.join(PRJ_DIR,'Resources','Figure01')
+fig01_output_folder = osp.join(PRJ_DIR,'Outputs','Figure01')
+if not osp.exists(fig01_output_folder):
+    os.makedirs(fig01_output_folder)
 
 # These dictionaries will be used to atomatically set some plotting options for Plotly 3D scatter plots
-
-camera = dict( up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=2, y=2, z=1))
-scene_correct_le = dict(
-        xaxis = dict(nticks=4, range=[-.005,.005], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
-        yaxis = dict(nticks=4, range=[-.005,.005], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
-        zaxis = dict(nticks=4, range=[-.005,.005], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'))
-scene_incorrect_le = dict(
-        xaxis = dict(nticks=4, range=[-.02,.02], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
-        yaxis = dict(nticks=4, range=[-.02,.02], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
-        zaxis = dict(nticks=4, range=[-.02,.02], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'))
 
 # *** 
 # ## 1. Load ROI timeseries for one scan
 
-roi_path = osp.join('/data/SFIMJGC_HCP7T/manifold_learning_fmri/Data/PNAS2015/SBJ06/SBJ06_Craddock_0200.WL045s_000.netts')
-TR_secs = 1.5
+roi_path = osp.join(PRJ_DIR,'Data','PNAS2015','SBJ06','SBJ06_Craddock_0200.WL045s_000.netts')
 roi_ts = pd.read_csv(roi_path, sep='\t', header=None).T
 roi_ts.columns.name = 'ROI_Name'
 roi_ts.columns = ['ROI{r}'.format(r=str(i).zfill(3)) for i in np.arange(157)]
-roi_ts.index   = pd.timedelta_range(start='0',periods=roi_ts.shape[0],freq='{tr}L'.format(tr=TR_secs*1000))
+roi_ts.index   = pd.timedelta_range(start='0',periods=roi_ts.shape[0],freq='{tr}L'.format(tr=tr*1000))
 roi_ts
 
 ## Write ROI Names for this dataset into a text file for easy access later
 ## =======================================================================
 pnas2015_roi_names = list(roi_ts.columns)
-pnas2015_roi_names_path = osp.join(PRJ_DIR,'Resources/PNAS2015_ROI_Names.txt')
+pnas2015_roi_names_path = osp.join(PRJ_DIR,'Resources','PNAS2015_ROI_Names.txt')
 # open file in write mode
 with open(pnas2015_roi_names_path, 'w') as fp:
     for item in pnas2015_roi_names:
         # write each item on a new line
         fp.write("%s\n" % item)
 
-# + active=""
-# # Before I decided to recompute the roi timeseries with 3dNetCorr
-# roi_ts = pd.read_csv(osp.join(fig01_resource_folder,'sbj06_ctask001_nroi0200_wl030_ws001.csv'), index_col=[0])
-# print('++ INFO: Time series dataframe shape: % s' % str(roi_ts.shape))
-# roi_ts.head(5)
-# -
-
 # ***
-# ## 2. Compute Sliding Window Correlation
+# ## 2. Compute Sliding Window Correlation Matrix
+#
+# Load information about what task is being performed in each window
 
-win_labels = np.loadtxt('/data/SFIMJGC_HCP7T/manifold_learning_fmri/Resources/Figure01/winlabels_wl030_ws001.csv', dtype='str')
+win_labels = np.loadtxt(osp.join(PRJ_DIR,'Resources','PNAS2015_WinNames_wl45s_ws1p5s.txt'), dtype='str')
 print('++ INFO: Number of available window labels: %d' % len(win_labels))
+
+# Compute the tvFC matrix
 
 # %%time
 swc_r,swc_Z, winInfo = compute_SWC(roi_ts,WL_trs,WS_trs,win_names=win_labels,window=None)
@@ -107,24 +100,9 @@ swc_r.index.name = 'Connections'
 swc_Z.index.name = 'Connections'
 print("++ INFO: Size of sliding window correlation: %s" % str(swc_r.shape))
 
-# %%time
-swc_r.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.csv.gz'), float_format='%.2f', compression='gzip')
-swc_Z.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv.gz'), float_format='%.2f', compression='gzip')
-
-# %%time
-swc_r.T.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.tsv.gz'), float_format='%.2f', sep='\t', header=None, index=None, compression='gzip')
-swc_Z.T.to_csv(osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.tsv.gz'), float_format='%.2f', sep='\t', header=None, index=None, compression='gzip')
-
-labels = list(swc_r.columns)
-file = open(osp.join(PRJ_DIR,'Resources','Figure03','swcR_sbj06_ctask001_nroi0200_wl030_ws001.labels.txt'),'w+')
-for label in labels:
-    file.write(label+'\n')
-file.close()
-
 swc_r
 
-# For plotting purposes, we need to know what task was being performed during each window. This information is loaded now into the win_labels variable.
-
+# ***
 # ## 3. Compute Different Matrix Sortings
 #
 # In Figure 1, we will plot the same tvFC matrix sorting connections in three different ways: 1) in descending order of mean FC, 2) in descencing order of FC volatility (as indexed by the coefficient of variance), and 3) based on hemispheric membership. The next few cells in this section will generate the appropriate indexes with each of these sorting schemes.
@@ -136,7 +114,7 @@ mean_sorting_idx       = swc_r.mean(axis=1).sort_values(ascending=False).index
 
 # Next, we also compute sorting of connections based on hemispheric membership
 
-ROI_CMs = pd.read_csv(osp.join(fig01_resource_folder,'ROI_Coordinates.txt'), index_col='ROI_ID')
+ROI_CMs = pd.read_csv(osp.join(PRJ_DIR,'Resources','ROI_Coordinates.txt'), index_col='ROI_ID')
 
 con_info = pd.DataFrame(index=swc_r.index,columns=['Hemi_A','Hemi_B'])
 for i,j in swc_r.index:
@@ -154,25 +132,19 @@ RR_Cons = con_info[(con_info['Hemi_A']=='R') & (con_info['Hemi_B']=='R')].index
 LR_Cons = con_info[(con_info['Hemi_A']=='L') & (con_info['Hemi_B']=='R')].index
 RL_Cons = con_info[(con_info['Hemi_A']=='R') & (con_info['Hemi_B']=='L')].index
 
-# ***
-# ## 4. Show SWC Matrix at scale
-#
-# This is panel A in figure 1.
+# ## 4. Plot the Matrix at scalce
 
 fig,ax = plt.subplots(1,1, figsize=(10,10))
-sns.heatmap(swc_r.loc[mean_sorting_idx],cmap='RdBu_r', vmin=-0.75, vmax=0.75, xticklabels=False, yticklabels=False, square=True, cbar=False)
+sns.heatmap(swc_r.loc[mean_sorting_idx],cmap='RdBu_r', vmin=-1, vmax=1, xticklabels=False, yticklabels=False, square=True, cbar=False)
 ax.set(ylabel=None);
 
-# ***
-# ## 5. Show SWC matrix with different sortings
-#
-# The following images correspond to panels (B), (C) and (D) in Figure 1.
+# ## 5. Plot the matrix with the different sortings
 
 plt.rcParams["figure.autolayout"] = True
 fig, axs = plt.subplots(3,1,figsize=(30,30))
 for i,(df,title) in enumerate(zip([swc_r.loc[mean_sorting_idx],swc_r.loc[volatility_sorting_idx],pd.concat([swc_r.loc[LL_Cons],swc_r.loc[RR_Cons],swc_r.loc[LR_Cons],swc_r.loc[RL_Cons]])],
                                 ['Average Strength','Volatility','Hemisphere'])):
-    plot1    = sns.heatmap(df, ax=axs[i],cmap='RdBu_r', vmin=-0.75, vmax=0.75, xticklabels=False, yticklabels=False)
+    plot1    = sns.heatmap(df, ax=axs[i],cmap='RdBu_r', vmin=-1, vmax=1, xticklabels=False, yticklabels=False)
     plot1.set_xlabel('Time [Windows]', fontsize=14)
     plot1.set_ylabel('Connections',    fontsize=14)
     #plot1.set_title(title, fontsize=14)
@@ -187,6 +159,7 @@ for i,(df,title) in enumerate(zip([swc_r.loc[mean_sorting_idx],swc_r.loc[volatil
     if i == 2:
         axs[i].hlines([LL_Cons.shape[0],LL_Cons.shape[0]+RR_Cons.shape[0]],*axs[i].get_xlim(), colors='w', linestyles='dashed')
 
+# + [markdown] tags=[]
 # ***
 # ## 6. Generate LE
 #
@@ -197,6 +170,7 @@ for i,(df,title) in enumerate(zip([swc_r.loc[mean_sorting_idx],swc_r.loc[volatil
 #     * colors according to task
 #     * colors according to time
 # * A non-informative embedding using an excessively low knn value.
+# -
 
 # LE representations are generated using the scikit-learn library. The necessary functions are imported next
 
@@ -213,7 +187,8 @@ LE_obj     = SpectralEmbedding(n_components=3, affinity='precomputed', n_jobs=-1
 # Create Affinity Matrix with valid neighborhood size
 X_affinity_correct = pd.DataFrame(kneighbors_graph(swc_Z.T, 90, include_self=False, n_jobs=-1, metric='correlation', mode='connectivity').toarray())
 X_affinity_correct = 0.5 * (X_affinity_correct + X_affinity_correct.T)
-#Belkin Symmetrization: X_affinity_correct = ((0.5 * (X_affinity_correct + X_affinity_correct.T)) > 0).astype(int)
+#Belkin Symmetrization: 
+#X_affinity_correct = ((0.5 * (X_affinity_correct + X_affinity_correct.T)) > 0).astype(int)
 # Compute Embedding based on valid neiighborhood size
 LE_correct         = pd.DataFrame(LE_obj.fit_transform(X_affinity_correct),columns=['Dim_'+str(i+1).zfill(2) for i in np.arange(3)])
 LE_correct['Task'] = win_labels
@@ -224,7 +199,8 @@ LE_correct['Time'] = np.arange(LE_correct.shape[0])+1
 # Create Affinity Matrix with valid neighborhood size
 X_affinity_incorrect = pd.DataFrame(kneighbors_graph(swc_Z.T, 5, include_self=False, n_jobs=-1, metric='correlation', mode='connectivity').toarray())
 X_affinity_incorrect = 0.5 * (X_affinity_incorrect + X_affinity_incorrect.T)
-#Belkin Symmetrization: X_affinity_incorrect = ((0.5 * (X_affinity_incorrect + X_affinity_incorrect.T)) > 0).astype(int)
+#Belkin Symmetrization: 
+#X_affinity_incorrect = ((0.5 * (X_affinity_incorrect + X_affinity_incorrect.T)) > 0).astype(int)
 # Compute Embedding based on valid neiighborhood size
 LE_incorrect         = pd.DataFrame(LE_obj.fit_transform(X_affinity_incorrect),columns=['Dim_'+str(i+1).zfill(2) for i in np.arange(3)])
 LE_incorrect['Task'] = win_labels
@@ -232,81 +208,40 @@ LE_incorrect['Time'] = np.arange(LE_incorrect.shape[0])+1
 
 # Here, we now plot the different versions of these two embeddings
 
-fig_nocolor = px.scatter_3d(LE_correct,x='Dim_01',y='Dim_02',z='Dim_03', width=500, height=500, opacity=0.5)
+camera = dict( up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=2, y=2, z=1))
+
+scene_correct_le = dict(
+        xaxis = dict(nticks=4, range=[-.005,.005], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        yaxis = dict(nticks=4, range=[-.005,.005], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        zaxis = dict(nticks=4, range=[-.005,.005], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'))
+scene_incorrect_le = dict(
+        xaxis = dict(nticks=4, range=[-.02,.02], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        yaxis = dict(nticks=4, range=[-.02,.02], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        zaxis = dict(nticks=4, range=[-.02,.02], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'))
+
+camera = dict( up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=1, y=2, z=2))
+fig_nocolor = px.scatter_3d(LE_correct,x='Dim_02',y='Dim_01',z='Dim_03', width=500, height=500, opacity=0.5)
 fig_nocolor.update_layout(scene_camera=camera, scene=scene_correct_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
-fig_time = px.scatter_3d(LE_correct,x='Dim_01',y='Dim_02',z='Dim_03', width=500, height=500, opacity=0.5, color='Time',color_continuous_scale='twilight')
+fig_time = px.scatter_3d(LE_correct,x='Dim_02',y='Dim_01',z='Dim_03', width=500, height=500, opacity=0.5, color='Time',color_continuous_scale='twilight')
 fig_time.update_layout(scene_camera=camera, scene=scene_correct_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
-fig_task = px.scatter_3d(LE_correct,x='Dim_01',y='Dim_02',z='Dim_03', width=500, height=500, opacity=0.5, color='Task',color_discrete_sequence=['gray','black','blue','yellow','green'])
+fig_task = px.scatter_3d(LE_correct,x='Dim_02',y='Dim_01',z='Dim_03', width=500, height=500, opacity=0.5, color='Task',color_discrete_sequence=['gray','pink','blue','yellow','green'])
 fig_task.update_layout(scene_camera=camera, scene=scene_correct_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
-fig_task_bad = px.scatter_3d(LE_incorrect,x='Dim_01',y='Dim_02',z='Dim_03', width=500, height=500, opacity=0.5, color='Task',color_discrete_sequence=['gray','black','blue','yellow','green'])
+fig_task_bad = px.scatter_3d(LE_incorrect,x='Dim_02',y='Dim_01',z='Dim_03', width=500, height=500, opacity=0.5, color='Task',color_discrete_sequence=['gray','pink','blue','yellow','green'])
 fig_task_bad.update_layout(scene_camera=camera,scene=scene_incorrect_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
 
 pn.Column(pn.Row(pn.pane.Plotly(fig_nocolor),pn.pane.Plotly(fig_time)),
           pn.Row(pn.pane.Plotly(fig_task),pn.pane.Plotly(fig_task_bad)))
 
 # Static Version for display in github
-fig_time.write_image('../Resources/Figure01/fig_time.png')
-fig_nocolor.write_image('../Resources/Figure01/fig_nocolor.png')
-fig_task.write_image('../Resources/Figure01/fig_task.png')
-fig_task_bad.write_image('../Resources/Figure01/fig_task_bad.png')
+fig_time.write_image(osp.join(fig01_output_folder,'fig_time.png'))
+fig_nocolor.write_image(osp.join(fig01_output_folder,'fig_nocolor.png'))
+fig_task.write_image(osp.join(fig01_output_folder,'fig_task.png'))
+fig_task_bad.write_image(osp.join(fig01_output_folder,'fig_task_bad.png'))
 
 # Static version for github display
 fig,axs = plt.subplots(1, 4, figsize=(30,10), sharex=True, sharey=True) 
-for i,img_path in enumerate(['../Resources/Figure01/fig_time.png','../Resources/Figure01/fig_nocolor.png',
-                        '../Resources/Figure01/fig_task.png','../Resources/Figure01/fig_task_bad.png']):
+for i,img_path in enumerate([osp.join(fig01_output_folder,'fig_time.png'),osp.join(fig01_output_folder,'fig_nocolor.png'),
+                        osp.join(fig01_output_folder,'fig_task.png'),osp.join(fig01_output_folder,'fig_task_bad.png')]):
     img = mpimg.imread(img_path)
     axs[i].imshow(img)
     axs[i].axis('off')
-
-# ***
-# # END OF NOTEBOOK
-# ***
-# The remaining of this notebook contains code that we used to generate the files now directly available in the Resources folder. 
-#
-# We keep this code here for internal purposes, but should not be needed to reproduce the results shown above this cell.
-
-# ### Determine Hemispheric Location of each ROI
-# To determine hemispheric location for each ROI, we need to run the following code
-# ```bash
-# # cd /data/SFIMJGC/PRJ_CognitiveStateDetection01/PrcsData/SBJ06/D02_CTask001
-#
-# # echo "ROI_ID,x,y,z" > ./ROI_Coordinates.txt
-# for t in `seq 0 1 156`
-# do
-#     xyz=`3dCM SBJ06_CTask001.Craddock_T2Level_0200.lowSigma+orig[${t}]`
-#     x=`echo ${xyz} | awk '{print$1}'`
-#     y=`echo ${xyz} | awk '{print$2}'`
-#     z=`echo ${xyz} | awk '{print$3}'`
-#     roiid=`printf "%03d" ${t}`
-#     echo "ROI${roiid},${x},${y},${z}" >> ./ROI_Coordinates.txt
-# done
-#
-# ```
-
-# ### Selection of Subject
-
-SBJ     = 'SBJ06' # Subject number
-TR      = 1.5     # TR = 1.5 sec
-WL_secs = 45      # Window length in seconds
-WL_trs  = int(WL_secs/TR)
-WS_trs  = 10
-
-# ### Load ROI Timeseries, TR and WinInfo
-
-file_name  = SBJ+'_CTask001_WL0'+str(WL_secs)+'_WS01_NROI0200_dF.mat'             # Data file name
-data_path  = osp.join('/data/SFIMJGC_HCP7T/PRJ_CognitiveStateDetection02/PrcsData_PNAS2015',SBJ,'D02_CTask001',file_name) # Path to data
-data_df    = loadmat(data_path) # Read data
-win_labels = [s[0:4] for s in data_df['winInfo'][0][0][4]]
-TR_secs    = data_df['TR'][0][0]
-
-np.savetxt('/data/SFIMJGC_HCP7T/manifold_learning_fmri/Resources/Figure01/winlabels_wl030_ws001.csv',np.array(win_labels),fmt='%s')
-
-# ### Put the Timeseries into a DataFrame
-
-roi_ts         = pd.DataFrame(data_df['origTS'])
-roi_ts.columns = ['ROI'+str(i).zfill(3) for i in np.arange(roi_ts.shape[1])]
-roi_ts.index   = pd.timedelta_range(start='0',periods=roi_ts.shape[0],freq='{tr}L'.format(tr=TR_secs*1000))
-print('++ INFO: Time series dataframe shape: % s' % str(roi_ts.shape))
-roi_ts.head(5)
-
-roi_ts.to_csv('/data/SFIMJGC_HCP7T/manifold_learning_fmri/Resources/Figure01/sbj06_ctask001_nroi0200_wl030_ws001.csv')
