@@ -29,6 +29,7 @@ import getpass
 from datetime import datetime
 from tqdm.notebook import tqdm
 from utils.basics import PNAS2015_subject_list, PNAS2015_folder, PNAS2015_roi_names_path, PNAS2015_win_names_paths, PRJ_DIR
+from utils.basics import wls, wss, tr
 
 # + [markdown] tags=[]
 # ***
@@ -36,10 +37,8 @@ from utils.basics import PNAS2015_subject_list, PNAS2015_folder, PNAS2015_roi_na
 # The next cell select the Window Length ```wls``` and Window Step ```wss``` used to generate the matrices
 # -
 
-wls = 45
-wss = 1.5
-tr  = 1.5
 win_names_path = PNAS2015_win_names_paths[(wls,wss)]
+print(win_names_path)
 
 # ***
 #
@@ -74,6 +73,8 @@ if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
 if not osp.exists(logdir_path):
     os.makedirs(logdir_path)
+print('++ INFO: Swarm File  : %s' % swarm_path)
+print('++ INFO: Logs Folder : %s' % logdir_path)
 # -
 
 # Create swarm script. This script will have one line per matrix to be generated.
@@ -130,6 +131,8 @@ if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
 if not osp.exists(logdir_path):
     os.makedirs(logdir_path)
+print('++ INFO: Swarm File  : %s' % swarm_path)
+print('++ INFO: Logs Folder : %s' % logdir_path)
 
 # +
 # Open the file
@@ -183,6 +186,8 @@ if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
 if not osp.exists(logdir_path):
     os.makedirs(logdir_path)
+print('++ INFO: Swarm File  : %s' % swarm_path)
+print('++ INFO: Logs Folder : %s' % logdir_path)
 
 # +
 # Open the file
