@@ -66,8 +66,8 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N06_tvFC_Multitask.SWARM.sh')
-logdir_path    = osp.join(logs_folder, 'N06_tvFC_Multitask.logs')
+swarm_path     = osp.join(swarm_folder,'N01_tvFC_Multitask.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N01_tvFC_Multitask.logs')
 
 if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
@@ -96,7 +96,7 @@ for subject in PNAS2015_subject_list:
     path_out_Z        = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Original','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.asis.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     path_out_R_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Original','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     path_out_Z_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Original','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
-    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} out_Z_normed={path_out_Z_normed} out_R_normed={path_out_R_normed} wls={wls} wss={wss} tr={tr} null=none; sh {scripts_dir}/N06_tvFC.sh'.format(
+    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} out_Z_normed={path_out_Z_normed} out_R_normed={path_out_R_normed} wls={wls} wss={wss} tr={tr} null=none; sh {scripts_dir}/N01_tvFC.sh'.format(
                        path_rois=path_ints, path_roinames=PNAS2015_roi_names_path, path_winnames=win_names_path,
                        path_out_Z=path_out_Z, path_out_R=path_out_R, 
                        path_out_Z_normed=path_out_Z_normed, path_out_R_normed=path_out_R_normed,
@@ -124,8 +124,8 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N06_tvFC_Multitask_Null_ConnRand.SWARM.sh')
-logdir_path    = osp.join(logs_folder, 'N06_tvFC_Multitask_Null_ConnRand.logs')
+swarm_path     = osp.join(swarm_folder,'N01_tvFC_Multitask_Null_ConnRand.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N01_tvFC_Multitask_Null_ConnRand.logs')
 
 if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
@@ -152,7 +152,7 @@ for subject in PNAS2015_subject_list:
     path_out_R_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_ConnRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     path_out_Z_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_ConnRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     
-    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} out_Z_normed={path_out_Z_normed} out_R_normed={path_out_R_normed} wls={wls} wss={wss} tr={tr} null=conn_rand; sh {scripts_dir}/N06_tvFC.sh'.format(
+    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} out_Z_normed={path_out_Z_normed} out_R_normed={path_out_R_normed} wls={wls} wss={wss} tr={tr} null=conn_rand; sh {scripts_dir}/N01_tvFC.sh'.format(
                        path_rois=path_ints, path_roinames=PNAS2015_roi_names_path, path_winnames=win_names_path, 
                        path_out_Z=path_out_Z, path_out_R=path_out_R, wls=str(wls), wss=str(wss), tr=str(tr), path_out_Z_normed=path_out_Z_normed, path_out_R_normed=path_out_R_normed,
                        scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
@@ -179,8 +179,8 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N06_tvFC_Multitask_Null_PhaseRand.SWARM.sh')
-logdir_path    = osp.join(logs_folder, 'N06_tvFC_Multitask_Null_PhaseRand.logs')
+swarm_path     = osp.join(swarm_folder,'N01_tvFC_Multitask_Null_PhaseRand.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N01_tvFC_Multitask_Null_PhaseRand.logs')
 
 if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
@@ -207,7 +207,7 @@ for subject in PNAS2015_subject_list:
     path_out_R_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.R.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     path_out_Z_normed = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'Null_PhaseRand','{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.zscored.pkl'.format(subject=subject,wls=str(int(wls)).zfill(3), wss=str(wss)))
     
-    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} out_Z_normed={path_out_Z_normed} out_R_normed={path_out_R_normed} wls={wls} wss={wss} tr={tr} null=phase_rand; sh {scripts_dir}/N06_tvFC.sh'.format(
+    swarm_file.write('export path_roits={path_rois} path_roinames={path_roinames}  path_winnames={path_winnames} out_Z={path_out_Z} out_R={path_out_R} out_Z_normed={path_out_Z_normed} out_R_normed={path_out_R_normed} wls={wls} wss={wss} tr={tr} null=phase_rand; sh {scripts_dir}/N01_tvFC.sh'.format(
                        path_rois=path_ints, path_roinames=PNAS2015_roi_names_path, path_winnames=win_names_path,
                        path_out_Z=path_out_Z, path_out_R=path_out_R, wls=str(wls), wss=str(wss), tr=str(tr), path_out_Z_normed=path_out_Z_normed, path_out_R_normed=path_out_R_normed,
                        scripts_dir=osp.join(PRJ_DIR,'Notebooks')))

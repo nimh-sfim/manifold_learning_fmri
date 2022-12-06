@@ -13,7 +13,7 @@ conda activate opentsne
 
 # Run the program
 
-python ./N06_tvFC.py -ints ${path_roits} \
+python ./N01_tvFC.py -ints ${path_roits} \
                      -roi_names ${path_roinames} \
                      -win_names ${path_winnames} \
                      -outZ ${out_Z} \
