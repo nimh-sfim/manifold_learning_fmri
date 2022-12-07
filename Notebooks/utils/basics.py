@@ -5,12 +5,21 @@ import os.path as osp
 from matplotlib.cm import get_cmap
 from matplotlib.colors import rgb2hex, rgb_to_hsv
 
-PRJ_DIR = '/data/SFIMJGC_HCP7T/manifold_learning_fmri'
+# FOLDERS OF INTEREST
+# ===================
+PRJ_DIR          = '/data/SFIMJGC_HCP7T/manifold_learning_fmri'
+PNAS2015_folder  = '/data/SFIMJGC/PRJ_CognitiveStateDetection01/'
+OUTPUTS_DIR      = osp.join(PRJ_DIR,'Outputs')
+
+# SLIDING WINDOW CONFIGURATION
+# ============================
+wls = 45    # Window Length in seconds used int this work
+wss = 1.5   # Window Step in secodns used in this work
+tr  = 1.5   # Repetition Time in seconds
 
 task_cmap      = {'Rest': 'gray', 'Memory': 'blue', 'Video': '#F4D03F', 'Math': 'green', 'Inbetween': 'pink'}
 task_cmap_caps = {'REST': 'gray', 'BACK': 'blue',   'VIDE':  '#F4D03F',  'MATH': 'green', 'XXXX': 'pink'}
 
-PNAS2015_folder         = '/data/SFIMJGC/PRJ_CognitiveStateDetection01/'
 PNAS2015_subject_list   = ['SBJ06', 'SBJ07', 'SBJ08', 'SBJ09', 'SBJ10', 'SBJ11', 'SBJ12', 'SBJ13', 'SBJ16', 'SBJ17', 'SBJ18', 'SBJ19', 'SBJ20', 'SBJ21', 'SBJ22', 'SBJ23', 'SBJ24', 'SBJ25', 'SBJ26', 'SBJ27']
 PNAS2015_roi_names_path = osp.join(PRJ_DIR,'Resources/PNAS2015_ROI_Names.txt')
 PNAS2015_win_names_paths = {(45,1.5): '/data/SFIMJGC_HCP7T/manifold_learning_fmri/Resources/PNAS2015_WinNames_wl45s_ws1p5s.txt'}
