@@ -13,9 +13,9 @@
 #     name: embeddings3
 # ---
 
-# # Figure 3. LE step-by-step
+# # DESCRIPTION: Figure 2. LE step-by-step
 #
-# This notebook is used to generate figure 3, which describes the different steps involved in the LE algorithm. 
+# This notebook is used to generate figure 2, which describes the different steps involved in the LE algorithm. 
 #
 # The algorithm is demonstrated using one run from the multi-task dataset (Gonzalez-Castillo et al. 2015).
 #
@@ -29,6 +29,7 @@
 import pandas as pd
 import numpy as np
 import os.path as osp
+import os
 import networkx as nx
 
 import matplotlib.pyplot as plt
@@ -42,13 +43,15 @@ import panel as pn
 from IPython.display import Image
 from scipy.spatial.distance import pdist, squareform
 from sklearn.neighbors import kneighbors_graph
-from sklearn.manifold._spectral_embedding import _set_diag, _deterministic_vector_sign_flip
-from networkx import laplacian_matrix, degree
+from sklearn.manifold._spectral_embedding import _deterministic_vector_sign_flip
+#from networkx import laplacian_matrix, degree
 from scipy.sparse.csgraph import laplacian
 from scipy.sparse.linalg import eigsh
+from utils.random import seed_value
 # -
 
-from utils.basics import PRJ_DIR, task_cmap, task_cmap_caps
+from utils.basics import PRJ_DIR, task_cmap_caps
+#task_cmap, task_cmap_caps
 
 Distance_Function = 'euclidean' # Distance Function
 knn               = 90          # Number of Neighbors for the N-Nearest Neighbors Step
@@ -56,15 +59,16 @@ drop_XXXX         = False       # Whether or not to include task-inhomogenous wi
 n_components      = 3           # Number of dimensions for the final embedding
 norm_laplacian    = True        # Whether or not to use the normalized version of the laplacian (Sciki-learn used norm_laplacian = True)
 
+if not osp.exists(osp.join(PRJ_DIR,'Outputs','Figure03')):
+    os.makedirs(osp.join(PRJ_DIR,'Outputs','Figure03'))
+
 # ***
 # ### 1. Load representative SWC Matrix
 #
 # First we load a tvFC matrix for a representative run from the multi-task dataset. Entries in this matrix are the Fisher's transform of the Pearson's correlation between windowed ROI timeseries.
 
-swc_path    = osp.join(PRJ_DIR,'Resources','Figure03','swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv.gz')
-swc         = pd.read_csv(swc_path, index_col=[0,1], header=0)
-# Becuase pandas does not like duplicate column names, it automatically adds .1, .2, etc to the names. We delete those next
-swc.columns = swc.columns.str.split('.').str[0]
+swc_path    = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','SBJ06','Original','SBJ06_Craddock_0200.WL045s.WS1.5s.tvFC.Z.asis.pkl')
+swc         = pd.read_pickle(swc_path)
 win_labels  = swc.columns
 
 print('++ INFO: Size of SWC dataframe is %d connections X %d windows.' % swc.shape)
@@ -149,27 +153,9 @@ W = kneighbors_graph(swc.T, knn, include_self=False, n_jobs=-1, metric=Distance_
 #
 # This is what we implement on the next line
 
-W = ((0.5 * (W + W.T)) > 0).astype(int)
-W = pd.DataFrame(W,index=win_labels, columns=win_labels)
-W.infer_objects();
-
 # ##### 3.1. Plot the affinity matrix (Panel C)
 
-fig,ax = plt.subplots(1,1,figsize=(11,8))
-mat = sns.heatmap(W, cmap=colors.ListedColormap(['white', 'black']), ax=ax, vmin=0, vmax=1, square=True,cbar_kws={'label': 'Edge Present?'})
-for idx in line_idxs:
-    ax.plot([idx,idx],[0,W.shape[0]],'--',c='gray')
-    ax.plot([0,W.shape[0]],[idx,idx],'--',c='gray')
-ax.yaxis.set_ticks(tick_idxs);
-ax.xaxis.set_ticks(tick_idxs);
-ax.yaxis.set_ticklabels(tick_labels,fontsize=18);
-ax.xaxis.set_ticklabels(tick_labels,fontsize=18);
-cbar = mat.collections[0].colorbar
-cbar.ax.yaxis.set_ticks([0.25,0.75])
-cbar.ax.yaxis.set_ticklabels(['No','Yes'])
-cbar.ax.tick_params(labelsize=20)
-cbar.ax.yaxis.label.set_size(26)
-cbar.ax.yaxis.set_label_position('left')
+# Generate a graph view of the W matrix
 
 # ##### 3.2. Generate Graph View of Affinity Matrix
 #
@@ -177,18 +163,18 @@ cbar.ax.yaxis.set_label_position('left')
 #
 # First, we create a networkX graph object using W
 
-G   = nx.from_numpy_matrix(W.values)
+# Generate a graph layout using the spring function from NX. Any other layout would work too, as layout does not change the graph
 
 # Next, we compute a layout for the graph based on the spring algorithm. The same graph can be represented in many different ways. For other options, please check the layout functions in NetworkX.
 
-pos = nx.layout.spring_layout(G, seed=43)
+# Draw the graph view of W
+
+pos = nx.layout.spring_layout(G, seed=seed_value)
 
 g_plot=hvnx.draw(G,pos,node_color='white', edge_width=0.1, edge_color='purple', node_size=150, node_edge_color='lightgray')
-pn.pane.HoloViews(g_plot).save('../Resources/Figure03/G_white.png')
+pn.pane.HoloViews(g_plot).save(osp.join(PRJ_DIR,'Outputs','Figure03','G_white.png'))
 
-# This shows a static version of the figure (for github). If running the notebook yourself, simply add g_plot to a new cell
-# so you can see and interact with the graph
-Image("../Resources/Figure03/G_white.png")
+# Let's now plot the same graph but annotating each node by the task being performed during the window the node represents
 
 # The LE algorithm makes no use of the task information when generating the lower dimensional embedding. Yet, to visualize how the graph captures imporant aspects of the multi-task dataset, below we generate an additional view of the same graph with the same layout, but this time nodes are colored according to task instead of all of them being white color
 
@@ -197,15 +183,9 @@ unique_win_labels = win_labels.unique()
 unique_win_labels.sort()
 unique_win_labels
 
-g_plot = hvnx.draw(G,pos,edge_width=0.1, edge_color='purple', node_size=150)
-for task in unique_win_labels:
-    g_plot = g_plot * hvnx.draw_networkx_nodes(G, pos, nodelist=np.where(win_labels == task)[0].tolist(), node_color=task_cmap_caps[task], node_size=150)
-g_plot
-pn.pane.HoloViews(g_plot).save('../Resources/Figure03//G_colored.png')
-
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add g_plot to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure03/G_colored.png")
+Image("../Outputs/Figure03/G_colored.png")
 
 # ***
 # ### 4. LE STEP 3: Generate the Graph Laplacian
@@ -226,7 +206,7 @@ L *= -1
 #
 # First, we generate a vector or random numbers needed by scipy eigsh function, which performs spectral decomposition of a given input matrix.
 
-v0 = np.random.RandomState(42).uniform(-1,1,L.shape[0])
+v0 = np.random.RandomState(seed_value).uniform(-1,1,L.shape[0])
 
 # Becuase the first eigenvector is always discarded (as it is all ones), we always need to keep one more than the requested dimensions. In the next line we increase by one the number of dimensions being requested to accomodate for this.
 
@@ -243,11 +223,11 @@ eigenvectors_df = pd.DataFrame(eigenvectors,columns=['f_{}'.format(i) for i in n
 eigenvectors_df.columns.name='Eigenvectors'
 eigenvectors_df['win_labels'] = win_labels
 eigenv_values_figure = eigenvectors_df.hvplot(hover_cols=['win_labels'], title='Eigenvectors', xlabel='Time [Window ID]', width=1000)
-pn.pane.HoloViews(eigenv_values_figure).save('../Resources/Figure03/eigenvalues_plot.png')
+pn.pane.HoloViews(eigenv_values_figure).save('../Outputs/Figure03/eigenvalues_plot.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add eigenv_values_figure to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure03/eigenvalues_plot.png")
+Image("../Outputs/Figure03/eigenvalues_plot.png")
 
 # ***
 # ### 6. LE STEP 5: Compute Embedding
@@ -268,11 +248,11 @@ embedding_df = pd.DataFrame(embedding,columns=['f_{}'.format(i+1) for i in np.ar
 embedding_df.columns.name='Eigenvectors'
 embedding_df['win_labels'] = win_labels
 embedding_fig = embedding_df.hvplot(hover_cols=['win_labels'], title='Embedding', xlabel='Time [Window ID]', width=1000)
-pn.pane.HoloViews(embedding_fig).save('../Resources/Figure03/embedding_plot.png')
+pn.pane.HoloViews(embedding_fig).save('../Outputs/Figure03/embedding_plot.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add embedding_fig to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure03/embedding_plot.png")
+Image("../Outputs/Figure03/embedding_plot.png")
 
 # ***
 # ### 7. Select Dimensions and Plot (3D - Panel E)
@@ -282,52 +262,31 @@ LE_steps_3D['Task'] = win_labels
 LE_steps_3D['size'] = 1
 LE_steps_3D.head(5)
 
-fig = px.scatter_3d(LE_steps_3D,x='D001',y='D002',z='D003', width=400, height=400, color='Task', size='size', color_discrete_sequence=['gray','black','blue','yellow','green'], size_max=10)
+scene = dict(
+        xaxis = dict(nticks=4, range=[-0.5,0.5], gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        yaxis = dict(nticks=4, range=[-0.5,0.5],gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        zaxis = dict(nticks=4, range=[-0.5,0.5],gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'))
+
+# +
+fig = px.scatter_3d(LE_steps_3D,x='D001',y='D002',z='D003', width=500, height=500, color='Task', size='size', color_discrete_sequence=['gray','pink','blue','yellow','green'], size_max=10)
 camera = dict(
     up=dict(x=0, y=0, z=1),
     center=dict(x=0, y=0, z=0),
-    eye=dict(x=1.5, y=1, z=1.5)
+    eye=dict(x=1, y=1, z=2)
 )
-fig.update_layout(scene_camera=camera,margin=dict(l=0, r=0, b=0, t=0))
+fig.update_layout(scene_camera=camera,scene=scene,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0))
 fig.update_traces(marker=dict(line=dict(width=0)))
-fig.write_image('../Resources/Figure03/embedding_3d.png')
+
+fig.write_image('../Outputs/Figure03/embedding_3d.png')
+# -
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add fig.show() to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure03/embedding_3d.png")
+Image("../Outputs/Figure03/embedding_3d.png")
 
 embedding_2d = LE_steps_3D.hvplot.scatter(x='D001',y='D002',color='Task',cmap=task_cmap_caps,aspect='square', fontsize={'labels':20,'ticks':16})
-pn.pane.HoloViews(embedding_2d).save('../Resources/Figure03/embedding_2d.png')
+pn.pane.HoloViews(embedding_2d).save('../Outputs/Figure03/embedding_2d.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add embedding_2d to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure03/embedding_2d.png")
-
-# ***
-# ## Embedding Generated Directly using scikit-learn function SpectralEmbedding
-
-from sklearn.manifold import SpectralEmbedding
-
-se = SpectralEmbedding(n_components=3, n_jobs=-1, affinity='nearest_neighbors', n_neighbors=90, random_state=43)
-
-LE = se.fit_transform(swc.T)
-
-LE_sklearn = pd.DataFrame(100*LE, columns=['D001','D002','D003'])
-LE_sklearn.infer_objects()
-LE_sklearn['Task'] = win_labels.values
-LE_sklearn['size'] = 1
-LE_sklearn.head(5)
-
-fig = px.scatter_3d(LE_sklearn,x='D001',y='D002',z='D003', width=400, height=400, color='Task', size='size', color_discrete_sequence=['gray','black','blue','yellow','green'], size_max=10)
-camera = dict(
-    up=dict(x=0, y=0, z=1),
-    center=dict(x=0, y=0, z=0),
-    eye=dict(x=1.5, y=1, z=1.5)
-)
-fig.update_layout(scene_camera=camera,margin=dict(l=0, r=0, b=0, t=0))
-fig.update_traces(marker=dict(line=dict(width=0)))
-fig.write_image('../Resources/Figure03/embedding_3d_sklearn.png')
-
-Image("../Resources/Figure03/embedding_3d_sklearn.png")
-
-
+Image("../Outputs/Figure03/embedding_2d.png")
