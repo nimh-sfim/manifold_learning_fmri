@@ -23,6 +23,7 @@
 import os
 import numpy as np
 import pandas as pd
+import os.path as osp
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -40,25 +41,34 @@ from tqdm.notebook import tqdm
 
 from scipy.ndimage.interpolation import shift
 from sklearn.manifold._t_sne import _joint_probabilities
+
+from utils.random import seed_value
+from utils.basics import PRJ_DIR
 # -
+
+# Create output folder if needed
+
+fig_output_folder = osp.join(PRJ_DIR,'Outputs','Figure03')
+if not osp.exists(fig_output_folder):
+    os.makedirs(fig_output_folder)
 
 # To ensure reproducibility across executions, we set the random seed in numpy to 43
 
-np.random.seed(43)
+np.random.seed(seed_value)
 
 # The following cell contains a series of hyper-parameters that affect the output of the T-SNE algorithm. All values set here corresponds to those in the original implementation of the T-SNE algorithm, with the exception of the perplexity which is set to 100 here.
 
 # +
 # T-SNE Setup Hyper-paramters
-desired_dimensions      = 2           # Final Number of dimensions
-desired_perplexity      = 100.0       # Perplexity: related to neighborhood size or a trade-off between focus on local vs. global structure
-distance_function       = 'correlation'#'euclidean' # Distance Function
+desired_dimensions      = 2             # Final Number of dimensions
+desired_perplexity      = 100            # Perplexity: related to neighborhood size or a trade-off between focus on local vs. global structure
+distance_function       = 'euclidean'   #'euclidean' # Distance Function
 
 # T-SNE Gradient Descent Hyper-parameters
 n_iter                  = 1000        # Maximum Number of Iterations for Gradient Descent (KL Optimization)
 initial_momentum        = 0.5         # Initial momentum      
 final_momentum          = 0.8         # Final momentum
-learning_rate           = 500         # Learning rate
+learning_rate           = 1000        # Learning rate
 min_gain                = 0.01        #
 early_exaggeration      = 4.          # Early Exaggeration Factor
 early_exaggeration_ends = 100         # Number of itrations for early exasggeration
@@ -66,38 +76,17 @@ early_exaggeration_ends = 100         # Number of itrations for early exasggerat
 
 # Tolerance-related parameters
 tsne_initialization     = 'random' #  'random' or 'pca'
-
-# +
-# T-SNE Setup Hyper-paramters
-desired_dimensions      = 2           # Final Number of dimensions
-desired_perplexity      = 200.0       # Perplexity: related to neighborhood size or a trade-off between focus on local vs. global structure
-distance_function       = 'euclidean'#'euclidean' # Distance Function
-
-# T-SNE Gradient Descent Hyper-parameters
-n_iter                  = 1000        # Maximum Number of Iterations for Gradient Descent (KL Optimization)
-initial_momentum        = 0.5         # Initial momentum      
-final_momentum          = 0.8         # Final momentum
-learning_rate           = 10         # Learning rate
-min_gain                = 0.01        #
-early_exaggeration      = 4.          # Early Exaggeration Factor
-early_exaggeration_ends = 250         # Number of itrations for early exasggeration
-
-
-# Tolerance-related parameters
-tsne_initialization     = 'random' #  'random' or 'pca'
 # -
 
 # ***
-# # Load tvFC Data
+# # 1. Load tvFC Data
 #
 # First we load an exemplary tvFC matrix. This will be the same data we used for the description of the LE algorithm on Notebook 3.
 
 # +
 print('++ INFO: Loading the tvFC dataset.....')
-X_df = pd.read_csv('../Resources/Figure03/swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv.gz', index_col=[0,1])
+X_df = pd.read_pickle(osp.join(PRJ_DIR,'Data_Interim','PNAS2015','SBJ06','Original','SBJ06_Craddock_0200.WL045s.WS1.5s.tvFC.Z.asis.pkl'))
 
-# Becuase pandas does not like duplicate column names, it automatically adds .1, .2, etc to the names. We delete those next
-X_df.columns = X_df.columns.str.split('.').str[0]
 # Extract Task Lbaels (for coloring purposes)
 labels  = pd.Series(X_df.columns)
 X       = X_df.values.T
@@ -140,7 +129,7 @@ print(P.shape)
 plot_matrix(P, q_min=0.05, q_max=0.90, ctitle='$P_{j|i}$',tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs)
 
 # ***
-# # TSNE STEP 2. Random initalization of lower dimensional mapping.
+# # **TSNE STEP 2**. Random initalization of lower dimensional mapping.
 #
 # This code allows the use of either random or PCA initialization. For the purpose of Figure 4 we used random initialization as that is how the T-SNE algorithm was originally described. If interested in observing how PCA initialization affects the gradient descent portion of the algorithm, change the value of the ```tsne_initialization``` variable to pca and run again.
 
@@ -153,36 +142,34 @@ if tsne_initialization == 'pca':
     pca_init = PCA(n_components=desired_dimensions, svd_solver='full')
     Y   = pca_init.fit_transform(X_orig)
 
+print('++ INFO: Initialization Mode: %s' % tsne_initialization)
+np.random.seed(43)
+if tsne_initialization == 'random':
+    Y      = np.random.randn(n_wins, desired_dimensions)
+    print(Y[0:3,:])
+if tsne_initialization == 'pca':
+    pca_init = PCA(n_components=desired_dimensions, svd_solver='full')
+    Y   = pca_init.fit_transform(X_orig)
+
 # Next we show the dissimilarity matrix associated with the initial random mapping
-
-plot = pd.DataFrame(Y,columns=['x','y']).plot.scatter(x='x',y='y',c='k', figsize=(6,6), s=10)
-plot.set_aspect('equal')
-
-# Same as above but using hvplot
-pd.DataFrame(Y,columns=['x','y']).hvplot.scatter(x='x',y='y', aspect='square', c='k', fontsize={'labels':16,'ticks':16})
 
 # # TSNE STEP 3. Compute dissimilarity and affinity matrix for initial low dimensional set of points
 #
 # Dissimilarity is once again computed using the Euclidean Distance.
 
-DS_low = squareform(pdist(Y, distance_function)) 
-plot_matrix(DS_low,tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs)
+# We now plot the dissimilarity matrix associated with this random initialization
+
+# Same as above but using hvplot
+pd.DataFrame(Y,columns=['x','y']).hvplot.scatter(x='x',y='y', aspect='square', c='k', fontsize={'labels':16,'ticks':16})
 
 # Next, to go from dissimilarity to affinity matrix in the lower dimensional space, this time we use a T-student kernel instead of the Gaussian kernel
 
-# +
-Q_num = 1/ (1 + np.square(DS_low))
-np.fill_diagonal(Q_num,0.)
-Q_den = np.sum(Q_num)
-Q     = Q_num / Q_den
-Q = np.maximum(Q, 1e-12) # To avoid divisions by zero
-print(Q.shape)
-
-plot_matrix(Q, q_min=0.05, q_max=0.90, ctitle='$Q_{j|i}$',tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs)
+DS_low = squareform(pdist(Y, distance_function)) 
+plot_matrix(DS_low,tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs)
 
 # + [markdown] tags=[]
 # ***
-# # TNSE STEP 3. Optimization via gradient descent
+# # **TNSE STEP 3**. Optimization via gradient descent
 #
 # The code on the next cell has been adapted from the implementation of the T-SNE method available at [Laurens van der Maaten website](https://lvdmaaten.github.io/tsne/code/tsne_python.zip)
 
@@ -242,7 +229,7 @@ for gs_iter in tqdm(range(n_iter)):
         P = P / early_exaggeration
 
 # ***
-# # Show Results
+# # Plot the Evolution of the cost function
 #
 # First, we look at the evolution of the cost function with gradient descent iterations
 
@@ -254,6 +241,10 @@ gd_obj_df.hvplot(c='k', width=1000, fontsize={'labels':16,'ticks':14, 'title':18
 gd_obj_df.plot(figsize=(20,5),c='k', title='K-L Divergence', lw=3)
 plt.plot([early_exaggeration_ends,early_exaggeration_ends],[0,16],'m--');
 
+# ***
+#
+# # Show Final Embedding
+#
 # Next, we plot the final embedding generated at the end of the last gradient descent iteration
 
 tsne_result_df = pd.DataFrame(Y_dict[n_iter],columns=['x','y'])
@@ -262,15 +253,22 @@ tsne_result_df['colors'] = [cmap[l] for l in labels]
 plot = tsne_result_df.plot.scatter(x='x',y='y',c='colors', figsize=(6,6), s=10)
 plot.set_aspect('equal')
 
+# ***
+#
+# # Dashboard Creation and Start
+
 # Finally, to explore the evolution of the embedding as gradient descent iterations increase, we create a dynamic dashboard
 
 # %%time
 Q_images = {}
-for i in tqdm(np.arange(n_iter)):
-    Q_images[i] =  plot_matrix(Q_dict[i],q_min=0.05, q_max=0.90, ctitle='',figsize=(7,6),lab_fsize=10)
+for i in tqdm(np.arange()):
+    Q_images[i] =  plot_matrix(Q_dict[i],q_min=0.05, q_max=0.90, ctitle='',figsize=(7,6),lab_fsize=10,tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs)
 
 # +
-gs_player = pn.widgets.Player(name='Gradient Descent', start=0, end=n_iter-1, value=0, width=1000)
+gs_player = pn.widgets.Player(name='Gradient Descent Iteration', start=0, end=n_iter-1, value=4, width=1000)
+# Use integer selection instead of player to move around the different iterations
+#gs_player = pn.widgets.IntInput(name='Gradient Descent', value=0, start=0, end=n_iter-1, step=1, width=1000)
+
 @pn.depends(gs_player)
 def plot_objective(i):
     obj_curve     = gd_obj_df.hvplot(c='k', width=800, fontsize={'labels':16,'ticks':14, 'title':18}, title='Iternation Number = %d' % i)
@@ -299,6 +297,7 @@ print('++ INFO: Second Port available: %d' % port_tunnel)
 
 dashboard_server = dashboard.show(port=port_tunnel,open=False)
 
+# ***
+# # Stop the Server
+
 dashboard_server.stop()
-
-
