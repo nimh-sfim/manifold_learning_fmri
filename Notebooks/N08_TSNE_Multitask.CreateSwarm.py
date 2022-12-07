@@ -94,26 +94,26 @@ print('++ INFO: Logs Folder : %s' % logdir_path)
 # +
 # %%time
 # Open the file
-n_jobs=4
+n_jobs=16
 swarm_file = open(swarm_path, "w")
 # Log the date and time when the SWARM file is created
 swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 swarm_file.write('\n')
 
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J TSNE_Scan -f {swarm_path} -b 23 -g 4 -t {n_jobs} --time 00:10:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path, n_jobs=n_jobs))
+swarm_file.write('#swarm -J TSNE_10_Scan -f {swarm_path} -b 15 -g 16 -t {n_jobs} --time 00:16:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path, n_jobs=n_jobs))
 swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
 
-for input_data in ['Original']: #input_datas:
+for input_data in input_datas:
     for subject in PNAS2015_subject_list:
         for norm_method in norm_methods:
-            for dist in ['correlation']: #tsne_dist_metrics:
+            for dist in tsne_dist_metrics:
                 for init_method in tsne_inits:
                     for pp in tsne_pps:
-                        for alpha in [10,1000]: #tsne_alphas:
-                            for m in tsne_ms:
+                        for alpha in tsne_alphas:
+                            for m in [15]:#tsne_ms:
                                 num_iters += 1
                                 path_tvfc = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,input_data,       '{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.{nm}.pkl'.format(subject=subject,nm=norm_method,wls=str(int(wls)).zfill(3), wss=str(wss)))
                                 path_out  = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'TSNE',input_data,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{lr}_{init_method}.{nm}.pkl'.format(subject=subject,
@@ -141,6 +141,8 @@ for input_data in ['Original']: #input_datas:
 swarm_file.close()
 print("++ INFO: Attempts/Written = [%d/%d]" % (num_entries,num_iters))
 # -
+# > **NOTE**: m=2 all completed (12/06/2022) | m=3 all completed (12/06/2022) | m=5 all completed (12/06/2022) | m=10 all completed (12/06/2022). This is for the whole hyper-parameter space.
+
 # ## 1.2. Compute Silhouette Index on all scan-level TSNE embeddings
 
 # +
@@ -152,8 +154,8 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N12_TSNE_Eval_Clustering_Scans.SWARM.sh')
-logdir_path    = osp.join(logs_folder, 'N12_TSNE_Eval_Clustering_Scans.logs')
+swarm_path     = osp.join(swarm_folder,'N08_TSNE_Eval_Clustering_Scans.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N08_TSNE_Eval_Clustering_Scans.logs')
 
 if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
@@ -170,7 +172,7 @@ swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S
 swarm_file.write('\n')
 
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J TSNE_Scans_SI -f {swarm_path} -b 424 -g 4 -t 4 --time 00:00:30 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
+swarm_file.write('#swarm -J TSNE_10_Scans_SI -f {swarm_path} -b 18 -g 4 -t 4 --time 00:13:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
 swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
@@ -182,7 +184,7 @@ for input_data in input_datas:
                 for init_method in tsne_inits:
                     for pp in tsne_pps:
                         for alpha in tsne_alphas:
-                            for m in tsne_ms:                                
+                            for m in [10]:                                
                                 num_iters += 1
                                 input_path  = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'TSNE',input_data,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{lr}_{init_method}.{nm}.pkl'.format(subject=subject,
                                                                                                                                                    nm = norm_method,
@@ -202,9 +204,9 @@ for input_data in input_datas:
                                                                                                                                                    pp=str(pp).zfill(4),
                                                                                                                                                    m=str(m).zfill(4),
                                                                                                                                                    lr=str(alpha)))
-                                if True:# not osp.exists(output_path):
+                                if not osp.exists(output_path):
                                     num_entries += 1
-                                    swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N11_SI.sh'.format(input_path=input_path, 
+                                    swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N10_SI.sh'.format(input_path=input_path, 
                                                                                                                      output_path=output_path,
                                                                                                                      scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
                                     
@@ -212,6 +214,8 @@ for input_data in input_datas:
 swarm_file.close()
 print("++ INFO: Missing/Needed = [%d/%d]" % (num_entries,num_iters))
 # -
+
+# > **NOTE:** m=2 (12/06/2022) | m=3 (12/06/2022) | m=5 (12/06/2022) | m=10 (12/06/2022)
 
 # ***
 #
@@ -241,14 +245,14 @@ print('++ INFO: Logs Folder : %s' % logdir_path)
 # +
 # %%time
 # Open the file
-n_jobs=16
+n_jobs=64
 swarm_file = open(swarm_path, "w")
 # Log the date and time when the SWARM file is created
 swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 swarm_file.write('\n')
 
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J TSNE_Scan -f {swarm_path} -g 64 -t 16 --partition norm --time 72:00:00 --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path, n_jobs=n_jobs))
+swarm_file.write('#swarm -J TSNE_15_ALL -f {swarm_path} -g 128 -t 64 --partition norm --time 7-00:00:00 --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path, n_jobs=n_jobs))
 swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
@@ -260,7 +264,7 @@ for input_data in ['Original']:
                 for init_method in tsne_inits:
                     for pp in tsne_pps:
                         for alpha in [10,1000]:
-                            for m in [2,3,5,10]:
+                            for m in [10]:
                                 num_iters += 1
                                 path_tvfc = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,input_data,       '{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.{nm}.pkl'.format(subject=subject,nm=norm_method,wls=str(int(wls)).zfill(3), wss=str(wss)))
                                 path_out  = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'TSNE',input_data,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{lr}_{init_method}.{nm}.pkl'.format(subject=subject,
@@ -288,6 +292,10 @@ for input_data in ['Original']:
 swarm_file.close()
 print("++ INFO: Attempts/Written = [%d/%d]" % (num_entries,num_iters))
 # -
+
+# > **NOTE:** Given computational needs, we only do this part for the following hyper-parameter set: Original data, correlation distance, lr = 10 or 1000, m =2,3,5,10, all norms and all pps
+#
+# > **NOTE:** m=2 (12/06/2022) | m=3 (12/06/2022) | m=5 (12/06/2022) | m=10 (12/06/2022 - 3 cases missing)
 
 # ## 2.2. Evaluate Group-level "Concatenation + TSNE" Embeddings
 
@@ -318,19 +326,19 @@ swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S
 swarm_file.write('\n')
 
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J TSNE_ALL_SI -f {swarm_path} -b 6 -g 4 -t 4 --time 00:10:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
+swarm_file.write('#swarm -J TSNE_ALL_5_SI -f {swarm_path} -b 6 -g 4 -t 4 --time 00:10:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
 swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
 
-for input_data in ['Original']:
-    for subject in ['ALL']:
+for subject in ['ALL']:
+    for input_data in ['Original']:
         for norm_method in norm_methods:
             for dist in ['correlation']:
                 for init_method in tsne_inits:
                     for pp in tsne_pps:
                         for alpha in [10,1000]:
-                            for m in [2,3,5,10]:
+                            for m in [5]:
                                 num_iters += 1
                                 input_path  = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'TSNE',input_data,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{lr}_{init_method}.{nm}.pkl'.format(subject=subject,
                                                                                                                                                    nm = norm_method,
@@ -350,9 +358,10 @@ for input_data in ['Original']:
                                                                                                                                                    pp=str(pp).zfill(4),
                                                                                                                                                    m=str(m).zfill(4),
                                                                                                                                                    lr=str(alpha)))
-                                if osp.exists(input_path) & (not osp.exists(output_path)):
+                                #if osp.exists(input_path) & (not osp.exists(output_path)):
+                                if (not osp.exists(output_path)):
                                     num_entries += 1
-                                    swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N11_SI.sh'.format(input_path=input_path, 
+                                    swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N10_SI.sh'.format(input_path=input_path, 
                                                                                                                      output_path=output_path,
                                                                                                                      scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
                                     
@@ -360,6 +369,8 @@ for input_data in ['Original']:
 swarm_file.close()
 print("++ INFO: Missing/Needed = [%d/%d]" % (num_entries,num_iters))
 # -
+
+# > **NOTE:** m=2 (12/06/2022) | m=3 (12/06/2022) | m=5 (12/06/2022) | m=10 (12/06/2022) --> Missing the same 3 that need to complete
 
 # # 2.3 Create and Evalaute group-level TSNE: "TSNE + Procrustes"
 
@@ -390,7 +401,7 @@ swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S
 swarm_file.write('\n')
 
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J TSNE_Procrustes_SI -f {swarm_path} -b 6 -g 4 -t 4 --time 00:10:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
+swarm_file.write('#swarm -J TSNE_Procrustes_SI -f {swarm_path} -b 14 -g 4 -t 4 --time 00:17:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
 swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
@@ -402,7 +413,7 @@ for input_data in ['Original']:
                 for init_method in tsne_inits:
                     for pp in tsne_pps:
                         for alpha in [10,1000]:
-                            for m in [2,3,5,10]:
+                            for m in [2,3,5,10,15,20,25,30]:
                                 num_iters += 1
                                 emb_path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','Procrustes','TSNE',input_data,
                                                             'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{alpha}_{init}.{nm}.pkl'.format(wls=str(int(wls)).zfill(3),alpha=str(alpha),
@@ -419,9 +430,9 @@ for input_data in ['Original']:
                                                                                                                       pp=str(pp).zfill(4),
                                                                                                                       nm=norm_method,
                                                                                                                       m=str(m).zfill(4)))
-                                if True: #(not osp.exists(emb_path)) | (not osp.exists(si_path)):
+                                if (not osp.exists(emb_path)) | (not osp.exists(si_path)):
                                     num_entries += 1
-                                    swarm_file.write('export sbj_list="{sbj_list}" input_data={input_data} norm_method={norm_method} dist={dist} pp={pp} m={m} alpha={alpha} init_method={init_method} drop_xxxx={drop_xxxx}; sh {scripts_dir}/N12_TSNE_Procrustes.sh'.format(input_data=input_data,
+                                    swarm_file.write('export sbj_list="{sbj_list}" input_data={input_data} norm_method={norm_method} dist={dist} pp={pp} m={m} alpha={alpha} init_method={init_method} drop_xxxx={drop_xxxx}; sh {scripts_dir}/N11_TSNE_Procrustes.sh'.format(input_data=input_data,
                                                                                                                      sbj_list=','.join(PNAS2015_subject_list),
                                                                                                                      norm_method=norm_method,
                                                                                                                      dist=dist,
@@ -436,6 +447,40 @@ for input_data in ['Original']:
 swarm_file.close()
 print("++ INFO: Missing/Needed = [%d/%d]" % (num_entries,num_iters))
 # -
+# ***
+# # Load and save into a single dataframe
+
+from utils.io import load_TSNE_SI
+
+# %%time
+RELOAD_SI_TSNE = True
+if RELOAD_SI_TSNE:
+    print('++ INFO: Loading SI for Concat + TSNE....')
+    si_TSNE_all              = load_TSNE_SI(sbj_list=['ALL'],               check_availability=False, verbose=True, wls=wls, wss=wss, ms=[2,3,5,10], dist_metrics=['correlation'], input_datas=['Original'], alphas=[10,1000])
+    print('++ INFO: Loading SI for TSNE + Procrustes....')
+    si_TSNE_procrustes       = load_TSNE_SI(sbj_list=['Procrustes'],        check_availability=False, verbose=True, wls=wls, wss=wss, ms=[2,3,5,10,15,20,25,30], dist_metrics=['correlation'], input_datas=['Original'], alphas=[10,1000])
+    print('++ INFO: Loading SI for scan level TSNE...')
+    si_TSNE_scans            = load_TSNE_SI(sbj_list=PNAS2015_subject_list, check_availability=False, verbose=True, wls=wls, wss=wss, ms=[2,3,5,10])
+
+    si_TSNE = pd.concat([si_TSNE_all, si_TSNE_procrustes])
+    si_TSNE = pd.concat([si_TSNE_scans, si_TSNE_all, si_TSNE_procrustes])
+
+    si_TSNE.replace('Window Name','Task', inplace=True)
+    si_TSNE = si_TSNE.set_index(['Subject','Input Data','Norm','Metric','PP','m','Alpha','Init','Target']).sort_index()
+    del si_TSNE_scans, si_TSNE_all, si_TSNE_procrustes, si_TSNE_procrustes_extra, si_TSNE_scans_extra
+    
+    si_TSNE.to_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
+else:
+    si_TSNE = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
+
+si_TSNE = pd.concat([si_TSNE_scans, si_TSNE_all, si_TSNE_procrustes_extra])
+si_TSNE.replace('Window Name','Task', inplace=True)
+si_TSNE = si_TSNE.set_index(['Subject','Input Data','Norm','Metric','PP','m','Alpha','Init','Target']).sort_index()
+
+si_TSNE.to_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
+
+si_TSNE
+
 # ***
 # ***
 # # END OF NOTEBOOK
