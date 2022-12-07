@@ -13,17 +13,20 @@
 #     name: opentsne
 # ---
 
-# # Figure 5 - UMAP Step-by-step
+# # DESCRIPTION: Figure 4 - UMAP Step-by-step
 #
-# This notebook was used to generate Figure 5, which explains how the UMAP method works.
+# This notebook was used to generate Figure 4, which explains how the UMAP method works.
 #
-# For this work, we rely on UMAPs implementation available in the umap-learn library (https://umap-learn.readthedocs.io/en/latest/).
+# For this work, we rely on **UMAP**'s implementation available in the umap-learn library (https://umap-learn.readthedocs.io/en/latest/).
 #
 # For this demonstration we will use the tvFC from one run of the multi-task dataset previously published in [Gonzalez-Castillo et al. PNAS (2015)](https://www.pnas.org/doi/abs/10.1073/pnas.1501242112)
 
+# +
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import os.path as osp
+import os
 from sklearn.utils import Bunch, check_random_state
 from utils.basics import task_cmap_caps as cmap
 import umap
@@ -39,6 +42,15 @@ from IPython.display import Image
 from sklearn.metrics import pairwise_distances
 import umap.distances as dist
 import tqdm
+
+from utils.basics import PRJ_DIR
+# -
+
+# Create output folder if needed
+
+fig_output_folder = osp.join(PRJ_DIR,'Outputs','Figure04')
+if not osp.exists(fig_output_folder):
+    os.makedirs(fig_output_folder)
 
 # + [markdown] tags=[]
 # ***
@@ -62,17 +74,28 @@ random_state      = check_random_state(random_state_seed)    # Random numpy obje
 
 # +
 print('++ INFO: Loading the tvFC dataset.....')
-X_df = pd.read_csv('../Resources/Figure03/swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv.gz', index_col=[0,1])
+X_df = pd.read_pickle(osp.join(PRJ_DIR,'Data_Interim','PNAS2015','SBJ06','Original','SBJ06_Craddock_0200.WL045s.WS1.5s.tvFC.Z.asis.pkl'))
 
-# Becuase pandas does not like duplicate column names, it automatically adds .1, .2, etc to the names. We delete those next
-X_df.columns = X_df.columns.str.split('.').str[0]
 # Extract Task Lbaels (for coloring purposes)
-labels             = pd.Series(X_df.columns)
-X                  = X_df.values.T
-X[X==0]            = 1e-12
-X_orig             = X.copy()
+labels  = pd.Series(X_df.columns)
+X       = X_df.values.T
+X_orig  = X.copy()
 (n_wins, n_conns)  = X.shape         # n = number of samples | d = original number of dimensions
 print(' +       Input data shape = [%d Windows X %d Connections]' % (n_wins, n_conns))
+
+# + active=""
+# print('++ INFO: Loading the tvFC dataset.....')
+# X_df = pd.read_csv('../Resources/Figure03/swcZ_sbj06_ctask001_nroi0200_wl030_ws001.csv.gz', index_col=[0,1])
+#
+# # Becuase pandas does not like duplicate column names, it automatically adds .1, .2, etc to the names. We delete those next
+# X_df.columns = X_df.columns.str.split('.').str[0]
+# # Extract Task Lbaels (for coloring purposes)
+# labels             = pd.Series(X_df.columns)
+# X                  = X_df.values.T
+# X[X==0]            = 1e-12
+# X_orig             = X.copy()
+# (n_wins, n_conns)  = X.shape         # n = number of samples | d = original number of dimensions
+# print(' +       Input data shape = [%d Windows X %d Connections]' % (n_wins, n_conns))
 # -
 
 # We put together the data and the labels in a sklearn.Bunch object for organizational purposes
@@ -139,30 +162,39 @@ embedding_df.index.name = 'Windows'
 embedding_df['Task'] = tvFC.labels
 ref_umap_2demb = embedding_df.hvplot.scatter(x='x',y='y', aspect='square', cmap=cmap, color='Task', 
                             xlabel='', ylabel='', size=5, legend='top', frame_width=400, fontsize={'labels':14,'ticks':14,'legend':14}).opts(toolbar=None, xticks=[(-100,'')],yticks=[(-100,'')])
-pn.pane.HoloViews(ref_umap_2demb).save('../Resources/Figure05/ref_umap_2demb.png')
+pn.pane.HoloViews(ref_umap_2demb).save('../Outputs/Figure04/ref_umap_2demb.png')
 # -
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add ref_umap_2demb to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure05/ref_umap_2demb.png")
+Image("../Outputs/Figure04/ref_umap_2demb.png")
 
+# ***
+# # 2. Decompose UMAP into its main algorithmic steps
+# For explanatory purpose, we will now run the basic UMAP algorithm on the same data, but deconstructing it into its main steps, namely:
+#
+# 1. Computation of dissimilarity matrix
+# 2. Computation of affinity matrix with neighboring relationships
+# 3. Computation of the normalized version of the affinity matrix using equations 7 through 9 of the manuscript
+# 4. Symmetrize the normalized neighboring graph
+# 5. Estimation of optimal layout in 2D space
+#
+# ## 2.1. Phase 1 - Graph Generation
+#
+# ### 2.1.1 Phase 1.a - Compute Dissimilarity Matrix
+#
 
+DS = pairwise_distances(tvFC.data,metric=umap_metric_func)
+plot_matrix(DS, tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# ### 2.1.2 Phase 1.b - Compute Affinity Matrix
+#
+# For this we rely on umap function nearest_neighbors, which returns:
+#
+# * ```knn_indices```: indices for the neighbors of each data point.
+# * ```knn_dists```: distances for the neighbors of each data point.
+#
+# > **NOTE:** nearest_neighbors internally computes again DS based on the data and the distance metric. We pre-computed it above for explanatory purposes only.
 
 # ***
 # # 2. Decompose UMAP into its main algorithmic steps
@@ -179,8 +211,7 @@ Image("../Resources/Figure05/ref_umap_2demb.png")
 # ## PHASE 1 - Graph Generation 
 # ### 2.1 Phase 1.a - Compute Dissimilarity Matrix
 
-DS = pairwise_distances(tvFC.data,metric=umap_metric_func)
-plot_matrix(DS, tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs)
+# We can re-create a full version of the A matrix using ```knn_indices``` and ```knn_dists``` as follows:
 
 # ### 2.2. Phase 1.b - Compute Affinity Matrix
 #
@@ -191,21 +222,15 @@ plot_matrix(DS, tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idx
 #
 # > NOTE: ```nearest_neighbors``` internally computes again DS based on the data and the distance metric. We pre-computed it above for explanatory purposes only.
 
-knn_indices, knn_dists, _ = umap.umap_.nearest_neighbors(tvFC.data, 
-                                                         n_neighbors=knn,
-                                                         random_state=random_state,
-                                                         n_jobs=-1,
-                                                         metric=umap_metric_func, metric_kwds={}, angular=False)
+# Next, we check that A construced this way is not a symmetric matrix.
 
 # We can re-create a full version of the A matrix using ```knn_indices``` and ```knn_dists``` as follows:
 
-A = np.zeros((n_wins,n_wins))
-for w in range(n_wins):
-    A[w,knn_indices[w]] = 1
+# We also check that row-wise sums across A equals the number of desired neighbors (knn)
 
 # Next, we check that A construced this way is not a symmetric matrix.
 
-check_symmetric(A)
+# Let's look at A as a binary matrix and its equivalent directed graph
 
 # We also check that row-wise sums across A equals the number of desired neighbors (knn)
 
@@ -221,30 +246,20 @@ A_matrix_plot = plot_matrix(A,cmap=colors.ListedColormap(['white', 'black']),
             ctitle='Edge Weight', cticks=[0.25,0.75], clabels=['0', '1'])
 A_graph_plot = plot_matrix_as_graph(A, node_labels=tvFC.labels, node_cmap=cmap, layout='spectral', verbose=True, width=500, height=500).opts(toolbar=None)
 
-A_view = pn.Row(A_matrix_plot,A_graph_plot)
-
-# %%time 
-A_view.save('../Resources/Figure05/A_matrix_and_graph.png')
-
-# This shows a static version of the figure (for github). If running the notebook yourself, simply add A_view to a new cell
-# so you can see and interact with the graph
-Image("../Resources/Figure05/A_matrix_and_graph.png")
-
 # + [markdown] tags=[]
-# ### 2.2. Phase 1.c - Normalize Dissimilarities
+# ### 2.1.3 Phase 1.c - Normalize Dissimilarities
 #
 # UMAP constructs a graph for the data in a way that ensures that the data looks uniformly distributed over the original manifold. To accomplish this, UMAP defines dissimilarity differently on each data sample by normalizing the original dissimilarities using equations 7 - 9 of the manuscript.
 #
 # Here, we first use UMAP function ```fuzzy_simplicial_set``` to compute node-wise values for sigma and rho (Equations 8 and 9)
 # -
 
-G, sigmas, rhos = umap.umap_.fuzzy_simplicial_set(DS,
-                                                  n_neighbors=knn,
-                                                  random_state=random_state,
-                                                  metric="precomputed")
+# %%time 
+A_view.save('../Outputs/Figure04/A_matrix_and_graph.png')
 
 # Next, we compute the normalized distances between neighbors using Equation 7
 
+# %%time
 B = np.zeros((n_wins,n_wins))
 for i in range(n_wins):
     for jj,j in enumerate(knn_indices[i]):
@@ -274,11 +289,11 @@ for i in range(n_wins):
 # We can observe how the normalization step brings all neighbodring distances to the range [0,1] and how it has that effect of making the data look uniformly distributed over the manifold in the original ambient space
 
 nw_plot = Normatilized_Weights.hvplot.scatter(x='DS',y='w', datashade=True, fontsize={'labels':18,'ticks':18}, xlabel='Original Distance',ylabel='Normalized Dist.')
-pn.pane.HoloViews(nw_plot).save('../Resources/Figure05/normalized_weights.png')
+pn.pane.HoloViews(nw_plot).save('../Outputs/Figure04/normalized_weights.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add nw_plot to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure05/normalized_weights.png")
+Image("../Outputs/Figure04/normalized_weights.png")
 
 # Similarly to $G_a$, $G_b$ is still defined by a non-symmetric matrix, meaning $G_b$ is still a directed graph. 
 #
@@ -289,13 +304,13 @@ check_symmetric(B)
 B_graph_plot = plot_matrix_as_graph(B, node_labels=tvFC.labels, node_cmap=cmap, layout='spectral', verbose=True, width=500, height=500).opts(toolbar=None)
 
 # %%time
-pn.pane.HoloViews(B_graph_plot).save('../Resources/Figure05/B_graph_plot_colored.png')
+pn.pane.HoloViews(B_graph_plot).save('../Outputs/Figure04/B_graph_plot_colored.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add B_graph_plot to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure05/B_graph_plot_colored.png")
+Image("../Outputs/Figure04/B_graph_plot_colored.png")
 
-# ### 2.2. Phase 1.c - Convert to Undirected Graph
+# ### 2.1.4 Phase 1.c - Convert to Undirected Graph
 #
 # Once $B$ (namely the affiinity matrix that defines $G_b$) is available, we can rely on equation 10 to create the directed graph $G_c$ (defined by matrix $C$)
 
@@ -315,11 +330,11 @@ check_symmetric(C)
 G_plot = plot_matrix_as_graph(G.todense(), node_labels=tvFC.labels, node_cmap=cmap)
 
 # %%time
-pn.pane.HoloViews(G_plot).save('../Resources/Figure05/G_graph_plot_colored.png')
+pn.pane.HoloViews(G_plot).save('../Outputs/Figure04/G_graph_plot_colored.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add G_graph_plot_colored.png to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure05/G_graph_plot_colored.png")
+Image("../Outputs/Figure04/G_graph_plot_colored.png")
 
 # ***
 # ## PHASE 2 - Layout Optimization
@@ -359,11 +374,11 @@ embedding_df['Task'] = tvFC.labels
 embedding_df.hvplot.scatter(x='x',y='y', aspect='square', cmap=cmap, color='Task')
 embedding_plot = embedding_df.hvplot.scatter(x='x',y='y', aspect='square', cmap=cmap, color='Task', 
                             xlabel='', ylabel='', size=5, legend='top', frame_width=400, fontsize={'labels':14,'ticks':14,'legend':14}).opts(toolbar=None, xticks=[(-100,'')],yticks=[(-100,'')])
-pn.pane.HoloViews(embedding_plot).save('../Resources/Figure05/ref2_umap_2demb.png')
+pn.pane.HoloViews(embedding_plot).save('../Outputs/Figure04/ref2_umap_2demb.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add embedding_plot to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure05/ref2_umap_2demb.png")
+Image("../Outputs/Figure04/ref2_umap_2demb.png")
 
 # Now, to get a better understanding of the optimization process, we will run the same call as above but using different number of epochs so that we can then look at the evolution of the embedding.
 #
@@ -462,15 +477,19 @@ aux.columns.name='Learning Rate'
 aux.index.name = 'Epoch'
 aux.index = aux.index + 1
 optimization_plot = aux.hvplot(title='Inter-Epochs Difference', fontsize={'labels':14,'ticks':14}, ylabel='Avg. Euclidean Distance', xlabel='Epoch', legend='bottom_right', width=300, height=400, color=['gray','lightgray']).opts(legend_cols=3, toolbar=None)
-pn.pane.HoloViews(optimization_plot).save('../Resources/Figure05/ref2_umap_2demb.png')
+pn.pane.HoloViews(optimization_plot).save('../Outputs/Figure04/ref2_umap_2demb.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add optimization_plot to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure05/ref2_umap_2demb.png")
+Image("../Outputs/Figure04/ref2_umap_2demb.png")
 
 # To dynamically explore the evolution of the embeddings as the number of epochs increases, we create a small dashboard that looks the image below
 
-Image('../Resources/Figure05/UMAP_Dashboard.png')
+# ***
+#
+# # Dashboard to evalaute the evolution of Gradient descent in UMAP
+
+Image('../Outputs/Figure04/UMAP_Dashboard.png')
 
 # This is the code that will create the dashboard in your local machine
 
@@ -503,7 +522,7 @@ dashboard_server.stop()
 
 # ***
 #
-# # APPENDIX. UMAP Supplementary Figure - Effect of min_dist
+# # APPENDIX. UMAP Supplementary Figure 3 - Effect of min_dist
 
 from tqdm.notebook import tqdm
 
@@ -539,11 +558,11 @@ for min_dist in tqdm([0.1, 0.25, 0.40, 0.55, 0.70, 0.95]):
                              hover=False, xlim=(-9,9), ylim=(-9,9),
                              fontsize={'labels':14,'ticks':14,'title':16}, legend='bottom_left', frame_width=400).opts(xticks=[(-14,'')], yticks=[(-14,'')],toolbar=None)
 
-pn.pane.HoloViews(layout.cols(3).opts(toolbar=None)).save('../Resources/Figure05/UMAP_mindist_effects.png')
+pn.pane.HoloViews(layout.cols(3).opts(toolbar=None)).save('../Outputs/Figure04/UMAP_mindist_effects.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add layout to a new cell
 # so you can see and interact with the graph
-Image("../Resources/Figure05/UMAP_mindist_effects.png")
+Image("../Outputs/Figure04/UMAP_mindist_effects.png")
 
 # ***
 #
@@ -555,5 +574,3 @@ Image("../Resources/Figure05/UMAP_mindist_effects.png")
 # # Reduce video size
 # ffmpeg -i UMAP_Optimization_alpha0p01.mp4 -vcodec libx264 -crf 28 UMAP_Optimization_alpha0p01.small.mp4
 # ```
-
-
