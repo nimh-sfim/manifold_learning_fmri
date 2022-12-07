@@ -24,7 +24,7 @@ import os.path as osp
 import getpass
 from datetime import datetime
 from tqdm.notebook import tqdm
-from utils.basics import task_cmap_caps
+from utils.basics import task_cmap_caps, wls, wss, tr
 from utils.basics import PNAS2015_subject_list, PNAS2015_folder, PNAS2015_roi_names_path, PNAS2015_win_names_paths, PRJ_DIR, input_datas, norm_methods
 from utils.basics import umap_ms, umap_knns, le_knns,le_ms
 import xarray as xr
@@ -33,10 +33,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from statannotations.Annotator import Annotator
 
-
-wls = 45
-wss = 1.5
-tr  = 1.5
 
 # # 1. Load Classification Results for LE
 #
@@ -155,12 +151,13 @@ for clf in 'logisticregression','svc':
                 UMAP_COEFFS[(nm,knn,m,clf)] = xr.DataArray(dims=['Subject','Dimension','Class'], coords={'Subject':['Procrustes'],'Dimension':['UMAP'+str(i+1).zfill(4) for i in range(m)],'Class':['BACK','MATH','REST','VIDE']})
                 # Load Classification results
                 # ===========================
-                path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','Procrustes','Classification','UMAP',umap_input_data,
-                            'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.LE_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.pkl'.format(nm=nm,dist=umap_cl_dist,knn=str(knn).zfill(4),
-                                                                                                                                            m=str(m).zfill(4),md=str(umap_cl_mdist),clf=clf,
-                                                                                                                                            alpha=str(umap_cl_alpha),
-                                                                                                                                            wls=str(int(wls)).zfill(3), 
-                                                                                                                                            wss=str(wss)))
+                path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','Procrustes','Classification','UMAP',umap_input_data,'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.UMAP_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.pkl'.format(nm=nm,
+                                        dist=umap_cl_dist,knn=str(knn).zfill(4),m=str(m).zfill(4),md=str(umap_cl_mdist),clf=clf,alpha=str(umap_cl_alpha),wls=str(int(wls)).zfill(3),wss=str(wss)))
+                #'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.LE_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.pkl'.format(nm=nm,dist=umap_cl_dist,knn=str(knn).zfill(4),
+                #                                                                                                                m=str(m).zfill(4),md=str(umap_cl_mdist),clf=clf,
+                #                                                                                                                alpha=str(umap_cl_alpha),
+                #                                                                                                                wls=str(int(wls)).zfill(3), 
+                #                                                                                                                            wss=str(wss)))
                 with open(path,'rb') as f:
                     objects = pickle.load(f)
                 locals().update(objects)

@@ -31,18 +31,15 @@ import xarray as xr
 import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
-
-wls = 45
-wss = 1.5
-tr  = 1.5
-#win_names_path = PNAS2015_win_names_paths[(wls,wss)]
-umap_min_dist    = 0.8
-umap_init_method = 'spectral'
-tsne_init_method = 'pca'
+from utils.basics import wls, wss, tr
 
 # + [markdown] tags=[]
 # # 1. UMAP
 # -
+
+umap_min_dist    = 0.8
+umap_init_method = 'spectral'
+tsne_init_method = 'pca'
 
 # After looking at the clustering evaluation results, we will select: Euclidean, knn > 50 and alpha = 0.01
 
@@ -68,8 +65,8 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N15_Classify_GroupLevel_Procrustes_UMAP.SWARM.sh')
-logdir_path    = osp.join(logs_folder, 'N15_Classify_GroupLevel_Procrustes_UMAP.logs')
+swarm_path     = osp.join(swarm_folder,'N16_Figure10_ClassificationEval_UMAP.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N16_Figure10_ClassificationEval_UMAP.logs')
 
 if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
