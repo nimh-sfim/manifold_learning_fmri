@@ -74,12 +74,12 @@ def run(args):
     df.columns.name = 'TSNE dimensions'
     df.index        = labels
     df.index.name   = 'Window Name'
-    
+    print(' + About to save results to disk.....') 
     # Save output to disk
     # ===================
     df.to_pickle(path_out)
     print(' + TSNE result saved to disk: %s' % path_out)
-
+    print('++ PROGRAM ENDED SUCCESSFULLY.')
 def main():
     parser=argparse.ArgumentParser(description="Create a T-SNE embedding given a tvFC matrix")
     parser.add_argument("-tvfc",        help="Path to tvFC matrix",     dest="path_tvfc",   type=str,  required=True)
