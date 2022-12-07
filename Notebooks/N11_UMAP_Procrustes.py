@@ -116,21 +116,6 @@ def run(args):
     print(df)
     print('++ INFO: Saving SI values to disk... [%s]' % si_path)
     df.to_pickle(si_path)
-    
-###    umap_dims = [c for c in aux.columns if 'UMAP0' in c]
-###    print('++ INFO: Computing SIsbj...')
-###    si_sbj  = silhouette_score(aux[umap_dims], aux.reset_index()['Subject'], n_jobs=-1)
-###    print(' +       SIsbj = %.2f' % si_sbj)
-###    print('++ INFO: Computing SItask...')
-###    si_task = silhouette_score(aux[umap_dims], aux.reset_index()['Window Name'], n_jobs=-1)
-###    print(' +       SItask = %.2f' % si_task)
-###    
-###    # Writing SI results to disk
-###    df = pd.Series(index=['SI_Subject','SI_Window Name'], dtype=float)
-###    df['SI_Subject'] = si_sbj
-###    df['SI_Window Name'] = si_task
-###    print('++ INFO: Saving SI values to disk... [%s]' % si_path)
-###    df.to_pickle(si_path)
 
 def main():
     parser=argparse.ArgumentParser(description="Create a Laplacian Eigenmap embedding given a tvFC matrix")
