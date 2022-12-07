@@ -44,14 +44,11 @@ from IPython.display import Image
 from scipy.spatial.distance import pdist, squareform
 from sklearn.neighbors import kneighbors_graph
 from sklearn.manifold._spectral_embedding import _deterministic_vector_sign_flip
-#from networkx import laplacian_matrix, degree
 from scipy.sparse.csgraph import laplacian
 from scipy.sparse.linalg import eigsh
 from utils.random import seed_value
-# -
-
 from utils.basics import PRJ_DIR, task_cmap_caps
-#task_cmap, task_cmap_caps
+# -
 
 Distance_Function = 'euclidean' # Distance Function
 knn               = 90          # Number of Neighbors for the N-Nearest Neighbors Step
