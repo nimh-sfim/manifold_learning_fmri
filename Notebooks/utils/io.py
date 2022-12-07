@@ -144,8 +144,7 @@ def load_TSNE_SI(sbj_list,check_availability=False, verbose=False, wls=45, wss=1
                                                                      'PP':pp,'m':m,'Alpha':alpha,'Init':init_method,
                                                                      'Target':label.split('_')[1],'SI':aux.loc[label]}, ignore_index=True)
                                            
-    if verbose:
-        print('++ INFO [load_TSNE_SI]: Number of files missing = [%d/%d] files' % (num_missing_files,num_needed_files))
+    print('++ INFO [load_TSNE_SI]: Number of files missing = [%d/%d] files' % (num_missing_files,num_needed_files))
     return si_TSNE   
    
 def load_UMAP_SI(sbj_list,check_availability=False, verbose=False, wls=45, wss=1.5, 
