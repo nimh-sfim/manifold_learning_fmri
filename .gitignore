@@ -6,3 +6,8 @@ Logs.javiergc/
 .ipynb_checkpoints/
 Resuources/.ipynb_checkpoints/
 Notebooks/.ipynb_checkpoints/
+Data/PNAS2015/SBJ??/*.roidat
+Data/PNAS2015/SBJ??/*.netcc
+Data/PNAS2015/SBJ??/*.HEAD
+Data/PNAS2015/SBJ??/*.BRIK
+Data/PNAS2015/SBJ??/*.dset
