@@ -78,99 +78,6 @@ le_conf_box     = pn.WidgetBox(le_dist_select,le_knn_select,le_m_select,le_grcc_
 le_conf_box
 
 
-# + active=""
-# @pn.depends(sbj_select,input_select,scenario_select,le_dist_select,le_knn_select,le_m_select,plot2d_toolbar_select,le_drop_xxxx)
-# def plot_LE_Scan_scats(sbj,input_data,scenario,dist,knn,m,plot_2d_toolbar, drop_xxxx):
-#     plots = None
-#     aux_2d = load_single_le(sbj,input_data,scenario,dist,knn,2,drop_xxxx=drop_xxxx)
-#     aux_3d = load_single_le(sbj,input_data,scenario,dist,knn,3,drop_xxxx=drop_xxxx)
-#     aux_Md = load_single_le(sbj,input_data,scenario,dist,knn,m,drop_xxxx=drop_xxxx)
-#     if not (aux_2d is None):
-#         aux_2d = aux_2d.reset_index()
-#     if not (aux_3d is None):
-#         aux_3d = aux_3d.apply(zscore)
-#         aux_3d = aux_3d.reset_index()
-#         aux_3d_task_cmap = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
-#     if not (aux_Md is None):
-#         aux_Md = aux_Md.apply(zscore)
-#         aux_Md = aux_Md.reset_index()
-#     if (not (aux_2d is None)) & (not (aux_3d is None)) & (m<=3):
-#         plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='LE001',y='LE002',c='Window Name', cmap=task_cmap, s=10, toolbar=plot_2d_toolbar),
-#                              plot_3d_scatter(aux_3d,x='LE001',y='LE002',z='LE003',c='Window Name', cmap=aux_3d_task_cmap,s=3, ax_range=[-2,2]),
-#                              pn.pane.DataFrame(si_LE.loc[sbj,input_data,scenario,dist,knn,2].round(2),width=150),
-#                              pn.pane.DataFrame(si_LE.loc[sbj,input_data,scenario,dist,knn,3].round(2),width=150)
-#                             ],ncols=2)
-#     if (not (aux_2d is None)) & (not (aux_3d is None)) & (m>3):
-#         plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='LE001',y='LE002',c='Window Name', cmap=task_cmap, s=10, toolbar=plot_2d_toolbar),
-#                              plot_3d_scatter(aux_3d,x='LE001',y='LE002',z='LE003',c='Window Name', cmap=aux_3d_task_cmap,s=3, ax_range=[-2,2]),
-#                              plot_3d_scatter(aux_Md,x='LE001',y='LE002',z='LE003',c='Window Name', cmap=aux_3d_task_cmap,s=3, ax_range=[-2,2]),
-#                              pn.pane.DataFrame(si_LE.loc[sbj,input_data,scenario,dist,knn,2].round(2),width=150),
-#                              pn.pane.DataFrame(si_LE.loc[sbj,input_data,scenario,dist,knn,3].round(2),width=150),
-#                              pn.pane.DataFrame(si_LE.loc[sbj,input_data,scenario,dist,knn,m].round(2),width=150)],ncols=3)
-#     return plots
-
-# + active=""
-# def plot_LE_scats(group_type,input_data,scenario,dist,knn,m,color_col,plot_2d_toolbar,drop_xxxx):
-#     plots = None
-#     aux_2d, aux_3d, aux_Md = None, None, None
-#     if group_type in ['Procrustes','ALL']:
-#         sitable_2d, sitable_3d, sitable_Md = pn.pane.DataFrame(pd.DataFrame(index=pd.Index(['Subject','Task'],name='Target'),columns=['SI']),width=150),pn.pane.DataFrame(pd.DataFrame(index=pd.Index(['Subject','Task'],name='Target'),columns=['SI']),width=150),pn.pane.DataFrame(pd.DataFrame(index=pd.Index(['Subject','Task'],name='Target'),columns=['SI']),width=150)
-#     else:
-#         sitable_2d, sitable_3d, sitable_Md = pn.pane.DataFrame(pd.DataFrame(index=pd.Index(['Task'],name='Target'),columns=['SI']),width=150),pn.pane.DataFrame(pd.DataFrame(index=pd.Index(['Task'],name='Target'),columns=['SI']),width=150),pn.pane.DataFrame(pd.DataFrame(index=pd.Index(['Task'],name='Target'),columns=['SI']),width=150)
-#     # Load all necessary embeddings
-#     # =============================
-#     if m == 2:
-#         aux_2d = load_single_umap(group_type,input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
-#     elif m == 3:
-#         aux_2d = load_single_umap(group_type,input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
-#         aux_3d = load_single_umap(group_type,input_data,scenario,dist,knn,alpha,init_method,min_dist,3,drop_xxxx=drop_xxxx)
-#     else:
-#         aux_2d = load_single_umap(group_type,input_data,scenario,dist,knn,alpha,init_method,min_dist,2,drop_xxxx=drop_xxxx)
-#         aux_3d = load_single_umap(group_type,input_data,scenario,dist,knn,alpha,init_method,min_dist,3,drop_xxxx=drop_xxxx)
-#         aux_Md = load_single_umap(group_type,input_data,scenario,dist,knn,alpha,init_method,min_dist,m,drop_xxxx=drop_xxxx)
-#     
-#     plots = None
-#     aux_2d = load_single_le(group_type,input_data,scenario,dist,knn,2,drop_xxxx=drop_xxxx)
-#     aux_3d = load_single_le(group_type,input_data,scenario,dist,knn,3,drop_xxxx=drop_xxxx)
-#     aux_Md = None
-#     if m > 3:
-#         aux_Md = load_single_le(group_type,input_data,scenario,dist,knn,m,drop_xxxx=drop_xxxx)
-#     if color_col == 'Subject':
-#         cmap_2d = sbj_cmap_dict
-#         cmap_3d = sbj_cmap_list
-#     else:
-#         cmap_2d = task_cmap
-#         cmap_3d = [task_cmap[t] for t in aux_3d.index.get_level_values('Window Name').unique()]
-#     if not (aux_2d is None):
-#         aux_2d = aux_2d.reset_index()
-#     if not (aux_3d is None):
-#         aux_3d = aux_3d.apply(zscore)
-#         aux_3d = aux_3d.reset_index()
-#         aux_3d_task_cmap = [task_cmap[t] for t in aux_3d['Window Name'].unique()]
-#     if not (aux_Md is None):
-#         aux_Md = aux_Md.apply(zscore)
-#         aux_Md = aux_Md.reset_index()
-#         aux_Md = aux_Md.sort_index(level='Window Name',ascending=False) # So Inbetween are plotted in the back (for clarity)
-#         
-#         si_Md_report = si_LE.loc[group_type,input_data,scenario,dist,knn,m].round(2)
-#         si_Md_report.loc['Subject','SI [3D]'] = load_LE_SI([group_type],input_datas=[input_data],dist_metrics=[dist],ms=[m],knns=[knn],norm_methods=[scenario],no_tqdm=True).set_index('Target').loc['Subject'].SI
-#         si_Md_report.loc['Task','SI [3D]'] = load_LE_SI([group_type],input_datas=[input_data],dist_metrics=[dist],ms=[m],knns=[knn],norm_methods=[scenario],no_tqdm=True).set_index('Target').loc['Window Name'].SI
-#
-#     if (not (aux_2d is None)) & (not (aux_3d is None)) & (not (aux_Md is None)):
-#         plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='LE001',y='LE002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
-#                              plot_3d_scatter(aux_3d,x='LE001',y='LE002',z='LE003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
-#                              plot_3d_scatter(aux_Md,x='LE001',y='LE002',z='LE003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
-#                              pn.pane.DataFrame(si_LE.loc[group_type,input_data,scenario,dist,knn,2].round(2),width=150),
-#                              pn.pane.DataFrame(si_LE.loc[group_type,input_data,scenario,dist,knn,3].round(2),width=150),
-#                              pn.pane.DataFrame(si_Md_report.round(2),width=150)],ncols=3)
-#     if (not (aux_2d is None)) & (not (aux_3d is None)) & (aux_Md is None):
-#         plots = pn.GridBox(*[plot_2d_scatter(aux_2d,x='LE001',y='LE002',c=color_col, cmap=cmap_2d, s=10, toolbar=plot_2d_toolbar),
-#                              plot_3d_scatter(aux_3d,x='LE001',y='LE002',z='LE003',c=color_col, cmap=cmap_3d,s=3, ax_range=[-2,2]),
-#                              pn.pane.DataFrame(si_LE.loc[group_type,input_data,scenario,dist,knn,2].round(2),width=150),
-#                              pn.pane.DataFrame(si_LE.loc[group_type,input_data,scenario,dist,knn,3].round(3),width=150)],ncols=2)
-#     return plots
-# -
-
 def plot_LE_scats(group_type,input_data,scenario,dist,knn,m,color_col,plot_2d_toolbar,drop_xxxx):
     plots = None
     aux_2d, aux_3d, aux_Md = None, None, None
@@ -393,7 +300,7 @@ si_TSNE = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
 tsne_figs_folder  = osp.join(PRJ_DIR,'Dashboard','Figures','TSNE')
 tsne_pp_select   = pn.widgets.Select(name='Perplexity',        options=tsne_pps,          value=tsne_pps[0], width=150)
 tsne_dist_select  = pn.widgets.Select(name='Distance Metric',  options=tsne_dist_metrics, value=tsne_dist_metrics[0], width=150)
-tsne_m_select     = pn.widgets.Select(name='M',                options=[2,3,5,10],       value=2, width=150)
+tsne_m_select     = pn.widgets.Select(name='M',                options=[2,3,5,10,15,20,25,30],       value=2, width=150)
 tsne_alpha_select = pn.widgets.Select(name='Learning Rate',    options=tsne_alphas,       value=tsne_alphas[0], width=150)
 tsne_init_select  = pn.widgets.Select(name='Init Method',      options=tsne_inits,       value=tsne_inits[0], width=150)
 tsne_grcc_col_sel = pn.widgets.Select(name='[G-CC] Color By:', options=['Window Name','Subject'], value='Window Name', width=150)
@@ -503,7 +410,5 @@ dashboard = pn.Column(data_select_box,pn.Tabs(('Laplacian Eigenmaps',le_tab),('T
 # -
 
 dashboard_server = dashboard.show(port=port_tunnel,open=False)
-
-
 
 
