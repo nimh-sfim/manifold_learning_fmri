@@ -13,7 +13,7 @@ conda activate opentsne
 
 # Run the program
 
-python ./N14_ID.py -tvfc ${tvfc_path} \
+python ./N12_ID.py -tvfc ${tvfc_path} \
                    -out_local ${out_path_local} \
                    -out_global ${out_path_global} \
                    -n_jobs ${n_jobs}

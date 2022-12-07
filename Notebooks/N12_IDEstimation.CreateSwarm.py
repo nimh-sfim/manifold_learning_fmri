@@ -13,13 +13,9 @@
 #     name: opentsne
 # ---
 
-# # Description
+# # DESCRIPTION - Intrinsic Dimension Estimation
 #
-# This notebook will compute sliding window correlation matrices for the 20 subjects in the multi-task dataset.
-#
-# Initially, we are only working with WL = 45s and WS = 1.5s.
-#
-# Matrices will be written as pandas pickle objects in ```/data/SFIMJGC_HCP7T/manifold_learning/Data_Interim/PNAS2015```
+# This notebook will estimate the intrinsic dimension of tvFC scan-level data. We will use three different estimators and comptue both local and global ID values.
 
 import pandas as pd
 import numpy as np
@@ -28,7 +24,7 @@ import os.path as osp
 import getpass
 from datetime import datetime
 from tqdm.notebook import tqdm
-from utils.basics import PNAS2015_subject_list, PNAS2015_folder, PNAS2015_roi_names_path, PNAS2015_win_names_paths, PRJ_DIR, input_datas, norm_methods
+from utils.basics import PNAS2015_subject_list, PNAS2015_folder, PNAS2015_roi_names_path, PNAS2015_win_names_paths, PRJ_DIR, input_datas, norm_methods, wls, wss, tr
 
 # + [markdown] tags=[]
 # ***
@@ -36,9 +32,6 @@ from utils.basics import PNAS2015_subject_list, PNAS2015_folder, PNAS2015_roi_na
 # The next cell select the Window Length ```wls``` and Window Step ```wss``` used to generate the matrices
 # -
 
-wls = 45
-wss = 1.5
-tr  = 1.5
 win_names_path = PNAS2015_win_names_paths[(wls,wss)]
 
 # ***
@@ -70,8 +63,8 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N14_ID_estimates.SWARM.sh')
-logdir_path    = osp.join(logs_folder, 'N14_ID_estimates.logs')
+swarm_path     = osp.join(swarm_folder,'N12_ID_estimates.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N12_ID_estimates.logs')
 
 if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
@@ -101,13 +94,15 @@ for subject in PNAS2015_subject_list:
             out_path_local   = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'ID_estimates',input_data,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.{nm}.local_ID.pkl'.format(subject=subject,nm=norm_method,wls=str(int(wls)).zfill(3), wss=str(wss)))
             out_path_global  = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'ID_estimates',input_data,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.{nm}.global_ID.pkl'.format(subject=subject,nm=norm_method,wls=str(int(wls)).zfill(3), wss=str(wss)))
 
-            swarm_file.write('export tvfc_path={tvFC_path}  out_path_local={out_path_local} out_path_global={out_path_global} n_jobs=4; sh {scripts_dir}/N14_ID.sh'.format(
+            swarm_file.write('export tvfc_path={tvFC_path}  out_path_local={out_path_local} out_path_global={out_path_global} n_jobs=4; sh {scripts_dir}/N12_ID.sh'.format(
                        tvFC_path = tvFC_path, out_path_local=out_path_local, out_path_global=out_path_global,
                        scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
             swarm_file.write('\n')
 swarm_file.close()
 # -
 # ***
+
+# The next cell check if all necessary outputs are available.
 
 needed_global = 0
 avail_global = 0
@@ -121,5 +116,3 @@ for subject in PNAS2015_subject_list:
             else:
                 print(out_path_global)
 print('++ INFO: Files avail/needed [%d/%d]' %(avail_global,needed_global))
-
-
