@@ -197,6 +197,23 @@ annot.annotate()
 ax.set_ylim(0,.70)
 # -
 
+si['UMAP']
+
+fig,ax         = plt.subplots(1,1,figsize=(3,5))
+this_plot_data          = si['UMAP'].loc[:,'Original',:,:,:,:,75,:,[2,3],:].reset_index().copy()
+this_plot_data['Alpha'] = this_plot_data['Alpha'].astype(str)
+plot           = sns.barplot(data=this_plot_data, y='SI',x='Alpha', palette='Blues')
+#ax.legend(loc='lower right', ncol=1, fontsize=14)
+ax.set_ylabel('$SI_{task}$')
+ax.set_xlabel(r'Learning Rate ($\alpha$)')
+pairs = [("0.01","0.1"),("0.1","1.0"),("0.01","1.0")]
+annot = Annotator(plot, pairs, data=this_plot_data, y='SI',x='Alpha')
+annot.configure(test='t-test_paired', verbose=1, comparisons_correction='Bonferroni', text_format="star")
+annot.apply_test()
+annot.annotate()
+ax.set_ylim(0,.70)
+plt.xticks(rotation = 45) 
+
 # ***
 # ## Scan Selection for Figure 8
 
