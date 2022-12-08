@@ -379,7 +379,7 @@ for scenario in ['asis','zscored']:
                                                                                                                                                    dist=dist,
                                                                                                                                                    knn=str(knn).zfill(4),
                                                                                                                                                    m=str(m).zfill(4)))
-                    if not osp.exists(path_out):
+                    if True: #not osp.exists(path_out):
                         missing_files +=1
                         swarm_file.write('export path_tvfc={path_tvfc} dist={dist} knn={knn} m={m} path_out={path_out}; sh {scripts_dir}/N07_LE.sh'.format(path_tvfc=path_tvfc, 
                                                                                                                                     path_out=path_out,
@@ -443,7 +443,7 @@ for scenario in ['asis','zscored']:
                                                                                                                                                    m=str(m).zfill(4)))
                     if True: #osp.exists(input_path) & (not osp.exists(output_path)):
                         missing_files += 1
-                        swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N11_SI.sh'.format(input_path=input_path, 
+                        swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N10_SI.sh'.format(input_path=input_path, 
                                                                                                                      output_path=output_path,
                                                                                                                      scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
                         swarm_file.write('\n')
