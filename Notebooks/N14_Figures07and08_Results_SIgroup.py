@@ -15,7 +15,7 @@
 
 # # Description
 #
-# This notebook generates the different panels in Figures 8, 9 and Suppl. Fig X, which summarizes the results of the SI evaluation at the single-scan level.
+# This notebook generates the different panels in Figures 8, 9 and Suppl. Fig 5, which summarizes the results of the SI evaluation at the group level.
 
 # +
 import pandas as pd
@@ -27,12 +27,12 @@ import os.path as osp
 import numpy as np
 from statannotations.Annotator import Annotator
 
-from utils.basics import PNAS2015_subject_list, PRJ_DIR
+from utils.basics import PNAS2015_subject_list, PRJ_DIR, wls, wss
 from pylab import subplot
 from utils.io import load_LE_SI, load_TSNE_SI, load_UMAP_SI
 # -
 
-wls, wss = 45, 1.5
+# Create Empty dictionary to hold all SI values
 si       = {}
 
 # # 1. Load Group Level SIs for all MLTs
@@ -59,8 +59,10 @@ si['UMAP'] = si['UMAP'].set_index(['Subject','Input Data','Norm','Metric','Knn',
 # This is necessary given how long it takes for T-SNE to run
 
 # %%time
-si['TSNE'] = load_TSNE_SI(sbj_list=['Procrustes','ALL'],check_availability=False, verbose=False, wls=wls, wss=wss,   ms=[2,3,5,10], dist_metrics=['correlation'], input_datas=['Original'], alphas=[10,1000])
-si['TSNE'] = si['TSNE'].set_index(['Subject','Input Data','Norm','Metric','PP','m','Alpha','Init','Target']).sort_index()
+aux_TSNE_all        = load_TSNE_SI(sbj_list=['ALL'],check_availability=False,        verbose=True, wls=wls, wss=wss,   ms=[2,3,5,10], dist_metrics=['correlation'], input_datas=['Original'], alphas=[10,1000])
+aux_TSNE_procrustes = load_TSNE_SI(sbj_list=['Procrustes'],check_availability=False, verbose=True, wls=wls, wss=wss,   ms=[2,3,5,10,15,20,25,30], dist_metrics=['correlation'], input_datas=['Original'], alphas=[10,1000])
+si['TSNE']          = pd.concat([aux_TSNE_all,aux_TSNE_procrustes])
+si['TSNE']          = si['TSNE'].set_index(['Subject','Input Data','Norm','Metric','PP','m','Alpha','Init','Target']).sort_index()
 
 # ## 1.4. Summarize loaded data and change labels for plotting purposes
 
@@ -95,24 +97,27 @@ for tech in ['LE','TSNE','UMAP']:
 #
 # * We will plot distributions of $SI_{task}$ and $SI_{subject}$ for both group aggregation methods.
 # * For $SI_{task}$, we will aditionally highlight the portion of the distribution for the "LE + Procrustes" approach that relies on m > 3.
+# -
+
+si['LE'] = si['LE'].reset_index().replace({'LE + Procrustes':'Embed + Procrustes','Concat. + LE':'Concatenate + Embed'}).set_index(['Grouping Method','Input','Normalization','Distance','Knn','m','Target'])
 
 # +
 sns.set(font_scale=1.5, style='whitegrid')
 fig,axs=plt.subplots(1,2,figsize=(20,5))
-sns.histplot(data=si['LE'].loc[:,'Original',:,:,:,:,'Window Name'].reset_index(), x='SI',hue='Grouping Method', hue_order=['LE + Procrustes','Concat. + LE'], palette=['Orange','Blue'], kde=False, ax=axs[0], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.4)
-sns.histplot(data=si['LE'].loc['LE + Procrustes','Original',:,:,:,[5,10,15,20,25,30],'Window Name'].reset_index(), x='SI',hue='Grouping Method', hue_order=['LE + Procrustes'], palette=['DarkOrange'], lw=3, kde=False, ax=axs[0], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.3, element='poly', legend=False)
+sns.histplot(data=si['LE'].loc[:,'Original',:,:,:,:,'Window Name'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Embed + Procrustes','Concatenate + Embed'], palette=['Orange','Blue'], kde=False, ax=axs[0], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.4)
+sns.histplot(data=si['LE'].loc['Embed + Procrustes','Original',:,:,:,[5,10,15,20,25,30],'Window Name'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Embed + Procrustes'], palette=['DarkRed'], lw=3, kde=False, ax=axs[0], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.1, element='poly', legend=False)
 axs[0].set_ylim(0,250);
 axs[0].set_ylabel('Number of Times');
 axs[0].set_xlabel('$SI_{task}$')
 axs[0].set_xlim(-.2,.8)
-axs[0].set_title('Group LE | Task Separability')
+axs[0].set_title('Group-Level LE Embeddings | Task Separability')
 
-sns.histplot(data=si['LE'].loc[:,'Original',:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method', hue_order=['LE + Procrustes','Concat. + LE'], palette=['Orange','Blue'], kde=False, ax=axs[1], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.4)
+sns.histplot(data=si['LE'].loc[:,'Original',:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Embed + Procrustes','Concatenate + Embed'], palette=['Orange','Blue'], kde=False, ax=axs[1], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.4)
 axs[1].set_ylim(0,250);
 axs[1].set_ylabel('Number of Times');
 axs[1].set_xlabel('$SI_{subject}$')
 axs[1].set_xlim(-.2,.8)
-axs[1].set_title('Group LE | Subject Separability')
+axs[1].set_title('Group-level LE Embeddings | Subject Separability')
 # -
 
 # # 3. Results for UMAP
@@ -121,23 +126,25 @@ axs[1].set_title('Group LE | Subject Separability')
 # * For $SI_{task}$, we will aditionally highlight the portion of the distribution for the "UMAP + Procrustes" approach that relies on m > 3.
 # * For $SI_{subject}$, we will highlight the portions of the "Concat + UMAP" distribution that corresponds to normalized and non-normalized data.
 
+si['UMAP'] = si['UMAP'].reset_index().replace({'UMAP + Procrustes':'Embed + Procrustes','Concat. + UMAP':'Concatenate + Embed'}).set_index(['Grouping Method','Input','Normalization','Distance','Knn','m','Alpha','Init','MinDist','Target'])
+
 sns.set(font_scale=1.5, style='whitegrid')
 fig,axs=plt.subplots(1,2,figsize=(20,5))
-sns.histplot(data=si['UMAP'].loc[:,'Original',:,:,:,:,:,:,:,'Window Name'].reset_index(), x='SI',hue='Grouping Method', hue_order=['UMAP + Procrustes','Concat. + UMAP'], palette=['Orange','Blue'], kde=False, ax=axs[0], bins=100, alpha=.4)
-sns.histplot(data=si['UMAP'].loc['UMAP + Procrustes','Original',:,:,:,[5,10,15,20,25,30],:,:,:,'Window Name'].reset_index(), x='SI',hue='Grouping Method', hue_order=['UMAP + Procrustes'], palette=['DarkOrange'], kde=False, ax=axs[0], bins=75, alpha=.3, lw=3, element='poly', legend=False)
+sns.histplot(data=si['UMAP'].loc[:,'Original',:,:,:,:,:,:,:,'Window Name'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Embed + Procrustes','Concatenate + Embed'], palette=['Orange','Blue'], kde=False, ax=axs[0], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.4)
+sns.histplot(data=si['UMAP'].loc['Embed + Procrustes','Original',:,:,:,[5,10,15,20,25,30],:,:,:,'Window Name'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Embed + Procrustes'], palette=['DarkRed'], kde=False, ax=axs[0], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.1, lw=3, element='poly', legend=False)
 axs[0].set_ylim(0,250);
 axs[0].set_ylabel('Number of Times');
 axs[0].set_xlabel('$SI_{task}$')
 axs[0].set_xlim(-.2,.8)
-axs[0].set_title('Group UMAP | Task Separability')
-sns.histplot(data=si['UMAP'].loc[:,'Original',:,:,:,:,:,:,:,'Subject'].reset_index(),      x='SI',hue='Grouping Method', hue_order=['UMAP + Procrustes','Concat. + UMAP'], palette=['Orange','Blue'], kde=False, ax=axs[1], bins=100, alpha=.4)
-sns.histplot(data=si['UMAP'].loc['Concat. + UMAP','Original','None',:,:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Concat. + UMAP'], palette=['DarkBlue'], kde=False, ax=axs[1], lw=3, bins=100, alpha=.3,element='poly', legend=False)
-sns.histplot(data=si['UMAP'].loc['Concat. + UMAP','Original','Z-score',:,:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Concat. + UMAP'], palette=['Cyan'], kde=False, ax=axs[1], lw=3, bins=35, alpha=.1,element='poly', legend=False)
+axs[0].set_title('Group-Level UMAP Embeddings | Task Separability')
+sns.histplot(data=si['UMAP'].loc[:,'Original',:,:,:,:,:,:,:,'Subject'].reset_index(),      x='SI',hue='Grouping Method', hue_order=['Embed + Procrustes','Concatenate + Embed'], palette=['Orange','Blue'], kde=False, ax=axs[1], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.4)
+sns.histplot(data=si['UMAP'].loc['Concatenate + Embed','Original','None',:,:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Concatenate + Embed'], palette=['DarkBlue'], kde=False, ax=axs[1], lw=3, bins=np.linspace(start=-.2,stop=1,num=100), alpha=.3,element='poly', legend=False)
+sns.histplot(data=si['UMAP'].loc['Concatenate + Embed','Original','Z-score',:,:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Concatenate + Embed'], palette=['Cyan'], kde=False, ax=axs[1], lw=3, bins=np.linspace(start=-.2,stop=1,num=100), alpha=.1,element='poly', legend=False)
 axs[1].set_ylim(0,250);
 axs[1].set_ylabel('Number of Times');
 axs[1].set_xlabel('$SI_{subject}$')
 axs[1].set_xlim(-.2,.8)
-axs[1].set_title('Group UMAP | Subject Separability')
+axs[1].set_title('Group-Level UMAP Embeddings | Subject Separability')
 
 # We now find the best performing embeddings, as those will be added to the figure as representative results
 
@@ -150,20 +157,22 @@ data_sb.sort_values(by='SI',ascending=False).iloc[0:2]
 
 # # 4. Results for TSNE
 
+si['TSNE'] = si['TSNE'].reset_index().replace({'TSNE + Procrustes':'Embed + Procrustes','Concat. + TSNE':'Concatenate + Embed'}).set_index(['Grouping Method','Input','Normalization','Distance','PP','m','Alpha','Init','Target'])
+
 # +
 sns.set(font_scale=1.5, style='whitegrid')
 fig,axs=plt.subplots(1,2,figsize=(20,5))
-sns.histplot(data=si['TSNE'].loc[:,'Original',:,:,:,:,:,:,'Window Name'].reset_index(), x='SI',hue='Grouping Method', hue_order=['TSNE + Procrustes','Concat. + TSNE'], palette=['Orange','Blue'], kde=False, ax=axs[0], bins=30, alpha=.4)
-sns.histplot(data=si['TSNE'].loc['TSNE + Procrustes','Original',:,:,:,[5,10,15],:,:,'Window Name'].reset_index(), x='SI',hue='Grouping Method', hue_order=['TSNE + Procrustes'], palette=['DarkOrange'], kde=False, ax=axs[0], bins=75, alpha=.3, lw=3, element='poly', legend=False)
+sns.histplot(data=si['TSNE'].loc[:,'Original',:,:,:,:,:,:,'Window Name'].reset_index(),                            x='SI', hue='Grouping Method', hue_order=['Embed + Procrustes','Concatenate + Embed'], palette=['Orange','Blue'], kde=False, ax=axs[0], bins=30, alpha=.4)
+sns.histplot(data=si['TSNE'].loc['Embed + Procrustes','Original',:,:,:,[5,10,15,20,25,30],:,:,'Window Name'].reset_index(), x='SI', hue='Grouping Method', hue_order=['Embed + Procrustes'], palette=['DarkOrange'], kde=False, ax=axs[0], bins=75, alpha=.3, lw=3, element='poly', legend=False)
 
 axs[0].set_ylim(0,50);
 axs[0].set_ylabel('Number of Times');
 axs[0].set_xlabel('$SI_{task}$')
 axs[0].set_xlim(-.2,.8)
 axs[0].set_title('Group UMAP | Task Separability')
-sns.histplot(data=si['TSNE'].loc[:,'Original',:,:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method', hue_order=['TSNE + Procrustes','Concat. + TSNE'], palette=['Orange','Blue'], kde=False, ax=axs[1], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.4)
-sns.histplot(data=si['TSNE'].loc['Concat. + TSNE','Original','None',:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method',    hue_order=['Concat. + TSNE'], palette=['DarkBlue'], kde=False, ax=axs[1], lw=3, bins=np.linspace(start=-.2,stop=1,num=100), alpha=.3,element='poly', legend=False)
-sns.histplot(data=si['TSNE'].loc['Concat. + TSNE','Original','Z-score',:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Concat. + TSNE'], palette=['Cyan'], kde=False, ax=axs[1], lw=3, bins=np.linspace(start=-.2,stop=1,num=100), alpha=.1,element='poly', legend=False)
+sns.histplot(data=si['TSNE'].loc[:,'Original',:,:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Embed + Procrustes','Concatenate + Embed'], palette=['Orange','Blue'],      kde=False, ax=axs[1], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.4)
+sns.histplot(data=si['TSNE'].loc['Concatenate + Embed','Original','None',   :,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method',    hue_order=['Concatenate + Embed'], palette=['DarkBlue'], kde=False, ax=axs[1], lw=3, bins=np.linspace(start=-.2,stop=1,num=100), alpha=.3,element='poly', legend=False)
+sns.histplot(data=si['TSNE'].loc['Concatenate + Embed','Original','Z-score',:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method',    hue_order=['Concatenate + Embed'], palette=['Cyan'],     kde=False, ax=axs[1], lw=3, bins=np.linspace(start=-.2,stop=1,num=100), alpha=.1,element='poly', legend=False)
 axs[1].set_ylim(0,50);
 axs[1].set_ylabel('Number of Times');
 axs[1].set_xlabel('$SI_{subject}$')
