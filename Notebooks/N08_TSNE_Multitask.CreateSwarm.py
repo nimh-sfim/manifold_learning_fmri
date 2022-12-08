@@ -30,18 +30,9 @@ import os
 import os.path as osp
 import getpass
 from datetime import datetime
-from utils.basics import PNAS2015_subject_list, PNAS2015_folder, PRJ_DIR
+from utils.basics import PNAS2015_subject_list, PNAS2015_folder, PRJ_DIR, wls, wss
 from utils.basics import tsne_dist_metrics, tsne_pps, tsne_ms, tsne_alphas, tsne_inits
 from utils.basics import input_datas, norm_methods
-
-# + [markdown] tags=[]
-# ***
-#
-# The next cell select the Window Length ```wls``` and Window Step ```wss``` used to generate the matrices
-# -
-
-wls      = 45
-wss      = 1.5
 
 # ***
 # # 1. Compute T-SNE Scan Level Embeddings
@@ -101,7 +92,7 @@ swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S
 swarm_file.write('\n')
 
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J TSNE_10_Scan -f {swarm_path} -b 15 -g 16 -t {n_jobs} --time 00:16:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path, n_jobs=n_jobs))
+swarm_file.write('#swarm -J TSNE_ScanLevel -f {swarm_path} -b 21 -g 16 -t {n_jobs} --time 00:11:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path, n_jobs=n_jobs))
 swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
@@ -113,7 +104,7 @@ for input_data in input_datas:
                 for init_method in tsne_inits:
                     for pp in tsne_pps:
                         for alpha in tsne_alphas:
-                            for m in [15]:#tsne_ms:
+                            for m in tsne_ms:
                                 num_iters += 1
                                 path_tvfc = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,input_data,       '{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.{nm}.pkl'.format(subject=subject,nm=norm_method,wls=str(int(wls)).zfill(3), wss=str(wss)))
                                 path_out  = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'TSNE',input_data,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{lr}_{init_method}.{nm}.pkl'.format(subject=subject,
@@ -172,7 +163,7 @@ swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S
 swarm_file.write('\n')
 
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J TSNE_10_Scans_SI -f {swarm_path} -b 18 -g 4 -t 4 --time 00:13:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
+swarm_file.write('#swarm -J TSNE_Scans_SI_Orig -f {swarm_path} -b 21 -g 4 -t 4 --time 00:10:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
 swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
@@ -184,7 +175,7 @@ for input_data in input_datas:
                 for init_method in tsne_inits:
                     for pp in tsne_pps:
                         for alpha in tsne_alphas:
-                            for m in [10]:                                
+                            for m in tsne_ms:                                
                                 num_iters += 1
                                 input_path  = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'TSNE',input_data,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{lr}_{init_method}.{nm}.pkl'.format(subject=subject,
                                                                                                                                                    nm = norm_method,
@@ -245,7 +236,7 @@ print('++ INFO: Logs Folder : %s' % logdir_path)
 # +
 # %%time
 # Open the file
-n_jobs=64
+n_jobs=24
 swarm_file = open(swarm_path, "w")
 # Log the date and time when the SWARM file is created
 swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
@@ -262,9 +253,9 @@ for input_data in ['Original']:
         for norm_method in norm_methods:
             for dist in ['correlation']:
                 for init_method in tsne_inits:
-                    for pp in tsne_pps:
+                    for pp in [5,10,15]:
                         for alpha in [10,1000]:
-                            for m in [10]:
+                            for m in [15]:
                                 num_iters += 1
                                 path_tvfc = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,input_data,       '{subject}_Craddock_0200.WL{wls}s.WS{wss}s.tvFC.Z.{nm}.pkl'.format(subject=subject,nm=norm_method,wls=str(int(wls)).zfill(3), wss=str(wss)))
                                 path_out  = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'TSNE',input_data,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{lr}_{init_method}.{nm}.pkl'.format(subject=subject,
@@ -296,6 +287,8 @@ print("++ INFO: Attempts/Written = [%d/%d]" % (num_entries,num_iters))
 # > **NOTE:** Given computational needs, we only do this part for the following hyper-parameter set: Original data, correlation distance, lr = 10 or 1000, m =2,3,5,10, all norms and all pps
 #
 # > **NOTE:** m=2 (12/06/2022) | m=3 (12/06/2022) | m=5 (12/06/2022) | m=10 (12/06/2022 - 3 cases missing)
+#
+# > **NOTE:** Need to update results with PP=5,10 and 15 for the concat (12/08/2022)
 
 # ## 2.2. Evaluate Group-level "Concatenation + TSNE" Embeddings
 
@@ -336,9 +329,9 @@ for subject in ['ALL']:
         for norm_method in norm_methods:
             for dist in ['correlation']:
                 for init_method in tsne_inits:
-                    for pp in tsne_pps:
+                    for pp in [5,10,15]:
                         for alpha in [10,1000]:
-                            for m in [5]:
+                            for m in [15]:
                                 num_iters += 1
                                 input_path  = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',subject,'TSNE',input_data,'{subject}_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{lr}_{init_method}.{nm}.pkl'.format(subject=subject,
                                                                                                                                                    nm = norm_method,
@@ -411,7 +404,7 @@ for input_data in ['Original']:
         for norm_method in norm_methods:
             for dist in ['correlation']:
                 for init_method in tsne_inits:
-                    for pp in tsne_pps:
+                    for pp in [5,10,15]:
                         for alpha in [10,1000]:
                             for m in [2,3,5,10,15,20,25,30]:
                                 num_iters += 1
@@ -452,60 +445,27 @@ print("++ INFO: Missing/Needed = [%d/%d]" % (num_entries,num_iters))
 
 from utils.io import load_TSNE_SI
 
+si_TSNE = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
+print(si_TSNE.shape)
+
 # %%time
-RELOAD_SI_TSNE = True
-if RELOAD_SI_TSNE:
-    print('++ INFO: Loading SI for Concat + TSNE....')
-    si_TSNE_all              = load_TSNE_SI(sbj_list=['ALL'],               check_availability=False, verbose=True, wls=wls, wss=wss, ms=[2,3,5,10], dist_metrics=['correlation'], input_datas=['Original'], alphas=[10,1000])
-    print('++ INFO: Loading SI for TSNE + Procrustes....')
-    si_TSNE_procrustes       = load_TSNE_SI(sbj_list=['Procrustes'],        check_availability=False, verbose=True, wls=wls, wss=wss, ms=[2,3,5,10,15,20,25,30], dist_metrics=['correlation'], input_datas=['Original'], alphas=[10,1000])
-    print('++ INFO: Loading SI for scan level TSNE...')
-    si_TSNE_scans            = load_TSNE_SI(sbj_list=PNAS2015_subject_list, check_availability=False, verbose=True, wls=wls, wss=wss, ms=[2,3,5,10])
+print('++ INFO: Loading SI for Concat + TSNE....')
+si_TSNE_all              = load_TSNE_SI(sbj_list=['ALL'],               check_availability=False, verbose=False, wls=wls, wss=wss, ms=[2,3,5,10], dist_metrics=['correlation'], input_datas=['Original'], alphas=[10,1000])
 
-    si_TSNE = pd.concat([si_TSNE_all, si_TSNE_procrustes])
-    si_TSNE = pd.concat([si_TSNE_scans, si_TSNE_all, si_TSNE_procrustes])
+print('++ INFO: Loading SI for TSNE + Procrustes....')
+si_TSNE_procrustes       = load_TSNE_SI(sbj_list=['Procrustes'],        check_availability=False, verbose=True, wls=wls, wss=wss, ms=[2,3,5,10,15,20,25,30], dist_metrics=['correlation'], input_datas=['Original'], alphas=[10,1000])
 
-    si_TSNE.replace('Window Name','Task', inplace=True)
-    si_TSNE = si_TSNE.set_index(['Subject','Input Data','Norm','Metric','PP','m','Alpha','Init','Target']).sort_index()
-    del si_TSNE_scans, si_TSNE_all, si_TSNE_procrustes, si_TSNE_procrustes_extra, si_TSNE_scans_extra
-    
-    si_TSNE.to_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
-else:
-    si_TSNE = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
+# %%time
+print('++ INFO: Loading SI for scan level TSNE...')
+si_TSNE_scans            = load_TSNE_SI(sbj_list=PNAS2015_subject_list, check_availability=False, verbose=True, wls=wls, wss=wss, ms=[2,3,5,10])
 
-si_TSNE = pd.concat([si_TSNE_scans, si_TSNE_all, si_TSNE_procrustes_extra])
+si_TSNE = pd.concat([si_TSNE_scans, si_TSNE_all, si_TSNE_procrustes])
 si_TSNE.replace('Window Name','Task', inplace=True)
 si_TSNE = si_TSNE.set_index(['Subject','Input Data','Norm','Metric','PP','m','Alpha','Init','Target']).sort_index()
-
 si_TSNE.to_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
-
-si_TSNE
 
 # ***
 # ***
 # # END OF NOTEBOOK
 # ***
 # ***
-
-
-
-# ### Extra cases for the Classification Study
-
-# %%time
-RELOAD_SI_TSNE = False
-if RELOAD_SI_TSNE:
-    si_TSNE_all        = load_TSNE_SI(sbj_list=['ALL'],               check_availability=False, verbose=False, wls=wls, wss=wss, ms=[2,3])
-    si_TSNE_procrustes = load_TSNE_SI(sbj_list=['Procrustes'],        check_availability=False, verbose=False, wls=wls, wss=wss, ms=[2,3])
-    si_TSNE_scans      = load_TSNE_SI(sbj_list=PNAS2015_subject_list, check_availability=False, verbose=False, wls=wls, wss=wss, ms=[2,3])
-    
-    si_TSNE = pd.concat([si_TSNE_scans, si_TSNE_all, si_TSNE_procrustes])
-    si_TSNE.replace('Window Name','Task', inplace=True)
-    si_TSNE = si_TSNE.set_index(['Subject','Input Data','Norm','Metric','PP','m','Alpha','Init','Target']).sort_index()
-    del si_TSNE_scans, si_TSNE_all, si_TSNE_procrustes
-    
-    si_TSNE.to_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
-else:
-    si_TSNE = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
-
-_,tsne_best_norm_method,tsne_best_dist, tsne_best_pp, _, tsne_best_alpha,_,_ = si_TSNE.loc[PNAS2015_subject_list,'Original',:,:,:,:,:,:,'Task'].to_xarray().mean(dim='Subject').to_dataframe().sort_values(by='SI',ascending=False).iloc[0].name
-print('++ INFO: Best scan-level configuration --> NM=%s, DIST=%s, PP=%d, ALPHA=%f' % (tsne_best_norm_method,tsne_best_dist, tsne_best_pp, tsne_best_alpha))
