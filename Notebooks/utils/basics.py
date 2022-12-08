@@ -39,8 +39,8 @@ le_ms           = [2,3,5,10,15,20,25,30]
 
 # TSNE Variables
 tsne_dist_metrics = ['euclidean','correlation','cosine']
-#tsne_pps          = [int(i) for i in np.linspace(start=5, stop=100, num=20)] + [125, 150, 175, 200]
-tsne_pps          = [int(i) for i in np.linspace(start=20, stop=100, num=17)] + [125, 150, 175, 200]
+tsne_pps          = [int(i) for i in np.linspace(start=5, stop=100, num=20)] + [125, 150, 175, 200]
+#tsne_pps          = [int(i) for i in np.linspace(start=20, stop=100, num=17)] + [125, 150, 175, 200]
 tsne_ms           = [2,3,5,10,15,20,25,30]
 tsne_alphas       = [10, 50, 75, 100, 200, 500, 1000]
 tsne_inits        = ['pca']
