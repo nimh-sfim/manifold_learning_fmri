@@ -196,48 +196,26 @@ plot_matrix(DS, tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idx
 #
 # > **NOTE:** nearest_neighbors internally computes again DS based on the data and the distance metric. We pre-computed it above for explanatory purposes only.
 
-# ***
-# # 2. Decompose UMAP into its main algorithmic steps
-#
-# For explanatory purpose, we will now run the basic UMAP algorithm on the same data, but deconstructing it into its main steps, namely:
-#
-# 1. Computation of dissimilarity matrix
-# 2. Computation of affinity matrix with neighboring relationships
-# 3. Computation of the normalized version of the affinity matrix using equations 7 through 9 of the manuscript
-# 4. Symmetrize the normalized neighboring graph
-# 5. Estimation of optimal layout in 2D space
-#
-# ***
-# ## PHASE 1 - Graph Generation 
-# ### 2.1 Phase 1.a - Compute Dissimilarity Matrix
+knn_indices, knn_dists, _ = umap.umap_.nearest_neighbors(tvFC.data, 
+                                                         n_neighbors=knn,
+                                                         random_state=random_state,
+                                                         n_jobs=24,
+                                                         metric=umap_metric_func, metric_kwds={}, angular=False)
 
 # We can re-create a full version of the A matrix using ```knn_indices``` and ```knn_dists``` as follows:
 
-# ### 2.2. Phase 1.b - Compute Affinity Matrix
-#
-# For this we rely on umap function ```nearest_neighbors```, which returns:
-#
-# * ```knn_indices```: indices for the neighbors of each data point.
-# * ```knn_dists```: distances for the neighbors of each data point.
-#
-# > NOTE: ```nearest_neighbors``` internally computes again DS based on the data and the distance metric. We pre-computed it above for explanatory purposes only.
+A = np.zeros((n_wins,n_wins))
+for w in range(n_wins):
+    A[w,knn_indices[w]] = 1
 
 # Next, we check that A construced this way is not a symmetric matrix.
 
-# We can re-create a full version of the A matrix using ```knn_indices``` and ```knn_dists``` as follows:
+check_symmetric(A)
 
 # We also check that row-wise sums across A equals the number of desired neighbors (knn)
 
-# Next, we check that A construced this way is not a symmetric matrix.
-
-# Let's look at A as a binary matrix and its equivalent directed graph
-
-# We also check that row-wise sums across A equals the number of desired neighbors (knn)
-
-# + tags=[]
 # The row-wise sum is always 90, as every node has 90 neighbours, incluging itself
 print(A.sum(axis=1))
-# -
 
 # Let's look at A as a binary matrix and its equivalent directed graph
 
@@ -245,6 +223,14 @@ A_matrix_plot = plot_matrix(A,cmap=colors.ListedColormap(['white', 'black']),
             tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs,net_separators='k--', 
             ctitle='Edge Weight', cticks=[0.25,0.75], clabels=['0', '1'])
 A_graph_plot = plot_matrix_as_graph(A, node_labels=tvFC.labels, node_cmap=cmap, layout='spectral', verbose=True, width=500, height=500).opts(toolbar=None)
+
+# %%time
+A_view = pn.Row(A_matrix_plot,A_graph_plot)
+A_view.save('../Outputs/Figure04/A_matrix_and_graph.png')
+
+# This shows a static version of the figure (for github). If running the notebook yourself, simply add A_view to a new cell
+# so you can see and interact with the graph
+Image("../Outputs/Figure04/A_matrix_and_graph.png")
 
 # + [markdown] tags=[]
 # ### 2.1.3 Phase 1.c - Normalize Dissimilarities
@@ -254,8 +240,12 @@ A_graph_plot = plot_matrix_as_graph(A, node_labels=tvFC.labels, node_cmap=cmap, 
 # Here, we first use UMAP function ```fuzzy_simplicial_set``` to compute node-wise values for sigma and rho (Equations 8 and 9)
 # -
 
-# %%time 
-A_view.save('../Outputs/Figure04/A_matrix_and_graph.png')
+G, sigmas, rhos = umap.umap_.fuzzy_simplicial_set(DS,
+                                                  n_neighbors=knn,
+                                                  random_state=random_state,
+                                                  metric="precomputed")
+
+pd.DataFrame(sigmas).hvplot.kde(xlabel='sigma') + pd.DataFrame(rhos).hvplot.kde(xlabel='rho')
 
 # Next, we compute the normalized distances between neighbors using Equation 7
 
@@ -310,8 +300,11 @@ pn.pane.HoloViews(B_graph_plot).save('../Outputs/Figure04/B_graph_plot_colored.p
 # so you can see and interact with the graph
 Image("../Outputs/Figure04/B_graph_plot_colored.png")
 
-# ### 2.1.4 Phase 1.c - Convert to Undirected Graph
-#
+C = B + np.transpose(B)-(np.multiply(B,np.transpose(B)))
+np.fill_diagonal(C,0)
+
+# ### 2.1.4 Make the adjacency matrix symmetric
+
 # Once $B$ (namely the affiinity matrix that defines $G_b$) is available, we can rely on equation 10 to create the directed graph $G_c$ (defined by matrix $C$)
 
 C = B + np.transpose(B)-(np.multiply(B,np.transpose(B)))
