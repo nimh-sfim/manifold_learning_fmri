@@ -38,6 +38,12 @@ si['LE']   = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_LE.pkl')).lo
 si['TSNE'] = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl')).loc[PNAS2015_subject_list,:,:,:,:,[2,3]]
 si['UMAP'] = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl')).loc[PNAS2015_subject_list,:,:,:,:,:,:,:,[2,3]]
 
+print(si['LE'].shape)
+
+20*3*2*3*40*2
+
+si['LE']
+
 # ## 1.1 "Beautify" strings/labels for plot generation
 #
 # The next cell will change some labels to ensure all plots are consistent in terms of naming and that manuscript-ready labels are being used. This does not alter the values in any other way.
