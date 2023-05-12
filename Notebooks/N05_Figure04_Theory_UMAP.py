@@ -245,7 +245,7 @@ G, sigmas, rhos = umap.umap_.fuzzy_simplicial_set(DS,
                                                   random_state=random_state,
                                                   metric="precomputed")
 
-pd.DataFrame(sigmas).hvplot.kde(xlabel='sigma') + pd.DataFrame(rhos).hvplot.kde(xlabel='rho')
+pd.DataFrame(sigmas).hvplot.kde(xlabel='Sigma',fontsize={'labels':18,'ticks':18}) + pd.DataFrame(rhos).hvplot.kde(xlabel='Rho',fontsize={'labels':18,'ticks':18})
 
 # Next, we compute the normalized distances between neighbors using Equation 7
 
@@ -278,7 +278,7 @@ for i in range(n_wins):
 #
 # We can observe how the normalization step brings all neighbodring distances to the range [0,1] and how it has that effect of making the data look uniformly distributed over the manifold in the original ambient space
 
-nw_plot = Normatilized_Weights.hvplot.scatter(x='DS',y='w', datashade=True, fontsize={'labels':18,'ticks':18}, xlabel='Original Distance',ylabel='Normalized Dist.')
+nw_plot = Normatilized_Weights.hvplot.scatter(x='DS',y='w', datashade=True, fontsize={'labels':18,'ticks':18}, xlabel='Original Distance',ylabel='Norm. Graph Weights')
 pn.pane.HoloViews(nw_plot).save('../Outputs/Figure04/normalized_weights.png')
 
 # This shows a static version of the figure (for github). If running the notebook yourself, simply add nw_plot to a new cell
