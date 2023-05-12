@@ -169,7 +169,7 @@ axs[0].set_ylim(0,50);
 axs[0].set_ylabel('Number of Times');
 axs[0].set_xlabel('$SI_{task}$')
 axs[0].set_xlim(-.2,.8)
-axs[0].set_title('Group UMAP | Task Separability')
+axs[0].set_title('Group T-SN | Task Separability')
 sns.histplot(data=si['TSNE'].loc[:,'Original',:,:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method', hue_order=['Embed + Procrustes','Concatenate + Embed'], palette=['Orange','Blue'],      kde=False, ax=axs[1], bins=np.linspace(start=-.2,stop=1,num=100), alpha=.4)
 sns.histplot(data=si['TSNE'].loc['Concatenate + Embed','Original','None',   :,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method',    hue_order=['Concatenate + Embed'], palette=['DarkBlue'], kde=False, ax=axs[1], lw=3, bins=np.linspace(start=-.2,stop=1,num=100), alpha=.3,element='poly', legend=False)
 sns.histplot(data=si['TSNE'].loc['Concatenate + Embed','Original','Z-score',:,:,:,:,:,'Subject'].reset_index(), x='SI',hue='Grouping Method',    hue_order=['Concatenate + Embed'], palette=['Cyan'],     kde=False, ax=axs[1], lw=3, bins=np.linspace(start=-.2,stop=1,num=100), alpha=.1,element='poly', legend=False)
