@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: opentsne
 #     language: python
@@ -276,8 +276,8 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N11_LE_Eval_Clustering_Scans.SWARM.sh')
-logdir_path    = osp.join(logs_folder, 'N11_LE_Eval_Clustering_Scans.logs')
+swarm_path     = osp.join(swarm_folder,'N10_LE_Eval_Clustering_Scans.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N10_LE_Eval_Clustering_Scans.logs')
 
 if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
@@ -314,7 +314,7 @@ for scenario in ['asis','zscored']:
                                                                                                                                                    dist=dist,
                                                                                                                                                    knn=str(knn).zfill(4),
                                                                                                                                                    m=str(m).zfill(4)))
-                        swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N11_SI.sh'.format(input_path=input_path, 
+                        swarm_file.write('export input={input_path} output={output_path}; sh {scripts_dir}/N10_SI.sh'.format(input_path=input_path, 
                                                                                                                      output_path=output_path,
                                                                                                                      scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
                         swarm_file.write('\n')
@@ -403,8 +403,8 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N11_LE_Eval_Clustering_ALL.SWARM.sh')
-logdir_path    = osp.join(logs_folder, 'N11_LE_Eval_Clustering_ALL.logs')
+swarm_path     = osp.join(swarm_folder,'N10_LE_Eval_Clustering_ALL.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N10_LE_Eval_Clustering_ALL.logs')
 
 if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
@@ -461,8 +461,8 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N11_LE_Eval_Clustering_Procrustes.SWARM.sh')
-logdir_path    = osp.join(logs_folder, 'N11_LE_Eval_Clustering_Procrustes.logs')
+swarm_path     = osp.join(swarm_folder,'N10_LE_Eval_Clustering_Procrustes.SWARM.sh')
+logdir_path    = osp.join(logs_folder, 'N10_LE_Eval_Clustering_Procrustes.logs')
 
 if not osp.exists(swarm_folder):
     os.makedirs(swarm_folder)
