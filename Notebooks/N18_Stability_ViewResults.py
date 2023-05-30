@@ -91,7 +91,7 @@ for subject in PNAS2015_subject_list:
 
 fig,axs = plt.subplots(1,2,figsize=(20,5))
 # T-SNE Results
-sns.set(font_scale=1.5)
+sns.set(font_scale=1.5, style='whitegrid')
 plot = sns.boxplot(data=df_tsne,y='SI', x='Subject', ax=axs[0])
 plot.set_ylabel('$SI_{task}$');
 plot.set_title('T-SNE')
@@ -105,3 +105,5 @@ plot.set_xticklabels(PNAS2015_subject_list,rotation=90);
 plt.tight_layout()
 
 fig.savefig('../Outputs/Sup_Figures/Supp_Figure05.png')
+
+
