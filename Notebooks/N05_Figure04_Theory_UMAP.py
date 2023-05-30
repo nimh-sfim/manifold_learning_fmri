@@ -300,15 +300,14 @@ pn.pane.HoloViews(B_graph_plot).save('../Outputs/Figure04/B_graph_plot_colored.p
 # so you can see and interact with the graph
 Image("../Outputs/Figure04/B_graph_plot_colored.png")
 
-C = B + np.transpose(B)-(np.multiply(B,np.transpose(B)))
-np.fill_diagonal(C,0)
-
 # ### 2.1.4 Make the adjacency matrix symmetric
 
 # Once $B$ (namely the affiinity matrix that defines $G_b$) is available, we can rely on equation 10 to create the directed graph $G_c$ (defined by matrix $C$)
 
 C = B + np.transpose(B)-(np.multiply(B,np.transpose(B)))
 np.fill_diagonal(C,0)
+
+plot_matrix(C, tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs, q_min=.90, q_max=.95, ctitle='')
 
 # This matrix $C$ is the adjancency matrix associated with $G_c$, which is the final undirected graph representing the data. 
 #
