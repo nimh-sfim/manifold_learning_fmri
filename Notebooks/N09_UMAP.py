@@ -40,7 +40,11 @@ def run(args):
     
     # Call the UMAP Function
     # ======================
-    random_state = check_random_state(seed_value)
+    if args.use_random_seed == True:
+       print("++ WARNING: Using a random seed (Stability Run)")
+       random_state = check_random_state(None)
+    else:
+       random_state = check_random_state(seed_value)
     print(' + Random State created....')
    
     print(' + Creating UMAP object....')
@@ -81,7 +85,9 @@ def main():
     parser.add_argument("-alpha",    help="Initial Learning Rate", dest="alpha",     type=float, required=True)
     parser.add_argument("-min_dist", help="Minimum Distance",      dest="min_dist",  type=float, required=True)
     parser.add_argument("-init",     help="Init Method",           dest="init",      type=str,   required=True)
-
+    parser.add_argument("-random_seed", help="Use a random seed",    dest="use_random_seed", required=False, action='store_true')
+    parser.set_defaults(use_random_seed=False)
+    
     parser.set_defaults(func=run)
     args=parser.parse_args()
     args.func(args)

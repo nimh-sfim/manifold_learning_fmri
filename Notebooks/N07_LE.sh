@@ -12,8 +12,19 @@ echo "++ Activating rapidtide environment"
 conda activate opentsne
 
 # Run the program
-python ./N07_LE.py -tvfc ${path_tvfc} \
+if [ -z ${stability+x} ]; then
+   echo "++ INFO: Regular Run --> Will use fixed random seed"
+   python ./N07_LE.py -tvfc ${path_tvfc} \
                    -out  ${path_out}  \
                    -dist ${dist} \
                    -knn  ${knn} \
                    -m    ${m}
+else
+   echo "++ INFO: Stability Analysis --> Will generate a separate random seed."
+   python ./N07_LE.py -tvfc ${path_tvfc} \
+                   -out  ${path_out}  \
+                   -dist ${dist} \
+                   -knn  ${knn} \
+                   -m    ${m} \
+                   -random_seed
+fi
