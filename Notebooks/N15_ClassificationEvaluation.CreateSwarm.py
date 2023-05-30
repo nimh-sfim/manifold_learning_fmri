@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: opentsne
 #     language: python
@@ -40,11 +40,12 @@ from utils.basics import wls, wss, tr
 umap_min_dist    = 0.8
 umap_init_method = 'spectral'
 tsne_init_method = 'pca'
+split_mode       = 'half_half' # Options: by_subject, half_half
 
 # After looking at the clustering evaluation results, we will select: Euclidean, knn > 50 and alpha = 0.01
 
 umap_cl_dist, umap_cl_alpha, umap_cl_mdist = 'euclidean',0.01, 0.8
-umap_cl_knns                = [knn for knn in umap_knns if knn > 50]
+umap_cl_knns                               = [knn for knn in umap_knns if knn > 50]
 
 # Create output folder
 
@@ -65,7 +66,7 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N16_Figure10_ClassificationEval_UMAP.SWARM.sh')
+swarm_path     = osp.join(swarm_folder,f'N16_Figure10_ClassificationEval_UMAP.{split_mode}.SWARM.sh')
 logdir_path    = osp.join(logs_folder, 'N16_Figure10_ClassificationEval_UMAP.logs')
 
 if not osp.exists(swarm_folder):
@@ -100,17 +101,17 @@ for clf in 'logisticregression','svc':
                                                                                                                                                    wls=str(int(wls)).zfill(3), 
                                                                                                                                                    wss=str(wss)))
                 output_path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','Procrustes','Classification','UMAP',input_data,
-                                   'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.UMAP_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.pkl'.format(nm=nm,dist=umap_cl_dist,knn=str(knn).zfill(4),
+                                   'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.UMAP_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.{split_mode}.pkl'.format(nm=nm,dist=umap_cl_dist,knn=str(knn).zfill(4),
                                                                                                                                                    m=str(m).zfill(4),md=str(umap_cl_mdist),clf=clf,
                                                                                                                                                    alpha=str(umap_cl_alpha),
-                                                                                                                                                   wls=str(int(wls)).zfill(3), 
+                                                                                                                                                   wls=str(int(wls)).zfill(3), split_mode=split_mode,
                                                                                                                                                    wss=str(wss)))
-                if osp.exists(input_path) & (not osp.exists(output_path)):
-                    n_needed += 1
-                    swarm_file.write("export input_path={input_path}  output_path={output_path} clf={clf} pid='Window Name' features='{features}' n_jobs=8; sh {scripts_dir}/N15_Classify.sh".format(
-                       input_path = input_path, output_path=output_path, clf=clf, features=features,
+                #if osp.exists(input_path) & (not osp.exists(output_path)):
+                n_needed += 1
+                swarm_file.write("export input_path={input_path}  output_path={output_path} clf={clf} pid='Window Name' features='{features}' n_jobs=8 split_mode={split_mode}; sh {scripts_dir}/N15_Classify.sh".format(
+                       input_path = input_path, output_path=output_path, clf=clf, features=features, split_mode=split_mode,
                        scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
-                    swarm_file.write('\n')
+                swarm_file.write('\n')
 swarm_file.close()
 print('[%d/%d]' % (n_needed,n_total))
 # -
@@ -136,7 +137,7 @@ print('++ INFO: user working now --> %s' % username)
 swarm_folder   = osp.join(PRJ_DIR,'SwarmFiles.{username}'.format(username=username))
 logs_folder    = osp.join(PRJ_DIR,'Logs.{username}'.format(username=username))  
 
-swarm_path     = osp.join(swarm_folder,'N15_Classify_GroupLevel_Procrustes_LE.SWARM.sh')
+swarm_path     = osp.join(swarm_folder,f'N15_Classify_GroupLevel_Procrustes_LE.{split_mode}.SWARM.sh')
 logdir_path    = osp.join(logs_folder, 'N15_Classify_GroupLevel_Procrustes_LE.logs')
 
 if not osp.exists(swarm_folder):
@@ -170,15 +171,18 @@ for clf in 'logisticregression','svc':
                                                                                                                                                    wls=str(int(wls)).zfill(3), 
                                                                                                                                                    wss=str(wss)))
                 output_path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','Procrustes','Classification','LE',input_data,
-                                       'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.LE_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.pkl'.format(nm=nm,dist=le_cl_dist,knn=str(knn).zfill(4),
+                                       'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.LE_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.{split_mode}.pkl'.format(nm=nm,dist=le_cl_dist,knn=str(knn).zfill(4),
                                                                                                                                                    clf=clf,
-                                                                                                                                                   wls=str(int(wls)).zfill(3),m=str(m).zfill(4),
+                                                                                                                                                   wls=str(int(wls)).zfill(3),m=str(m).zfill(4),split_mode=split_mode,
                                                                                                                                                    wss=str(wss)))
                 if osp.exists(input_path) & (not osp.exists(output_path)):
                     n_needed += 1
-                    swarm_file.write("export input_path={input_path}  output_path={output_path} clf={clf} pid='Window Name' features='{features}' n_jobs=8; sh {scripts_dir}/N15_Classify.sh".format(
-                       input_path = input_path, output_path=output_path, clf=clf, features=features,
+                    swarm_file.write("export input_path={input_path}  output_path={output_path} clf={clf} pid='Window Name' features='{features}' n_jobs=8 split_mode={split_mode}; sh {scripts_dir}/N15_Classify.sh".format(
+                       input_path = input_path, output_path=output_path, clf=clf, features=features, split_mode=split_mode,
                        scripts_dir=osp.join(PRJ_DIR,'Notebooks')))
                     swarm_file.write('\n')
 swarm_file.close()
 print('[%d/%d]' % (n_needed,n_total))
+# -
+
+
