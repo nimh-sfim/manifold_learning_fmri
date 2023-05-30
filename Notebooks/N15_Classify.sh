@@ -18,4 +18,5 @@ python ./N15_Classify.py -input_path ${input_path} \
                          -clf ${clf} \
                          -pid "${pid}" \
                          -output_path ${output_path} \
+                         -split_mode ${split_mode} \
                          -n_jobs ${n_jobs}
