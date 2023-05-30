@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: opentsne
 #     language: python
@@ -19,6 +19,7 @@ import os.path as osp
 import pandas as pd
 import os
 from scipy.stats import zscore
+from IPython import display
 
 port_tunnel = int(os.environ['PORT2'])
 print('++ INFO: Second Port available: %d' % port_tunnel)
@@ -298,8 +299,8 @@ si_TSNE = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
 
 # +
 tsne_figs_folder  = osp.join(PRJ_DIR,'Dashboard','Figures','TSNE')
-tsne_pp_select   = pn.widgets.Select(name='Perplexity',        options=tsne_pps,          value=tsne_pps[0], width=150)
-tsne_dist_select  = pn.widgets.Select(name='Distance Metric',  options=tsne_dist_metrics, value=tsne_dist_metrics[0], width=150)
+tsne_pp_select   = pn.widgets.Select(name='Perplexity',        options=tsne_pps,          value=50, width=150)
+tsne_dist_select  = pn.widgets.Select(name='Distance Metric',  options=tsne_dist_metrics, value='correlation', width=150)
 tsne_m_select     = pn.widgets.Select(name='M',                options=[2,3,5,10,15,20,25,30],       value=2, width=150)
 tsne_alpha_select = pn.widgets.Select(name='Learning Rate',    options=tsne_alphas,       value=tsne_alphas[0], width=150)
 tsne_init_select  = pn.widgets.Select(name='Init Method',      options=tsne_inits,       value=tsne_inits[0], width=150)
@@ -411,4 +412,6 @@ dashboard = pn.Column(data_select_box,pn.Tabs(('Laplacian Eigenmaps',le_tab),('T
 
 dashboard_server = dashboard.show(port=port_tunnel,open=False)
 
+display.Image('../Outputs/Notebook_Figures/GUI_Embeddings.png')
 
+dashboard_server.stop()
