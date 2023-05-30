@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: Embeddings2 + Sdim
 #     language: python
@@ -44,6 +44,7 @@ from sklearn.manifold._t_sne import _joint_probabilities
 
 from utils.random import seed_value
 from utils.basics import PRJ_DIR
+from IPython import display
 # -
 
 # Create output folder if needed
@@ -160,7 +161,10 @@ if tsne_initialization == 'pca':
 # We now plot the dissimilarity matrix associated with this random initialization
 
 # Same as above but using hvplot
-pd.DataFrame(Y,columns=['x','y']).hvplot.scatter(x='x',y='y', aspect='square', c='k', fontsize={'labels':16,'ticks':16})
+plot_initial = pd.DataFrame(Y,columns=['x','y']).hvplot.scatter(x='x',y='y', aspect='square', c='k', fontsize={'labels':16,'ticks':16}).opts(toolbar=None)
+pn.Row(plot_initial).save('../Outputs/Figure03/Figure03_RandomInit.png')
+
+display.Image('../Outputs/Figure03/Figure03_RandomInit.png')
 
 # Next, to go from dissimilarity to affinity matrix in the lower dimensional space, this time we use a T-student kernel instead of the Gaussian kernel
 
@@ -261,7 +265,7 @@ plot.set_aspect('equal')
 
 # %%time
 Q_images = {}
-for i in tqdm(np.arange()):
+for i in tqdm(np.arange(n_iter)):
     Q_images[i] =  plot_matrix(Q_dict[i],q_min=0.05, q_max=0.90, ctitle='',figsize=(7,6),lab_fsize=10,tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs)
 
 # +
@@ -296,6 +300,8 @@ port_tunnel = int(os.environ['PORT2'])
 print('++ INFO: Second Port available: %d' % port_tunnel)
 
 dashboard_server = dashboard.show(port=port_tunnel,open=False)
+
+display.Image('../Outputs/Notebook_Figures/N04_TSNE_Dashboard.png')
 
 # ***
 # # Stop the Server
