@@ -106,7 +106,7 @@ swarm_file.write('#Create Time: %s' % datetime.now().strftime("%d/%m/%Y %H:%M:%S
 swarm_file.write('\n')
 
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J UMAP_Scan -f {swarm_path} -b 20 -g 4 -t 4 --time 00:05:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
+swarm_file.write('#swarm -J UMAP_Scan_Stability -f {swarm_path} -b 20 -g 4 -t 4 --time 00:05:00 --partition quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
 swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
@@ -133,7 +133,7 @@ for subject in PNAS2015_subject_list:
                                                                                                                                                    n_iter=str(n_iter).zfill(5)))
                                 if not osp.exists(path_out):
                                     num_entries += 1
-                                    swarm_file.write('export path_tvfc={path_tvfc} dist={dist} knn={knn} min_dist={min_dist} alpha={alpha} init={init_method} m={m} path_out={path_out}; sh {scripts_dir}/N09_UMAP.sh'.format(path_tvfc=path_tvfc, 
+                                    swarm_file.write('export path_tvfc={path_tvfc} dist={dist} knn={knn} min_dist={min_dist} alpha={alpha} init={init_method} m={m} path_out={path_out} stability=True; sh {scripts_dir}/N09_UMAP.sh'.format(path_tvfc=path_tvfc, 
                                                                                                                                     path_out=path_out,
                                                                                                                                     init_method = init_method,
                                                                                                                                     dist=dist,
@@ -176,7 +176,7 @@ swarm_file.write('\n')
 num_entries = 0 
 num_iters = 0
 # Insert comment line with SWARM command
-swarm_file.write('#swarm -J UMAP_Scans_SI -f {swarm_path} -b 20 -g 16 -t 4 --time 00:05:00 --partition=quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
+swarm_file.write('#swarm -J UMAP_Scans_Stab_SI -f {swarm_path} -b 20 -g 16 -t 4 --time 00:05:00 --partition=quick,norm --logdir {logdir_path}'.format(swarm_path=swarm_path,logdir_path=logdir_path))
 swarm_file.write('\n')
 for norm_method in norm_methods:
     for dist in umap_dist_metrics:
