@@ -12,6 +12,13 @@ echo "++ Activating rapidtide environment"
 conda activate opentsne
 
 # Run the program
+if [ -z ${stability+x} ]; then
+   extra_args=''
+else
+   extra_args=' -random_seed'
+fi
+echo "++ Calling with the following extra arguments: ${extra_args}"
+echo "----------------------------------------------"
 if [ -z "$bh_angle" ]; then
    echo " + Running without angle parameter"
    OMP_NUM_THREADS=${n_jobs} python ./N08_TSNE.py -tvfc ${path_tvfc} \
@@ -24,7 +31,8 @@ if [ -z "$bh_angle" ]; then
                      -norm ${norm} \
                      -n_iter ${n_iter} \
                      -n_jobs ${n_jobs} \
-                     -grad_method ${grad_method} 
+                     -grad_method ${grad_method} \
+                     ${extra_args}
 else
   echo " + Running with angle parameter"
   OMP_NUM_THREADS=${n_jobs} python ./N08_TSNE.py -tvfc ${path_tvfc} \
@@ -38,5 +46,6 @@ else
                      -n_iter ${n_iter} \
                      -n_jobs ${n_jobs} \
                      -grad_method ${grad_method} \
-                     -bh_angle ${bh_angle}
+                     -bh_angle ${bh_angle} \
+                     ${extra_args}
 fi

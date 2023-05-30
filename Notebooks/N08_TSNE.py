@@ -54,7 +54,11 @@ def run(args):
  
     # Call the TSNE Function
     # ======================
-    random_state = check_random_state(seed_value)
+    if args.use_random_seed == True:
+       print("++ WARNING: Using a random seed (Stability Run)")
+       random_state = check_random_state(None)
+    else:
+       random_state = check_random_state(seed_value)
     TSNE_obj     = TSNE(n_components=m, 
                         perplexity=pp, 
                         metric=dist,
@@ -94,6 +98,8 @@ def main():
     parser.add_argument("-norm",        help="Normalize Features",      dest="norm",        type=str,  required=True)
     parser.add_argument("-grad_method", help="Gradient Descent Method", dest="grad_method", type=str,  required=False, default='exact', choices=['exact','barnes_hut']) 
     parser.add_argument("-bh_angle",    help="Barnes-Hut Angle",        dest="bh_angle",    type=float,required=False, default=0.5)
+    parser.add_argument("-random_seed", help="Use a random seed",    dest="use_random_seed", required=False, action='store_true')
+    parser.set_defaults(use_random_seed=False)
     parser.set_defaults(func=run)
     args=parser.parse_args()
     args.func(args)
