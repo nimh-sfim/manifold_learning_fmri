@@ -38,11 +38,7 @@ si['LE']   = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_LE.pkl')).lo
 si['TSNE'] = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl')).loc[PNAS2015_subject_list,:,:,:,:,[2,3]]
 si['UMAP'] = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl')).loc[PNAS2015_subject_list,:,:,:,:,:,:,:,[2,3]]
 
-print(si['LE'].shape)
-
-20*3*2*3*40*2
-
-si['LE']
+si['LE'].head(5)
 
 # ## 1.1 "Beautify" strings/labels for plot generation
 #
@@ -87,7 +83,15 @@ axs.set_xlim(-.2,.8)
 
 # Also plot how $SI_{task}$ changes with $K_{nn}$ for the different metrics
 
-si['LE']
+sns.set(font_scale=1.5, style='whitegrid')
+fig,ax=plt.subplots(1,1,figsize=(12,5))
+sns.lineplot(data=si['LE'].loc[:,'Original',:,:,:,[2,3]],y='SI',x='Knn', hue='Distance', style='m', ax=ax)
+ax.set_ylabel('$SI_{task}$')
+ax.set_xlim(5,200)
+ax.set_ylim(0,.70)
+ax.legend(loc='lower right', ncol=2, fontsize=14)
+
+# For presentations, I needed to plot the same graph but one line at a time... I used the next cell for that purpose by selecting specific m and distance values and changing the output file name.
 
 sns.set(font_scale=1.5, style='whitegrid')
 fig,ax=plt.subplots(1,1,figsize=(12,5))
@@ -97,17 +101,7 @@ ax.set_xlim(5,200)
 ax.set_ylim(0,.70)
 ax.get_legend().remove()
 plt.tight_layout()
-fig.savefig('./presentation_animations/le_si_04.png')
-
-cp_eucl = sns.color_palette()[2]
-
-sns.set(font_scale=1.5, style='whitegrid')
-fig,ax=plt.subplots(1,1,figsize=(12,5))
-sns.lineplot(data=si['LE'].loc[:,'Original',:,:,:,[2,3]],y='SI',x='Knn', hue='Distance', style='m', ax=ax)
-ax.set_ylabel('$SI_{task}$')
-ax.set_xlim(5,200)
-ax.set_ylim(0,.70)
-ax.legend(loc='lower right', ncol=2, fontsize=14)
+fig.savefig('../Outputs/presentation_animations/le_si_04.png')
 
 # Finally generate a plot that summarize the effects of the normalization step
 
