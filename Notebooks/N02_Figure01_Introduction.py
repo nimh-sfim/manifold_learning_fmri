@@ -332,6 +332,8 @@ for i,peak in enumerate(peaks[0]):
         a_m.loc[c[0],c[1]] = r
     a_m = (a_m + a_m.T)/2
     sns.heatmap(a_m.loc[sort_idx,sort_idx], ax=axs[i], vmin=-.75, vmax=.75, cmap='RdBu_r', xticklabels=False, yticklabels=False, square=True, cbar=False)
-    a_m.to_csv('./tmp/Fig01_Corner{i}_FC.txt'.format(i=str(i+1).zfill(2)), header=None, index=None)
+    a_m.to_csv('../Outputs/Corner_FC_4CONN/Fig01_Corner{i}_FC.txt'.format(i=str(i+1).zfill(2)), header=None, index=None)
+
+# To visualize the connectivity matrices on a brain, use CONN software programatically as in the script ```/data/SFIMJGC_HCP7T/manifold_learning_fmri/MATLAB/CONN_Visualize_FCmatrices.m```
 
 
