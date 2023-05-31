@@ -33,4 +33,15 @@ def group_level_split():
            test_idx       = np.array(aux_test_idx).flatten()
         yield train_idx, test_idx
         i += 1
-           
+ 
+# Split accoring to subjects. In each k-fold iteration data from all subjects except one is used for training
+# and testing is done with the data from the remaing subject.
+def one_subject_out_split():
+    i = 1
+    sbjs = np.arange(20)
+    while i <=20:
+        train_idx = np.arange(0,729*20) 
+        test_idx  = np.arange(729*(i-1),729*(i))
+        train_idx = np.delete(train_idx,test_idx)
+        yield train_idx,test_idx
+        i +=1

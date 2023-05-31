@@ -14,6 +14,13 @@ conda activate opentsne
 which python 
 
 # Run the program
+if [ -z ${stability+x} ]; then
+   extra_args=''
+else
+   extra_args=' -random_seed'
+fi
+
+# Run the program
 python ./N09_UMAP.py -tvfc ${path_tvfc} \
                    -out  ${path_out}  \
                    -dist ${dist} \
@@ -21,4 +28,5 @@ python ./N09_UMAP.py -tvfc ${path_tvfc} \
                    -m    ${m} \
                    -init ${init} \
                    -min_dist ${min_dist} \
-                   -alpha ${alpha}
+                   -alpha ${alpha} \
+                   ${extra_args}

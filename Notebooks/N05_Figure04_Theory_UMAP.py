@@ -21,7 +21,6 @@
 #
 # For this demonstration we will use the tvFC from one run of the multi-task dataset previously published in [Gonzalez-Castillo et al. PNAS (2015)](https://www.pnas.org/doi/abs/10.1073/pnas.1501242112)
 
-# +
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -42,9 +41,8 @@ from IPython.display import Image
 from sklearn.metrics import pairwise_distances
 import umap.distances as dist
 import tqdm
-
+from IPython import display
 from utils.basics import PRJ_DIR
-# -
 
 # Create output folder if needed
 
@@ -245,7 +243,10 @@ G, sigmas, rhos = umap.umap_.fuzzy_simplicial_set(DS,
                                                   random_state=random_state,
                                                   metric="precomputed")
 
-pd.DataFrame(sigmas).hvplot.kde(xlabel='Sigma',fontsize={'labels':18,'ticks':18}) + pd.DataFrame(rhos).hvplot.kde(xlabel='Rho',fontsize={'labels':18,'ticks':18})
+plot_sigma_rho = (pd.DataFrame(sigmas).hvplot.kde(xlabel='Sigma',fontsize={'labels':18,'ticks':18}) + pd.DataFrame(rhos).hvplot.kde(xlabel='Rho',fontsize={'labels':18,'ticks':18})).opts(toolbar=None)
+pn.Row(plot_sigma_rho).save('../Outputs/Sup_Figures/Supp_Figure08_CD.png')
+
+display.Image('../Outputs/Sup_Figures/Supp_Figure08_CD.png')
 
 # Next, we compute the normalized distances between neighbors using Equation 7
 
@@ -300,15 +301,14 @@ pn.pane.HoloViews(B_graph_plot).save('../Outputs/Figure04/B_graph_plot_colored.p
 # so you can see and interact with the graph
 Image("../Outputs/Figure04/B_graph_plot_colored.png")
 
-C = B + np.transpose(B)-(np.multiply(B,np.transpose(B)))
-np.fill_diagonal(C,0)
-
 # ### 2.1.4 Make the adjacency matrix symmetric
 
 # Once $B$ (namely the affiinity matrix that defines $G_b$) is available, we can rely on equation 10 to create the directed graph $G_c$ (defined by matrix $C$)
 
 C = B + np.transpose(B)-(np.multiply(B,np.transpose(B)))
 np.fill_diagonal(C,0)
+
+plot_matrix(C, tick_idxs=tick_idxs, tick_labels=tick_labels, line_idxs=line_idxs, q_min=.90, q_max=.95, ctitle='')
 
 # This matrix $C$ is the adjancency matrix associated with $G_c$, which is the final undirected graph representing the data. 
 #

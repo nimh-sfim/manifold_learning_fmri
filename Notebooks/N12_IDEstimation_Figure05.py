@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: opentsne
 #     language: python
@@ -35,6 +35,7 @@ from tqdm.auto import tqdm
 import plotly.express as px
 import xarray as xr
 import os.path as osp
+from IPython import display
 from utils.basics import PNAS2015_subject_list,input_datas,norm_methods, PRJ_DIR, wls, wss
 norm_methods_labels_dict = {'asis':'None','zscored':'Z-score'}
 from statannotations.Annotator import Annotator
@@ -67,14 +68,20 @@ plot = sns.barplot(data=aux_data,y='Global ID',x='ID Estimator',hue='Data Normal
 ax.set_title('Global Intrinsic Dimension')
 plt.close()
 
-pn.Row(pn.pane.Matplotlib(fig), pn.pane.DataFrame(ID_global_means))
+global_id_fig_table = pn.Row(pn.pane.Matplotlib(fig), pn.pane.DataFrame(ID_global_means))
+global_id_fig_table.save('../Outputs/Figure05/Figure05_Panel_A.png')
+
+display.Image('../Outputs/Figure05/Figure05_Panel_A.png')
 
 # The next cell prints some of the summary values that we report in the text of the manuscript
 
-pn.Row(pn.pane.DataFrame(ID_global.loc['Original'].groupby(by='ID Estimator').min().round(2)),
+additional_tables = pn.Row(pn.pane.DataFrame(ID_global.loc['Original'].groupby(by='ID Estimator').min().round(2)),
        pn.pane.DataFrame(ID_global.loc['Original'].groupby(by='ID Estimator').max().round(2)),
        pn.pane.DataFrame(ID_global.loc['Original'].groupby(by='ID Estimator').mean().round(2)),
        pn.pane.DataFrame(ID_global.loc['Original'].groupby(by='ID Estimator').std().round(2)))
+additional_tables.save('../Outputs/Notebook_Figures/N12_ID_AdditionalTables.png')
+
+display.Image('../Outputs/Notebook_Figures/N12_ID_AdditionalTables.png')
 
 # Same plot as above, but with statistical annotations
 
@@ -94,7 +101,10 @@ fig
 
 a = aux_data.reset_index().set_index(['SBJ','Data Normalization','ID Estimator']).sort_index().loc[:,'None','Local PCA'].values.squeeze()
 b = aux_data.reset_index().set_index(['SBJ','Data Normalization','ID Estimator']).sort_index().loc[:,'Z-score','Local PCA'].values.squeeze()
-pd.DataFrame([a,b]).T.hvplot.bar()
+ID_per_subject_plot = pn.Row(pd.DataFrame([a,b]).T.hvplot.bar().opts(toolbar=None))
+ID_per_subject_plot.save('../Outputs/Notebook_Figures/ID_per_subject_plot.png')
+
+display.Image('../Outputs/Notebook_Figures/ID_per_subject_plot.png')
 
 # ***
 # # 2. Local Intrinsic Dimension Estimates

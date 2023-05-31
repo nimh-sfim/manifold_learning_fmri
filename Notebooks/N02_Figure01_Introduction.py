@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: Embeddings2 + Sdim
 #     language: python
@@ -38,6 +38,7 @@ import plotly.express as px
 import csv
 from matplotlib.patches import Rectangle
 import matplotlib.image as mpimg
+from IPython import display
 pn.extension('plotly')
 
 from utils.data_functions import compute_SWC
@@ -132,7 +133,7 @@ RR_Cons = con_info[(con_info['Hemi_A']=='R') & (con_info['Hemi_B']=='R')].index
 LR_Cons = con_info[(con_info['Hemi_A']=='L') & (con_info['Hemi_B']=='R')].index
 RL_Cons = con_info[(con_info['Hemi_A']=='R') & (con_info['Hemi_B']=='L')].index
 
-# ## 4. Plot the Matrix at scalce
+# ## 4. Plot the Matrix at scale
 
 fig,ax = plt.subplots(1,1, figsize=(10,10))
 sns.heatmap(swc_r.loc[mean_sorting_idx],cmap='RdBu_r', vmin=-1, vmax=1, xticklabels=False, yticklabels=False, square=True, cbar=False)
@@ -222,12 +223,16 @@ scene_incorrect_le = dict(
 camera = dict( up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=1, y=2, z=2))
 fig_nocolor = px.scatter_3d(LE_correct,x='Dim_02',y='Dim_01',z='Dim_03', width=500, height=500, opacity=0.5)
 fig_nocolor.update_layout(scene_camera=camera, scene=scene_correct_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
-fig_time = px.scatter_3d(LE_correct,x='Dim_02',y='Dim_01',z='Dim_03', width=500, height=500, opacity=0.5, color='Time',color_continuous_scale='twilight')
+fig_nocolor.update_traces(marker_size = 5)
+fig_time = px.scatter_3d(LE_correct,x='Dim_02',y='Dim_01',z='Dim_03', width=500, height=500, opacity=0.5, color='Time',color_continuous_scale='icefire')
 fig_time.update_layout(scene_camera=camera, scene=scene_correct_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
+fig_time.update_traces(marker_size = 5)
 fig_task = px.scatter_3d(LE_correct,x='Dim_02',y='Dim_01',z='Dim_03', width=500, height=500, opacity=0.5, color='Task',color_discrete_sequence=['gray','pink','blue','yellow','green'])
 fig_task.update_layout(scene_camera=camera, scene=scene_correct_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
+fig_task.update_traces(marker_size = 5)
 fig_task_bad = px.scatter_3d(LE_incorrect,x='Dim_02',y='Dim_01',z='Dim_03', width=500, height=500, opacity=0.5, color='Task',color_discrete_sequence=['gray','pink','blue','yellow','green'])
 fig_task_bad.update_layout(scene_camera=camera,scene=scene_incorrect_le,scene_aspectmode='cube',margin=dict(l=0, r=0, b=0, t=0));
+fig_task_bad.update_traces(marker_size = 5);
 
 pn.Column(pn.Row(pn.pane.Plotly(fig_nocolor),pn.pane.Plotly(fig_time)),
           pn.Row(pn.pane.Plotly(fig_task),pn.pane.Plotly(fig_task_bad)))
@@ -245,3 +250,90 @@ for i,img_path in enumerate([osp.join(fig01_output_folder,'fig_time.png'),osp.jo
     img = mpimg.imread(img_path)
     axs[i].imshow(img)
     axs[i].axis('off')
+
+# ## Example of how to use embeddings to temporally segment scans
+#
+# One potential application of the embeddings is to decide how to temporally segment scans into units of interest for further analyses. There are many ways one could go around doing this.
+#
+# One way would be to compute the distance of each point to the center of the embedding, as a first stept o find corners
+
+import hvplot.pandas
+import holoviews as hv
+from scipy.signal import find_peaks
+from sklearn.metrics import pairwise_distances
+from nilearn.connectome import vec_to_sym_matrix
+import seaborn as sns
+from utils.basics import PNAS2015_folder
+
+# First, let's select the coordinates in the lower dimensional space and copy them into a new dataframe
+
+data = LE_correct[['Dim_01','Dim_02','Dim_03']].copy()
+
+# Let's now compute the euclidean distance to the center of the embedding
+
+dist_from_center = np.sqrt(np.power(data - data.mean(),2).sum(axis=1))
+
+# Let's now plot those distances
+
+dist_from_center_PLOT = dist_from_center.hvplot(title='', c='k', xlabel='Time [temporal windows]', height=200).opts(toolbar=None)
+pn.Row(dist_from_center_PLOT).save(osp.join(PRJ_DIR,'Outputs','Notebook_Figures','N02_Eucl_dist_to_center.png'))
+
+display.Image(osp.join(PRJ_DIR,'Outputs','Notebook_Figures','N02_Eucl_dist_to_center.png'))
+
+# Now let's find the peaks in the trace above
+
+peaks = find_peaks(dist_from_center, width=20)
+
+# And for each peak, let's add a dashed line (signaling the peak) and a shaded region of 30 windows signaling the scan segments of interest around the peaks
+
+for peak in peaks[0]:
+    dist_from_center_PLOT = dist_from_center_PLOT * hv.VLine(peak).opts(line_color='b',line_dash='dashed', line_width=.75) * hv.Rectangles([(peak-15,0,peak+15,0.008), ]).opts(ylim=(0,0.008),alpha=0.5,line_width=0, color='gray')
+
+# Let's plot the new graph, as well as a matrix showing the relative distances of each point to every other point.
+
+plot = pn.Row(dist_from_center_PLOT.opts(show_legend=False, shared_axes=False, width=1400, fontsize={'xlabel':20, 'xticks':12, 'yticks':12}),
+              pd.DataFrame(pairwise_distances(data.iloc[peaks[0]])).hvplot.heatmap(aspect='square', frame_width=120, shared_axes=False, xlabel='Peak ID', ylabel='Peak ID', title='Peak-Peak Distance').opts(toolbar=None))
+plot.save(osp.join(PRJ_DIR,'Outputs','Notebook_Figures','N02_Eucl_dist_to_center_with_peaks.png'))
+
+display.Image(osp.join(PRJ_DIR,'Outputs','Notebook_Figures','N02_Eucl_dist_to_center_with_peaks.png'))
+
+# The last component of manuscript Figure 01 is the connectivity matrices associated with each of these windows. The matrix form will be shown here. The associated brain view was generated using the CONN software. Here we will just save the data so that it is accesible to be loaded with CONN.
+#
+# To do this, first we make a copy of the swc_W matrix and change the column IDs from being the task IDs, to simply being consecutive integers
+
+swc_Z_copy = swc_Z.copy()
+swc_Z_copy.columns = np.arange(swc_Z_copy.shape[1])
+
+# Next, we compute the average matrix using all windows. The only reason we do this, is becuase we will use that matrix to gather the optimal sorting of ROIs for rows and columns. Becuase we do not have ROIs sorted by networks, we will rely on sns.clustermap to get a sorting that is somehow meaningful. We will use that same sorting when we plot the different FC matrices in subsequent cells 
+
+N_rois = 157
+FC   = swc_Z.mean(axis=1)
+FC_m = pd.DataFrame(np.zeros((N_rois,N_rois)), index=['ROI'+str(i).zfill(3) for i in range(157)], columns=['ROI'+str(i).zfill(3) for i in range(157)])
+for c,r in FC.iteritems():
+    FC_m.loc[c[0],c[1]] = r
+FC_m = (FC_m + FC_m.T)/2
+FC_c = sns.clustermap(FC_m, vmin=-.75, vmax=.75, cmap='RdBu_r')
+FC_c.ax_row_dendrogram.set_visible(False)
+FC_c.ax_col_dendrogram.set_visible(False)
+FC_c.cax.set_visible(False)
+sort_idx = ['ROI'+str(i).zfill(3) for i in FC_c.dendrogram_col.reordered_ind]
+
+# Now, we go on a window by window basis and we do two things:
+#
+# * Save the matrix to disk, so that we can then load it in CONN
+# * Plot the matrix as a small heatmap
+
+fig,axs = plt.subplots(1,8,figsize=(10,2.5))
+for i,peak in enumerate(peaks[0]):
+    #row,col = np.unravel_index(i,(2,4))
+    a   = swc_Z_copy.loc[:,np.arange(peak-15,peak+15)].mean(axis=1).apply(np.tanh)
+    a_m = pd.DataFrame(np.zeros((N_rois,N_rois)), index=['ROI'+str(i).zfill(3) for i in range(157)], columns=['ROI'+str(i).zfill(3) for i in range(157)])
+    for c,r in a.iteritems():
+        a_m.loc[c[0],c[1]] = r
+    a_m = (a_m + a_m.T)/2
+    sns.heatmap(a_m.loc[sort_idx,sort_idx], ax=axs[i], vmin=-.75, vmax=.75, cmap='RdBu_r', xticklabels=False, yticklabels=False, square=True, cbar=False)
+    a_m.to_csv('../Outputs/Corner_FC_4CONN/Fig01_Corner{i}_FC.txt'.format(i=str(i+1).zfill(2)), header=None, index=None)
+
+# To visualize the connectivity matrices on a brain, use CONN software programatically as in the script ```/data/SFIMJGC_HCP7T/manifold_learning_fmri/MATLAB/CONN_Visualize_FCmatrices.m```
+
+

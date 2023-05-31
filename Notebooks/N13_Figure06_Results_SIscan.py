@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: opentsne
 #     language: python
@@ -38,11 +38,7 @@ si['LE']   = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_LE.pkl')).lo
 si['TSNE'] = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl')).loc[PNAS2015_subject_list,:,:,:,:,[2,3]]
 si['UMAP'] = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl')).loc[PNAS2015_subject_list,:,:,:,:,:,:,:,[2,3]]
 
-print(si['LE'].shape)
-
-20*3*2*3*40*2
-
-si['LE']
+si['LE'].head(5)
 
 # ## 1.1 "Beautify" strings/labels for plot generation
 #
@@ -95,6 +91,18 @@ ax.set_xlim(5,200)
 ax.set_ylim(0,.70)
 ax.legend(loc='lower right', ncol=2, fontsize=14)
 
+# For presentations, I needed to plot the same graph but one line at a time... I used the next cell for that purpose by selecting specific m and distance values and changing the output file name.
+
+sns.set(font_scale=1.5, style='whitegrid')
+fig,ax=plt.subplots(1,1,figsize=(12,5))
+sns.lineplot(data=si['LE'].loc[:,'Original',:,:,:,[2,3]],y='SI',x='Knn', hue='Distance', style='m', ax=ax)
+ax.set_ylabel('$SI_{task}$')
+ax.set_xlim(5,200)
+ax.set_ylim(0,.70)
+ax.get_legend().remove()
+plt.tight_layout()
+fig.savefig('../Outputs/presentation_animations/le_si_04.png')
+
 # Finally generate a plot that summarize the effects of the normalization step
 
 # +
@@ -135,6 +143,10 @@ ax.set_xlabel('Perplexity [PP]')
 ax.set_xlim(5,200)
 ax.set_ylim(0,.70)
 ax.legend(loc='lower right', ncol=2, fontsize=12)
+
+# Here I find what is the best PP, so I can later use it on the stability analyses
+
+si['TSNE'].loc[:,'Original',:,'Correlation',:,2,:,:].groupby('PP').mean().sort_values(by='SI',ascending=False).head(5)
 
 # +
 fig,ax         = plt.subplots(1,1,figsize=(3,5))
@@ -185,6 +197,10 @@ ax.set_ylabel('$SI_{task}$')
 ax.set_xlim(5,200)
 ax.set_ylim(0,.7)
 ax.legend(loc='lower right', ncol=2, fontsize=12)
+
+# Gathering what is the best scenario, so we can run the stability analysis on that
+
+si['UMAP'].loc[:,'Original','None',:,:,'Euclidean',:,0.01,3].groupby('Knn').mean().sort_values(by='SI',ascending=False).head(5)
 
 # +
 fig,ax         = plt.subplots(1,1,figsize=(3,5))

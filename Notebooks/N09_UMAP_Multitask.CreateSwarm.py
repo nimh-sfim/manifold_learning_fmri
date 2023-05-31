@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: opentsne
 #     language: python
@@ -136,7 +136,7 @@ for subject in PNAS2015_subject_list:
                                     swarm_file.write('\n')
 swarm_file.close()
 print("++ INFO: Attempts/Written = [%d/%d]" % (num_entries,num_iters))
-# -
+# + [markdown] tags=[]
 # ## 1.2. Calculate SI on all scan-level UMAP embeddings
 
 # +

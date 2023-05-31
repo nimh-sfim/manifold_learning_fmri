@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: opentsne
 #     language: python
@@ -17,6 +17,7 @@
 #
 # This notebook will look at the results from the classification analyses
 
+# +
 import pandas as pd
 import numpy as np
 import os
@@ -33,6 +34,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from statannotations.Annotator import Annotator
 
+import hvplot.pandas
+# -
+
 
 # # 1. Load Classification Results for LE
 #
@@ -41,13 +45,14 @@ from statannotations.Annotator import Annotator
 le_cl_dist    = 'correlation'
 le_cl_knns    = [knn for knn in le_knns if knn > 50]
 le_input_data = 'Original'
+split_mode    = 'by_subject'
 
 # Now we load both the F1 values and the coefficients
 
 # %%time
 LE_F1     = pd.DataFrame(columns=['Subject','Input','Norm','Knn','m','Classifier','F1'])
 LE_COEFFS = {}
-for clf in 'logisticregression','svc':
+for clf in ['logisticregression']:
     for m in tqdm(le_ms, desc='%s:'%clf):
         for knn in le_cl_knns:
             for nm in norm_methods:
@@ -55,9 +60,9 @@ for clf in 'logisticregression','svc':
                 # Load Classification results
                 # ===========================
                 path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','Procrustes','Classification','LE',le_input_data,
-                                'Procrustes_Craddock_0200.WL045s.WS1.5s.LE_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.pkl'.format(nm=nm,dist=le_cl_dist,knn=str(knn).zfill(4),
+                                'Procrustes_Craddock_0200.WL045s.WS1.5s.LE_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.{split_mode}.pkl'.format(nm=nm,dist=le_cl_dist,knn=str(knn).zfill(4),
                                                                                                                                             m=str(m).zfill(4),clf=clf,
-                                                                                                                                            wls=str(int(wls)).zfill(3), 
+                                                                                                                                            wls=str(int(wls)).zfill(3), split_mode=split_mode,
                                                                                                                                             wss=str(wss)))
                 if osp.exists(path):
                     with open(path,'rb') as f:
@@ -96,7 +101,7 @@ for clf in 'logisticregression','svc':
 # +
 sns.set(font_scale=1.5, style='whitegrid')
 fig, ax = plt.subplots(1,1,figsize=(7,5))
-data = LE_F1.set_index('Classifier').sort_index().loc['logisticregression']
+data = LE_F1.set_index('Classifier').sort_index().loc['logisticregression'].round(2)
 data['m'] = data['m'].astype(str)
 g = sns.barplot(data=data,y='F1',x='m', alpha=.9, palette=sns.color_palette('Blues',8), edgecolor='k')
 ax.set_xlabel('Number of Dimensions [m]')
@@ -144,15 +149,15 @@ umap_input_data             = 'Original'
 # %%time
 UMAP_F1     = pd.DataFrame(columns=['Subject','Input','Norm','Knn','m','Classifier','F1'])
 UMAP_COEFFS = {}
-for clf in 'logisticregression','svc':
+for clf in ['logisticregression']:
     for m in tqdm([2,3,5,10,15,20,25,30], desc='%s:'%clf):
         for knn in umap_cl_knns:
             for nm in norm_methods:
                 UMAP_COEFFS[(nm,knn,m,clf)] = xr.DataArray(dims=['Subject','Dimension','Class'], coords={'Subject':['Procrustes'],'Dimension':['UMAP'+str(i+1).zfill(4) for i in range(m)],'Class':['BACK','MATH','REST','VIDE']})
                 # Load Classification results
                 # ===========================
-                path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','Procrustes','Classification','UMAP',umap_input_data,'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.UMAP_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.pkl'.format(nm=nm,
-                                        dist=umap_cl_dist,knn=str(knn).zfill(4),m=str(m).zfill(4),md=str(umap_cl_mdist),clf=clf,alpha=str(umap_cl_alpha),wls=str(int(wls)).zfill(3),wss=str(wss)))
+                path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015','Procrustes','Classification','UMAP',umap_input_data,'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.UMAP_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.{split_mode}.pkl'.format(nm=nm,
+                                        dist=umap_cl_dist,knn=str(knn).zfill(4),m=str(m).zfill(4),md=str(umap_cl_mdist),clf=clf,alpha=str(umap_cl_alpha),split_mode=split_mode,wls=str(int(wls)).zfill(3),wss=str(wss)))
                 #'Procrustes_Craddock_0200.WL{wls}s.WS{wss}s.LE_{dist}_k{knn}_m{m}.{nm}.clf_results.{clf}_WindowName.pkl'.format(nm=nm,dist=umap_cl_dist,knn=str(knn).zfill(4),
                 #                                                                                                                m=str(m).zfill(4),md=str(umap_cl_mdist),clf=clf,
                 #                                                                                                                alpha=str(umap_cl_alpha),
@@ -191,7 +196,7 @@ for clf in 'logisticregression','svc':
 # +
 sns.set(font_scale=1.5, style='whitegrid')
 fig, ax = plt.subplots(1,1,figsize=(7,5))
-data = UMAP_F1.set_index('Classifier').sort_index().loc['logisticregression']
+data = UMAP_F1.set_index('Classifier').sort_index().loc['logisticregression'].round(2)
 data['m'] = data['m'].astype(str)
 g = sns.barplot(data=data,y='F1',x='m', alpha=.9, palette=sns.color_palette('Blues',8), edgecolor='k')
 pairs = [(("2"),("3")),(("3"),("5")),(("5"),("10")),(("10"),("15")),(("15"),("20")),(("20"),("25")),(("25"),("30"))]
@@ -222,3 +227,5 @@ df_summary.index = [str(i+1) for i in range(30)]
 df_summary.index.name = 'UMAP Dimension'
 df_summary.plot(kind='bar',stacked=True, legend=None, color=task_cmap_caps, ax=ax)
 ax.set_ylabel('Logistic Regression Coefficients')
+
+

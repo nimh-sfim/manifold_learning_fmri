@@ -8,19 +8,19 @@ from sklearn.manifold     import SpectralEmbedding
 from sklearn.neighbors    import kneighbors_graph
 
 def run(args):
+    print('++ INFO: Entering the run function')
     path_tvfc = args.path_tvfc
     path_out  = args.path_out
     dist      = args.dist
     knn       = args.knn
     m         = args.m
-    print(' ')
     print('++ INFO: Run information')
     print(' +       Input path        :', path_tvfc)
     print(' +       Ouput path        :', path_out)
     print(' +       Distance Function :', dist)
     print(' +       Knn               :', knn)
     print(' +       m                 :', m)
-    print(' +       Random Seed       :', seed_value)
+    print(' +       Random Seed       : %s' % seed_value)
     print(' ')
     
     # Read tvFC matrix
@@ -51,7 +51,12 @@ def run(args):
     # Create Spectral Embedding Object
     # ================================
     print(' + Create Spectral Embedding Object....')
-    random_state = check_random_state(seed_value)
+    if args.use_random_seed:
+       print("++ INFO: Using random seed (Stability Run)")
+       random_state = check_random_state(None)
+    else:
+       random_state = check_random_state(seed_value)
+    print(random_state)
     LE_obj       = SpectralEmbedding(n_components=m, affinity='precomputed', n_jobs=-1, random_state=random_state)
     
     # Compute Embedding
@@ -76,11 +81,13 @@ def run(args):
     
 def main():
     parser=argparse.ArgumentParser(description="Create a Laplacian Eigenmap embedding given a tvFC matrix")
-    parser.add_argument("-tvfc",   help="Path to tvFC matrix",  dest="path_tvfc", type=str,  required=True)
-    parser.add_argument("-out",    help="Path to output file",  dest="path_out",  type=str,  required=True)
-    parser.add_argument("-dist",   help="Distance function",    dest="dist",      type=str,  required=True)
-    parser.add_argument("-knn",    help="Neighborhood size",    dest="knn",       type=int,  required=True)
-    parser.add_argument("-m",      help="Number of dimensions", dest="m",         type=int,  required=True)
+    parser.add_argument("-tvfc",        help="Path to tvFC matrix",  dest="path_tvfc",       type=str,  required=True)
+    parser.add_argument("-out",         help="Path to output file",  dest="path_out",        type=str,  required=True)
+    parser.add_argument("-dist",        help="Distance function",    dest="dist",            type=str,  required=True)
+    parser.add_argument("-knn",         help="Neighborhood size",    dest="knn",             type=int,  required=True)
+    parser.add_argument("-m",           help="Number of dimensions", dest="m",               type=int,  required=True)
+    parser.add_argument("-random_seed", help="Use a random seed",    dest="use_random_seed", required=False, action='store_true')
+    parser.set_defaults(use_random_seed=False)
     
     parser.set_defaults(func=run)
     args=parser.parse_args()

@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 
 from utils.random         import seed_value
-from utils.classification import scan_level_split, group_level_split
+from utils.classification import scan_level_split, group_level_split, one_subject_out_split
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_validate
@@ -20,6 +20,7 @@ def run(args):
     clf             = args.clf
     pid             = args.pid
     n_jobs          = args.n_jobs
+    split_mode      = args.split_mode
     print(' ')
     print('++ INFO: Run information')
     print(' +       Input path       :', input_path)
@@ -29,6 +30,7 @@ def run(args):
     print(' +       Target Labels    :', pid)
     print(' +       # Jobs           :', n_jobs)
     print(' +       Random Seed      :', seed_value)
+    print(' +       Split Mode       :', split_mode)
     print(' ')
 
     # Read Input
@@ -116,7 +118,12 @@ def run(args):
     # =================================================
     if (pid == 'Window Name') & (X.shape[0] == 14580):
         print('++ INFO: Working on Classification Problem [Window Name]')
-        group_level_cv =  group_level_split()
+        if split_mode == 'by_subject': 
+            print('         --> Slip function selected: one_subject_out_split')
+            group_level_cv =  one_subject_out_split()
+        if split_mode == 'half_half':
+            print('         --> Slip function selected: group_level_split')
+            group_level_cv =  group_level_split()
         print('++ INFO: Running cross-validation...')
         cv_obj = cross_validate(clf_pipeline, X, y['Window Name'], cv=group_level_cv, scoring=['f1_weighted'], return_train_score=True, return_estimator=True, n_jobs=n_jobs)
         print("++ INFO: Scoring --> %0.2f accuracy with a standard deviation of %0.2f" % (cv_obj['test_f1_weighted'].mean(), cv_obj['test_f1_weighted'].std()))
@@ -146,6 +153,7 @@ def main():
     parser.add_argument("-pid",          help="Classification problem to solve",       dest="pid",         type=str,  choices=['Window Name','Subject'], required=True)
     parser.add_argument("-output_path",  help="Ouptut path",                           dest="output_path", type=str,  required=True)
     parser.add_argument("-n_jobs",       help="Number of Jobs",                        dest="n_jobs",      type=int,  required=True)
+    parser.add_argument("-split_mode",   help="Split mode for predicting task",        dest="split_mode",  type=str,  choices=['by_subject','half_half'], required=True)
     parser.set_defaults(func=run)
     args=parser.parse_args()
     args.func(args)
