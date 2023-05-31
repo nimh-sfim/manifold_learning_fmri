@@ -1,0 +1,121 @@
+
+type = string-attribute
+name = HISTORY_NOTE
+count = 7939
+'[javiergc@p2281: Tue May 28 10:00:21 2013] 3dcopy tcorr05_2level_all.nii.gz Craddock_T2Level.MNI+tlrc\n[javiergc@helix.nih.gov: Mon Jun  3 22:50:06 2013] 3dcalc -a 'Craddock_T2Level.MNI+tlrc.[19]' -expr a -prefix Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:46:47 2014] 3dcopy /data/SFIMJGC/PRJ_CognitiveStateDetection01/Atlases/Craddock_T2Level_0200/Craddock_T2Level_0200.MNI+tlrc SALL.Craddock_T2Level_0200.MNI+tlrc\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:46:50 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(9*equals(a,9))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:46:50 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(10*equals(a,10))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:46:52 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(15*equals(a,15))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:46:55 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(27*equals(a,27))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:46:56 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(30*equals(a,30))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:46:56 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(32*equals(a,32))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:46:57 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(36*equals(a,36))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:01 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(41*equals(a,41))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:01 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(42*equals(a,42))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:02 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(43*equals(a,43))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:04 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(49*equals(a,49))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:05 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(51*equals(a,51))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:05 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(52*equals(a,52))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:05 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(53*equals(a,53))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:07 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(57*equals(a,57))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:10 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(71*equals(a,71))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:10 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(72*equals(a,72))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:12 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(77*equals(a,77))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:13 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(78*equals(a,78))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:13 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(80*equals(a,80))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:15 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(86*equals(a,86))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:15 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(87*equals(a,87))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:17 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(92*equals(a,92))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:19 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(101*equals(a,101))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:20 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(103*equals(a,103))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:21 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(109*equals(a,109))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:22 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(110*equals(a,110))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:22 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(112*equals(a,112))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:23 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(113*equals(a,113))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:25 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(118*equals(a,118))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:25 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(120*equals(a,120))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:26 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(124*equals(a,124))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:27 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(126*equals(a,126))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:28 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(129*equals(a,129))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:30 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(140*equals(a,140))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:31 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(145*equals(a,145))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:35 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(160*equals(a,160))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:35 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(162*equals(a,162))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:39 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(176*equals(a,176))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:40 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(181*equals(a,181))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:43 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(192*equals(a,192))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:44 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(196*equals(a,196))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:45 2014] 3dcalc -a SALL.Craddock_T2Level_0200.MNI+tlrc -expr 'a-(198*equals(a,198))' -prefix SALL.Craddock_T2Level_0200.MNI\n[javiergc@felix.nimh.nih.gov: Thu Oct 23 09:47:46 2014] 3dmerge -1rank -prefix SALL.Craddock_T2Level_0200.MNI SALL.Craddock_T2Level_0200.MNI+tlrc~
+
+type = string-attribute
+name = TYPESTRING
+count = 15
+'3DIM_HEAD_ANAT~
+
+type = string-attribute
+name = IDCODE_STRING
+count = 27
+'AFN_haxO-VQl8I7L4zfcwqkd8Q~
+
+type = string-attribute
+name = IDCODE_DATE
+count = 25
+'Thu Oct 23 09:47:46 2014~
+
+type = integer-attribute
+name = SCENE_DATA
+count = 8
+ 2 2 0 -999 -999
+ -999 -999 -999
+
+type = string-attribute
+name = LABEL_1
+count = 31
+'SALL.Craddock_T2Level_0200.MNI~
+
+type = string-attribute
+name = LABEL_2
+count = 5
+'zyxt~
+
+type = string-attribute
+name = DATASET_NAME
+count = 9
+'zyxt(ED)~
+
+type = integer-attribute
+name = ORIENT_SPECIFIC
+count = 3
+ 0 2 4
+
+type  = float-attribute
+name  = ORIGIN
+count = 3
+            -92            128            -72
+
+type  = float-attribute
+name  = DELTA
+count = 3
+              4             -4              4
+
+type  = float-attribute
+name  = IJK_TO_DICOM
+count = 12
+              4              0              0            -92              0
+             -4              0            128              0              0
+              4            -72
+
+type  = float-attribute
+name  = IJK_TO_DICOM_REAL
+count = 12
+              4              0              0            -92              0
+             -4              0            128              0              0
+              4            -72
+
+type  = float-attribute
+name  = BRICK_STATS
+count = 2
+              0            157
+
+type = integer-attribute
+name = DATASET_RANK
+count = 8
+ 3 1 0 0 0
+ 0 0 0
+
+type = integer-attribute
+name = DATASET_DIMENSIONS
+count = 5
+ 47 56 46 0 0
+
+type = integer-attribute
+name = BRICK_TYPES
+count = 1
+ 1
+
+type  = float-attribute
+name  = BRICK_FLOAT_FACS
+count = 1
+              0
+
+type = string-attribute
+name = BRICK_LABS
+count = 20
+'tcorr05_2level_0[0]~
+
+type = string-attribute
+name = BRICK_KEYWORDS
+count = 1
+'~
+
+type = string-attribute
+name = TEMPLATE_SPACE
+count = 5
+'ORIG~
+
+type = integer-attribute
+name = INT_CMAP
+count = 1
+ 0
+
+type = string-attribute
+name = BYTEORDER_STRING
+count = 10
+'LSB_FIRST~
