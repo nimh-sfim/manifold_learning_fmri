@@ -6,15 +6,15 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.9.1
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: Embeddings2 + Sdim
 #     language: python
 #     name: embeddings3
 # ---
 
-# # Intrinsic Dimension Demo Figure
-# This notebook generates Figure 2, used in the intro to provide an intuition on what the different forms of intrinsic dimension represent.
+# # Intrinsic Dimension: Supplementary Figure 01
+# This notebook generates Supplementary Figure 01, used in the intro to provide an intuition on what the different forms of intrinsic dimension represent.
 #
 # In this work we rely on the scikit-dimension (https://scikit-dimension.readthedocs.io/en/latest/index.html) library for estimating both local and global ID. We will use plotly for generation of 3D scatter plots
 
@@ -30,7 +30,7 @@ pn.extension('plotly')
 from matplotlib.cm import get_cmap
 from matplotlib.colors import rgb2hex
 
-# scikit-dimension provides different methods for ID estimation. For figure 2, we will use local PCA, one of the most commonly used methods. The next line creates an estimation object that we will use through the notebook.
+# scikit-dimension provides different methods for ID estimation. For Supplementary Figure 01, we will use local PCA, one of the most commonly used methods. The next line creates an estimation object that we will use through the notebook.
 
 pca=skdim.id.lPCA()
 
@@ -44,7 +44,7 @@ hsv4_cs  = get_cmap('hsv',4)
 hsv4_map = {str(i):rgb2hex(hsv4_cs(i)) for i in range(4)}
 hsv4_cs
 
-# ## Datasets with varying local and global ID (Panel A in Figure 2)
+# ## Datasets with varying local and global ID (Panel A in Supplementary Figure 01)
 #
 # The first panel will show a dataset with points sitting on a 3D sphere. Such an object is expected to have a global ID = 3, yet locally it should have 2, as all datapoints lie on the surface of the sphere
 
@@ -85,14 +85,14 @@ pn.Row(pn.Column(pn.pane.Markdown('#(A)'),pn.pane.Plotly(sphere3d_trace)),
        pn.Column(pn.pane.Markdown('#(C)'),pn.pane.Plotly(lbs_trace)))
 
 # Static version for github display
-sphere3d_trace.write_image('../Resources/Figure02/Sphere.png')
-ball3d_trace.write_image('../Resources/Figure02/Ball.png')
-lbs_trace.write_image('../Resources/Figure02/Mutli.png')
+sphere3d_trace.write_image('../Outputs/SuppFig01/Sphere.png')
+ball3d_trace.write_image('../Outputs/SuppFig01/Ball.png')
+lbs_trace.write_image('../Outputs/SuppFig01/Mutli.png')
 
 # Static version for github display
-img1=mpimg.imread('../Resources/Figure02/Sphere.png')
-img2=mpimg.imread('../Resources/Figure02/Ball.png')
-img3=mpimg.imread('../Resources/Figure02/Mutli.png')
+img1=mpimg.imread('../Outputs/SuppFig01/Sphere.png')
+img2=mpimg.imread('../Outputs/SuppFig01/Ball.png')
+img3=mpimg.imread('../Outputs/SuppFig01/Mutli.png')
 fig,axs = plt.subplots(1, 3, figsize=(30,10), sharex=True, sharey=True) 
 for i,img in enumerate([img1,img2,img3]):
     axs[i].imshow(img)
@@ -143,14 +143,14 @@ pn.Column(pn.pane.Markdown('# (D) Local ID as a function of sample density'),
           pn.Row(pn.pane.Plotly(tp2000_trace),pn.pane.Plotly(tp5000_trace),pn.pane.Plotly(tp10000_trace)))
 
 # Static version for github display
-tp2000_trace.write_image('../Resources/Figure02/tp2000.png')
-tp5000_trace.write_image('../Resources/Figure02/tp5000.png')
-tp10000_trace.write_image('../Resources/Figure02/tp10000.png')
+tp2000_trace.write_image('../Outputs/SuppFig01/tp2000.png')
+tp5000_trace.write_image('../Outputs/SuppFig01/tp5000.png')
+tp10000_trace.write_image('../Outputs/SuppFig01/tp10000.png')
 
 # Static version for github display
-img1=mpimg.imread('../Resources/Figure02/tp2000.png')
-img2=mpimg.imread('../Resources/Figure02/tp5000.png')
-img3=mpimg.imread('../Resources/Figure02/tp10000.png')
+img1=mpimg.imread('../Outputs/SuppFig01/tp2000.png')
+img2=mpimg.imread('../Outputs/SuppFig01/tp5000.png')
+img3=mpimg.imread('../Outputs/SuppFig01/tp10000.png')
 fig,axs = plt.subplots(1, 3, figsize=(30,10), sharex=True, sharey=True) 
 for i,img in enumerate([img1,img2,img3]):
     axs[i].imshow(img)
@@ -179,17 +179,15 @@ pn.Column(pn.pane.Markdown('# (D) Local ID as a function of neighborhood size'),
           pn.Row(pn.pane.Plotly(tp2000_knn25_trace),pn.pane.Plotly(tp2000_knn50_trace),pn.pane.Plotly(tp2000_knn100_trace)))
 
 # Static version for github display
-tp2000_knn25_trace.write_image('../Resources/Figure02/tp2000_knn25.png')
-tp2000_knn50_trace.write_image('../Resources/Figure02/tp2000_knn50.png')
-tp2000_knn100_trace.write_image('../Resources/Figure02/tp2000_knn100.png')
+tp2000_knn25_trace.write_image('../Outputs/SuppFig01/tp2000_knn25.png')
+tp2000_knn50_trace.write_image('../Outputs/SuppFig01/tp2000_knn50.png')
+tp2000_knn100_trace.write_image('../Outputs/SuppFig01/tp2000_knn100.png')
 
 # Static version for github display
-img1=mpimg.imread('../Resources/Figure02/tp2000_knn25.png')
-img2=mpimg.imread('../Resources/Figure02/tp2000_knn50.png')
-img3=mpimg.imread('../Resources/Figure02/tp2000_knn100.png')
+img1=mpimg.imread('../Outputs/SuppFig01/tp2000_knn25.png')
+img2=mpimg.imread('../Outputs/SuppFig01/tp2000_knn50.png')
+img3=mpimg.imread('../Outputs/SuppFig01/tp2000_knn100.png')
 fig,axs = plt.subplots(1, 3, figsize=(30,10), sharex=True, sharey=True) 
 for i,img in enumerate([img1,img2,img3]):
     axs[i].imshow(img)
     axs[i].axis('off')
-
-
