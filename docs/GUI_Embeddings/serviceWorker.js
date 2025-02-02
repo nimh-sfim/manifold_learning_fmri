@@ -1,5 +1,5 @@
 const appName = 'GUIEmbeddings'
-const appCacheName = 'GUIEmbeddings-c6afc3af2c9c46e888026a4aca5c0cb8';
+const appCacheName = 'GUIEmbeddings-902f49db3d4b407eb9045bffbdd1a7b1';
 
 const preCacheFiles = ['images/favicon.ico', 'images/icon-vector.svg', 'images/icon-32x32.png', 'images/icon-192x192.png', 'images/icon-512x512.png', 'images/apple-touch-icon.png', 'images/index_background.png'];
 
