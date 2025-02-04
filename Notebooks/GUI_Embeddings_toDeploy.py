@@ -13,31 +13,152 @@
 #     name: opentsne_panel14
 # ---
 
+# +
 import panel as pn
 import numpy as np
 import os.path as osp
 import pandas as pd
 from scipy.stats import zscore
+from matplotlib.colors import rgb2hex
+import matplotlib
 
-# +
-from utils.basics import PRJ_DIR, PNAS2015_subject_list, sbj_cmap_list,sbj_cmap_dict
-from utils.basics import le_dist_metrics, le_knns, le_ms
-from utils.basics import umap_dist_metrics, umap_knns, umap_ms, umap_alphas, umap_inits
-from utils.basics import tsne_dist_metrics, tsne_pps, tsne_ms, tsne_alphas, tsne_inits
-from utils.basics import input_datas, norm_methods
-from utils.basics import task_cmap_caps as task_cmap
-from utils.basics import sbj_cmap_dict, sbj_cmap_list
-from utils.plotting import plot_2d_scatter, plot_3d_scatter
-from utils.io import load_LE_SI, load_UMAP_SI, load_TSNE_SI
-
-from utils.plotting import get_SIvsKNN_plots
-from utils.io import load_single_le, load_single_umap, load_single_tsne
+import hvplot.pandas
+import plotly.express as px
 # -
 
 # So far we are working with these values of wls and wss across the whole manuscript
 wls = 45
 wss = 1.5
 min_dist = 0.8
+
+# +
+#PRJ_DIR = './data/'
+PRJ_DIR          = '/data/SFIMJGC_HCP7T/manifold_learning_fmri'
+
+PNAS2015_subject_list   = ['SBJ06', 'SBJ07', 'SBJ08', 'SBJ09', 'SBJ10', 'SBJ11', 'SBJ12', 'SBJ13', 'SBJ16', 'SBJ17', 'SBJ18', 'SBJ19', 'SBJ20', 'SBJ21', 'SBJ22', 'SBJ23', 'SBJ24', 'SBJ25', 'SBJ26', 'SBJ27']
+
+# Colormaps
+sbj_cmap_list = [rgb2hex(c) for c in matplotlib.colormaps['tab20'].colors]
+sbj_cmap_dict = {PNAS2015_subject_list[i]:sbj_cmap_list[i] for i in range(len(PNAS2015_subject_list))}
+task_cmap = {'REST': 'gray', 'BACK': 'blue',   'VIDE':  '#F4D03F',  'MATH': 'green', 'XXXX': 'pink'}
+
+# Laplacian Eigenmap related options
+le_dist_metrics = ['euclidean','correlation','cosine']
+le_knns         = [int(i) for i in np.linspace(start=5, stop=200, num=40)]
+le_ms           = [2,3,5,10,15,20,25,30]
+
+# UMAP related options
+umap_dist_metrics = ['euclidean','correlation','cosine']
+umap_knns         = [int(i) for i in np.linspace(start=5, stop=200, num=40)]
+umap_ms           = [2,3,5,10,15,20,25,30]
+umap_alphas       = [0.01, 0.1, 1.0]
+umap_inits        = ['spectral']
+
+# T-SNE related options
+tsne_dist_metrics = ['euclidean','correlation','cosine']
+tsne_pps          = [int(i) for i in np.linspace(start=5, stop=100, num=20)] + [125, 150, 175, 200]
+tsne_ms           = [2,3,5,10,15,20,25,30]
+tsne_alphas       = [10, 50, 75, 100, 200, 500, 1000]
+tsne_inits        = ['pca']
+
+# Additional lists of options
+input_datas  = ['Original','Null_ConnRand','Null_PhaseRand']
+norm_methods = ['asis','zscored']
+# -
+
+# ***
+# ### Functions from utils.plotting
+
+camera = dict( up=dict(x=0, y=0, z=1), center=dict(x=0, y=0, z=0), eye=dict(x=2, y=2, z=1)) 
+
+
+def plot_2d_scatter(data,x,y,c,cmap=task_cmap, show_frame=False, s=2, alpha=0.3, toolbar=None, 
+                    legend=False, xaxis=False, xlabel='', yaxis=False, ylabel='', frame_width=250, shared_axes=False):
+    plot = data.hvplot.scatter(x=x,y=y,c=c, cmap=cmap, 
+                            aspect='square', s=s, alpha=alpha, 
+                            legend=legend, xaxis=xaxis, 
+                            yaxis=yaxis, frame_width=frame_width, shared_axes=shared_axes).opts(toolbar=toolbar, show_frame=show_frame, tools=[])
+    return plot
+
+
+def plot_3d_scatter(data,x,y,z,c,cmap,s=2,width=250, height=250, ax_range=[-.005,.005],nticks=4):
+    fig = px.scatter_3d(data,
+                        x=x,y=y,z=z, 
+                        width=width, height=height, 
+                        opacity=0.3, color=c,color_discrete_sequence=cmap)
+    fig.update_layout(showlegend=False, 
+                          font_color='white');
+    scene_extra_confs = dict(
+        xaxis = dict(nticks=nticks, range=ax_range, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        yaxis = dict(nticks=nticks, range=ax_range, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'),
+        zaxis = dict(nticks=nticks, range=ax_range, gridcolor="black", showbackground=True, zerolinecolor="black",backgroundcolor='rgb(230,230,230)'))
+    fig.update_layout(scene_camera=camera, scene=scene_extra_confs, scene_aspectmode='cube',margin=dict(l=2, r=2, b=0, t=0, pad=0))
+    fig.update_traces(marker_size = s)
+    return fig
+
+
+# ***
+# ### Functions from utils.io
+
+def load_single_le(sbj,input_data,scenario,dist,knn,m,wls=45,wss=1.5, drop_xxxx=True, show_path=False):
+    path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',sbj,'LE',input_data,
+                    '{sbj}_Craddock_0200.WL{wls}s.WS{wss}s.LE_{dist}_k{knn}_m{m}.{scenario}.pkl'.format(sbj=sbj,scenario=scenario,wls=str(int(wls)).zfill(3),wss=str(wss),
+                                                                                                        dist=dist,knn=str(knn).zfill(4),m=str(m).zfill(4)))
+    if show_path:
+       print(path)
+    if osp.exists(path):
+        aux = pd.read_pickle(path)
+        if drop_xxxx:
+            if type(aux.index) is pd.MultiIndex:
+                aux = aux.drop('XXXX', level='Window Name')
+            else:
+                aux = aux.drop('XXXX',axis=0)
+        return aux
+    else:
+        return None
+
+
+def load_single_umap(sbj,input_data,scenario,dist,knn,alpha,init_method,min_dist,m,wls=45,wss=1.5, drop_xxxx=True):
+    path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',sbj,'UMAP',input_data,
+                    '{sbj}_Craddock_0200.WL{wls}s.WS{wss}s.UMAP_{dist}_k{knn}_m{m}_md{min_dist}_a{alpha}_{init_method}.{scenario}.pkl'.format(scenario=scenario,        
+                                                                                                init_method=init_method,sbj=sbj,wls=str(int(wls)).zfill(3),wss=str(wss),
+                                                                                                dist=dist,knn=str(knn).zfill(4),m=str(m).zfill(4),min_dist=str(min_dist),
+                                                                                                                                                   alpha=str(alpha)))
+    
+    if osp.exists(path):
+        aux = pd.read_pickle(path)
+        if drop_xxxx:
+            if type(aux.index) is pd.MultiIndex:
+                aux = aux.drop('XXXX', level='Window Name')
+            else:
+                aux = aux.drop('XXXX',axis=0)
+        return aux
+    else:
+        print("++ WARNING: Missing File [%s]" % path)
+        return None
+
+
+def load_single_tsne(sbj,input_data,scenario,dist,pp,alpha,init_method,m,wls=45,wss=1.5, drop_xxxx=True):
+    path = osp.join(PRJ_DIR,'Data_Interim','PNAS2015',sbj,'TSNE',input_data,'{sbj}_Craddock_0200.WL{wls}s.WS{wss}s.TSNE_{dist}_pp{pp}_m{m}_a{alpha}_{init_method}.{scenario}.pkl'.format(scenario=scenario,init_method=init_method,sbj=sbj,
+                                                                                                                                                   wls=str(int(wls)).zfill(3), 
+                                                                                                                                                   wss=str(wss),
+                                                                                                                                                   dist=dist,
+                                                                                                                                                   pp=str(pp).zfill(4),
+                                                                                                                                                   m=str(m).zfill(4),
+                                                                                                                                                   alpha=str(alpha)))
+    
+    if osp.exists(path):
+        aux = pd.read_pickle(path)
+        if drop_xxxx:
+            if type(aux.index) is pd.MultiIndex:
+                aux = aux.drop('XXXX', level='Window Name')
+            else:
+                aux = aux.drop('XXXX',axis=0)
+        return aux
+    else:
+        print("++ WARNING: Missing File [%s]" % path)
+        return None
+
 
 # ***
 # # Main Dashboard Panel: Configuration Options
@@ -411,3 +532,5 @@ template.main.append(pn.Column(intro_text,pn.Tabs(('Laplacian Eigenmaps',le_tab)
 
 template.servable()
 #dashboard = template.show(port=port_tunnel)
+
+
