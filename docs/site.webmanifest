@@ -1,7 +1,7 @@
 {
-  "name": "manifold_fmri",
-  "short_name": "manifold_fmri",
-  "start_url": "GUI_Embeddings_toDeploy.html",
+  "name": "manifold_fmri_embeddings_demo",
+  "short_name": "manifold_fmri_embeddings_demo",
+  "start_url": "Demo_Embedding_Dashboard_standalone.html",
   "icons": [
     {
       "src": "images/icon-vector.svg",

@@ -1,5 +1,5 @@
-const appName = 'manifold_fmri'
-const appCacheName = 'manifold_fmri-deb5cfc879ae4f9687ac70c6d0c30448';
+const appName = 'manifold_fmri_embeddings_demo'
+const appCacheName = 'manifold_fmri_embeddings_demo-2bc8d7c4aa7b434dac67bf8b156f3a87';
 
 const preCacheFiles = ['images/favicon.ico', 'images/icon-vector.svg', 'images/icon-32x32.png', 'images/icon-192x192.png', 'images/icon-512x512.png', 'images/apple-touch-icon.png', 'images/index_background.png'];
 
