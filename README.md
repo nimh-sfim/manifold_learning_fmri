@@ -6,6 +6,7 @@ Information about software requirements and how to run this code can be found on
 
 To explore the data and create figures, we created web-based dashboards using panel and other holoviz libraries. 
 
-See below a stand-alone, stripped version of one of these dashboards below. The environment takes a couple of minutes to load, but then the app will run smoothly in your browser.
-
-<iframe src="https://nimh-sfim.github.io/manifold_learning_fmri/Demo_Embedding_Dashboard_standalone.html" frameborder="0" style="width:100%;height:1000px"> </iframe>
+To access a stand-alone, limited version of one of these dashboards, please click [here](https://nimh-sfim.github.io/manifold_learning_fmri/Demo_Embedding_Dashboard_standalone.html)
+<!---
+<iframe src="https://nimh-sfim.github.io/manifold_learning_fmri/Demo_Embedding_Dashboard_standalone.html" frameborder="0" style="width:100%;height:1000px"> </iframe> 
+---!>
