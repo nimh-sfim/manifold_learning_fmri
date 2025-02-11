@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.12.0
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: opentsne
 #     language: python
@@ -35,7 +35,6 @@ for sbj in PNAS2015_subject_list:
 
 # For each scan, run 3dNetCorr and extract time series.
 
-# + tags=[]
 # %%time
 for sbj in PNAS2015_subject_list:
     target_folder_sbj = osp.join(target_folder,sbj)
