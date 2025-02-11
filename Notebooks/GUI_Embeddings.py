@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.15.2
 #   kernelspec:
 #     display_name: opentsne
 #     language: python
@@ -45,10 +45,8 @@ wls = 45
 wss = 1.5
 min_dist = 0.8
 
-# + [markdown] tags=[]
 # ***
 # # Main Dashboard Panel: Configuration Options
-# -
 
 sbj_select            = pn.widgets.Select(name='Subject',                 options=PNAS2015_subject_list, value=PNAS2015_subject_list[0], width=150)
 input_select          = pn.widgets.Select(name='Input Data',              options=['Original','Null_ConnRand','Null_PhaseRand'],            value='Original', width=150)
@@ -60,9 +58,7 @@ data_select_box
 # ***
 # # Laplacian Eigenmaps
 
-# + [markdown] tags=[]
 # #### 1. Load Silhouette Index for LE
-# -
 
 # %%time
 si_LE = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_LE.pkl'))
@@ -164,7 +160,6 @@ le_embs_col = pn.Column(le_embs_scan_card ,le_embs_group_concat_card,le_embs_gro
 
 le_tab=pn.Row(le_config_card,le_embs_col)
 
-# + [markdown] tags=[]
 # ***
 # # UMAP
 # #### 1. Load Silhouette Index for UMAP
@@ -173,7 +168,6 @@ le_tab=pn.Row(le_config_card,le_embs_col)
 # * "Concat + UMAP": 17280 entries
 # * "UMAP + Procrustes": 17280 entries
 # * Single-Scan Level: 345600 entries
-# -
 
 si_UMAP = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_UMAP.pkl'))
 
@@ -286,14 +280,11 @@ umap_embs_col = pn.Column(umap_embs_scan_card ,umap_embs_group_concat_card,umap_
 
 umap_tab = pn.Row(umap_LEFT_col,umap_embs_col)
 
-# + [markdown] tags=[]
 # ***
 # # TSNE
 # #### 1. Load Silhouette Index for TSNE
 
-# + tags=[]
 si_TSNE = pd.read_pickle(osp.join(PRJ_DIR,'Dashboard','Data','si_TSNE.pkl'))
-# -
 
 # #### 2. TSNE Tab Elements
 
@@ -406,12 +397,16 @@ tsne_tab = pn.Row(tsne_LEFT_col,tsne_embs_col)
 #
 # # 5. Generate and Start Dashboard
 
-# + tags=[]
+pn.config.template = 'material'
+
 dashboard = pn.Column(data_select_box,pn.Tabs(('Laplacian Eigenmaps',le_tab),('TSNE',tsne_tab),('UMAP',umap_tab)))
-# -
 
 dashboard_server = dashboard.show(port=port_tunnel,open=False)
 
 display.Image('../Outputs/Notebook_Figures/GUI_Embeddings.png')
 
 dashboard_server.stop()
+
+dashboard.save('../Website/embeddings_gui.html')
+
+
