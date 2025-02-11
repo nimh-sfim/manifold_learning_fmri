@@ -208,7 +208,7 @@ CSS = """
 input { height: 15px; width: 15px;}
 span { font-size: 16px; }
 """
-le_m_select     = pn.widgets.Select(name='M',   options=le_ms, value=le_ms[0], width=tabs_widget_width, description='Number of dimensions used for computing the left-most embedding (independently of M, the plot will only show the first three dimensions)')
+le_m_select     = pn.widgets.Select(name='M',   options=le_ms, value=3, width=tabs_widget_width, description='Number of dimensions used for computing the left-most embedding (independently of M, the plot will only show the first three dimensions)')
 le_knn_select   = pn.widgets.Select(name='Knn', options=le_knns,         value=le_knns[0], width=tabs_widget_width, description='Neighborhood Size for Laplacian Embeddings')
 le_dist_select  = pn.widgets.Select(name='Distance Metric', options=le_dist_metrics, width=tabs_widget_width,description='Distance metric used when computing Laplacian Embeddings')
 le_drop_xxxx    = pn.widgets.Checkbox(name='Drop Mixed Windows?', width=tabs_widget_width, align=('center','center'), margin=(20,15),stylesheets=[CSS])
